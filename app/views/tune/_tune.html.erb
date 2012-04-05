@@ -1,0 +1,35 @@
+/*
+	function strToJsQuotable($str){
+	$str = str_replace("\"", "\\\"", $str);
+	$str = str_replace("\r", "\\r", $str);
+	$str = str_replace("\n", "\\n", $str);
+	
+	return $str;
+}
+*/
+var gTune = new objTune(<%= @tune.id %>,  "<%= @tune.title %>", <%= @tune.type.first.id %>,
+				<%= @tune.keys.first.id %>, <%= @tune.status %>, <%= @tune.parts %>,
+				"<%= @tune.comments.nil? ? '' : @tune.comments.gsub("\n", '<br/>') %>", 
+				"<%= @tune.entryDate %>", "<%= @tune.lastUpdate %>");
+
+/*
+								", \"" . strToJsQuotable($tuneObj->title) . "\", ". 
+								$tuneObj->typeId . ", ". 
+								$tuneObj->keyId . ", ". 
+								$tuneObj->status . ", ".
+								$tuneObj->parts .", ".
+								"\"" . strToJsQuotable($tuneObj->comments) ."\"," . 
+								"\"" . $tuneObj->entryDate ."\"," .	
+								"\"" . $tuneObj->lastUpdate ."\"" .	
+								");" ;
+								
+foreach($tuneObj->otherTitles as $id=>$otherTitle){
+	echo "gTune.otherTitles[$id] = (\"" . strToJsQuotable($otherTitle) ."\");";
+}
+
+echo "\r\n";
+// echo 'var gTune = '.json_encode($tuneObj);
+echo "\r\n";
+*/
+
+

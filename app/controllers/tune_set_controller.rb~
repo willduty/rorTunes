@@ -1,0 +1,12 @@
+class SeetController < ApplicationController
+  def index
+	@title = 'Sets'
+	@sets = Seet.all
+  end
+
+  def add
+  end
+
+  def delete
+  end
+end

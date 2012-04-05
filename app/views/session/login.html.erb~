@@ -1,0 +1,53 @@
+
+<html>
+
+<head>
+ <link rel="stylesheet" href="css/style.css" type="text/css" media=screen>
+</head>
+
+<body>
+
+
+
+	<table  width=600 border=0 cellpadding=0 cellspacing=0>
+		<tr>
+			<td colspan=4 >
+				<!--old navbar-->
+			</td>
+		</tr>
+		
+		
+		<tr>
+			<!-- header -->
+			<td>
+				<table class="toolheader black" width=100%>
+					<tr>
+						<td width=100% height=18><!--User Login--></td>
+					</tr>
+				</table>	
+			</td>
+		</tr>
+		
+		<tr>
+			<td class=info valign=top height=100%>
+				
+				<div class=bubbleSection>
+				
+				<form action="login.php" method=POST>
+					<h3 class=hdr>Please Login</h3><br><
+					<label class="info black">username:</label><input type=text name=username></input><br>
+					<label class="info black">password:</label><input type=password name=password></input><br>
+					<label>&nbsp;</label><input type=submit class=infohdr value='Login...'></input><br>
+					
+				</form>
+				</div>
+
+				<div class="info black">
+					<a href="#" class="info copper">forget password?</a> | 
+					<a href="register.php" class="info copper">register</a>
+				</div>
+			</td>
+		</tr>
+</body>
+
+</html>

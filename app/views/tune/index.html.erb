@@ -1,0 +1,724 @@
+<script type="text/javascript">
+
+
+// user settings
+
+<%= render 'layouts/data' %>
+
+
+
+
+// page using doAction() must implement getReturnPageParams() see page "common.js"
+function getReturnPageParams(){
+	// return page string, to be escaped
+	var arr = new Array();
+	var filters = document.getElementsByName("filterButton");
+	for(var i=0; i<filters.length; i++){
+		var id = filters[i].firstChild.nextSibling.value;
+		if(id) 
+			arr.push(filters[i].id + "=" + id);
+	}
+	
+	arr.push("listFirst=" + gTuneList.getScrollPos());
+		
+	if(gTuneList.selectedItem){
+		var sel = gTuneList.selectedItem.getAttribute("index");
+		arr.push("listSel=" + sel);
+	}
+	if(gTuneList.selectedItem)
+		arr.push("tuneId=" + gTuneList.selectedItem.id);
+	
+	return arr;
+} 
+
+
+function saveCurrentView(){
+
+	var view = $('[name=onOffButton][btnGroup=view][onOff=on]').attr('id');
+	var page = getPageName();
+	var arrSettings = [];
+	arrSettings.push("{\"page\":\""+page+"\", \"name\":\"view\", \"value\":\""+view+"\"}");
+	
+	$("[name=onOffButton][onOff=on]").each(function(){
+		if($(this).get(0).hasAttribute('innerElem')){
+			var val = $('#'+$(this).attr('innerElem')).val();
+			arrSettings.push("{\"page\":\""+page+"\", \"name\":\""+$(this).attr('id')+"\", \"value\":\""+val+"\"}");
+		}	
+	});
+	
+	
+	var json = "{\"settings\":["+arrSettings.join()+"]}";
+	
+	doAction('saveUserSettings',
+		'settings', escape(json));
+}
+
+
+ 
+function addToNewSetCallback(paramStr){
+	var arr = paramStr.split(",");
+	var tuneId = arr[0];
+	switchOnToolByButton("newSetBtn");
+	var bl = document.getElementById("setlist");
+	var op = new Option(tunesArr[tuneId].title, tuneId);
+	bl.options[bl.options.length] = op;
+}
+
+
+
+// user has clicked on a filter button
+function filterClicked(elem, event){
+	var innerElem = document.getElementById(elem.getAttribute("innerElem"));
+	var padType = elem.getAttribute("padType");
+	
+	if(!innerElem.innerHTML.length){
+		try{
+			showPad(padType, innerElem, filterSelectedCallback, event)
+		}catch(e){alert(e.message)}
+	}
+	else{
+		innerElem.innerHTML = "";
+		innerElem.value = "";
+		showTunes();
+	}
+}
+
+
+// callback for floating selection pad: handles tune filter buttons
+function filterSelectedCallback(targetElem, id, text){
+	var bItemWasSelected = padItemSelected(targetElem, id, text);
+	showTunes();
+}
+
+
+
+function getFilteredTunesList(){
+	var filters = getFilters();
+	var arr = [];
+	var tunesArrAlpha = getSortedArrayCopy(tunesArr, SORT_TYPE_ALPHA);
+	try{
+	for(var i in tunesArrAlpha){
+		var tune = tunesArrAlpha[i];
+		
+		if( 
+			// tunes list filter logic
+			(filters.keyId?tune.keyId==filters.keyId:true) && // keys
+			(filters.typeId?tune.typeId==filters.typeId:true) && // types
+			(filters.group?filters.group.hasItem(tune.id, ITEM_TYPE_TUNE):true) 
+			// && (filters.showbits & tune.status) // active, inactive, or both. depending on status
+			)
+		{
+			arr.push(tune)
+		}
+	}
+	}catch(e){alert(e)}
+	return arr;
+	
+}
+
+
+function showTunesList(){
+	var contentArea = document.getElementById("contentarea");
+	$(contentArea).empty()
+	
+	var listDiv = document.createElement('div');
+		contentArea.appendChild(listDiv)
+	
+	var tunesArrAlpha = getFilteredTunesList();
+
+	
+	for(var i in tunesArrAlpha){
+		var tuneElem = createItemElement(tunesArrAlpha[i], ITEM_TYPE_TUNE, null, false, 'span');
+		colorCodeTune(tuneElem, tunesArrAlpha[i])
+		// tuneElem.onmouseover = function(){};
+		$(tuneElem).hover(function(){$(this).addClass('itemselected')}, function(){$(this).removeClass('itemselected')})
+		
+		function newSpacer(){
+			var span = document.createElement('span');
+			span.innerHTML = '&nbsp;';
+			return span;
+		}
+		
+		listDiv.appendChild(tuneElem)
+		listDiv.appendChild(newSpacer())
+	}
+	listDiv.style.height = '100%';
+	listDiv.style.overflow = "scroll";
+	
+}
+
+
+// populate the main list
+function showTunes(){
+	gBtnMgr.getSelectedButtonFromGroup('view');
+	switch(gBtnMgr.getSelectedButtonFromGroup('view')){
+		case 'viewGrid':
+			showGrid(); break;
+		case 'viewList':
+			showTunesList(); break;
+	}
+}
+	
+function showGrid(){	
+	
+	// create tune list
+	var contentArea = document.getElementById("contentarea");
+	$(contentArea).empty();
+	
+	CBDisableSelect(contentArea);
+		
+	// clear out tunelist before we (re)populate
+	gTuneList = new Grid(contentArea, LIST_VIEW_FULL); // LIST_VIEW_SCROLLBOX
+
+	gTuneList.returnKeyCallback = gotoTunePage;
+	gTuneList.addColumn("Title", 200);
+	gTuneList.addColumn("Type", 80);
+	gTuneList.addColumn("Key", 60);
+	gTuneList.addColumn("Parts", 50);
+	gTuneList.addColumn("Entry Date", 80);
+	gTuneList.addColumn("Last Updated", 100);		
+	
+
+	// set filters if any from page qstring 
+	// has to be called before showing the list
+	var reqArr = getAllRequestParams();
+	for(var i in reqArr){
+		var pair = reqArr[i].split("=");
+		if(pair[0].indexOf("filter") == 0){
+			var useArr;
+			switch(pair[0]){
+				case "filterKey": useArr = keysArr; break;
+				case "filterType": useArr = typesArr; break;
+				case "filterGroup": useArr = groupsArr; break;
+			}
+			filterSelectedCallback(document.getElementById(pair[0]).firstChild.nextSibling, 
+									pair[1], useArr[pair[1]].title);
+		}
+	}
+	
+	
+	
+	
+	// set buttons from usersettings
+	// for(var name in gUserSettings.page){
+		// var btnGroup = $('[name=onOffButton][btnGroup='+name+']')
+		// if(btnGroup.length)
+			// btnGroup.each(function(){
+				// $(this).attr('onOff', ($(this).attr('id') == gUserSettings.page[name]) ?
+						// 'on' : 'off');
+			// })
+	// }
+	
+	
+	
+	
+	var filters = getFilters();
+
+	// get id of selected tune from page query string
+	var tuneId = getRequestParam("tuneId");
+	var selectedTuneIdx = tuneId;
+
+	// get a sorted copy of tunesArr
+	var tunesArrSorted = getFilteredTunesList()
+	
+	
+	for(var i in tunesArrSorted){
+	
+		var tune = tunesArrSorted[i];
+			
+		
+		// add tune to list
+		var keyTitle, typeTitle;
+		try{keyTitle = keysArr[tune.keyId].title;}
+		catch(e){keyTitle = "<span class='gray'>[not set]</span>";}
+		try{typeTitle = typesArr[tune.typeId].title;}
+		catch(e){typeTitle = "[not set]";}
+			
+		var tuneElem = gTuneList.addItem(GRID_OPTIONS_SINGLE_ROW_CALLBACK,
+										tune.title, 
+										typeTitle, 
+										keyTitle, 
+										tune.parts, 
+										tune.entryDate, 
+										tune.lastUpdate, 
+										gridCallbackGotoTunePage,
+										tune.id);
+		
+		addTuneElemCtxMenu(tuneElem, tune);
+		
+		// if tune is being show under a group
+		if(filters.group){
+			tuneElem.setAttribute("groupId", filters.group.id);
+		}
+		// set selection in list
+		if (i == selectedTuneIdx)
+			tuneElem.setAttribute("selected", "");
+	
+		
+	}
+	
+	gTuneList.show();
+	
+	//gTuneList.sortByColumn(0, SORT_DESC);
+	
+	
+	//show the tunes
+	// if querystring values, reset. else show from start 
+	try{
+		var listFirst = null;
+		var listSel = null;
+		if(listFirst = getRequestParam("listFirst"))
+			gTuneList.scrollToPos(listFirst);
+		
+		// set list selection
+		if(listSel = getRequestParam("listSel"))
+			gTuneList.selectItem(listSel);
+	
+	}catch(e){
+		alert('showTunes(){} err: '+e)
+		}
+	
+	updateCount();
+}
+
+
+
+function getFilters(){
+	// filter ids for keys types etc.
+	var keyId = document.getElementById("filterKeySlot").value;
+	var typeId = document.getElementById("filterTypeSlot").value;
+	
+	var group = null;
+	var groupId = document.getElementById("filterGroupSlot").value;
+	if(groupId)
+		group = groupsArr[groupId];
+	
+	// bit values for tunes which are active or not
+	
+	
+	// var showbits = 0;
+	var showbits = document.getElementById("filterActivitySlot").value;
+	// if(document.getElementById("filterShowActive").getAttribute("onOff") == "on") 
+		// showbits |= STATUS_ACTIVE;
+	// if(document.getElementById("filterShowInactive").getAttribute("onOff") == "on") 
+		// showbits |= STATUS_INACTIVE;
+	// if(document.getElementById("filterShowBoth").getAttribute("onOff") == "on") 
+		// showbits |= STATUS_ACTIVE | STATUS_INACTIVE;
+		
+	return {keyId:keyId, typeId:typeId, group:group, showbits:showbits}
+}
+
+
+
+function gridCallbackGotoTunePage(id){
+	gotoTunePage(id);
+}
+
+function gridCallbackSetKey(item){
+	showPad("key", item, padItemSelected);
+}
+function gridCallbackSetType(item){
+	showPad("type", item, padItemSelected);
+}
+function gridCallbackSetParts(item){
+	showPad("parts", item, padItemSelected);
+}
+
+
+function submitNewTune(){
+	var title = document.getElementById("newTunetitle").value;
+	var typeid = document.getElementById("newTuneType").value;
+	var keyid = document.getElementById("newTuneKey").value;
+	var parts = document.getElementById("newTuneParts").value;
+	
+	// if the "save as todo" button is on set STATUS_INACTIVE bit. else STATUS_ACTIVE
+	var status = 0;
+	status |= ((document.getElementById("saveAsTodo").attributes['onOff'].value == "on") ?
+		STATUS_INACTIVE : STATUS_ACTIVE);
+	
+	title = title.replace(/^\s\s*/, '').replace(/\s\s*$/, '');
+	if(title == "")
+		alert("invalid title");
+	
+	else{
+		if(!parts) 
+			parts = 2;
+		
+		if(!typeid) typeid = 0;
+		if(!keyid) keyid = 0;
+		
+		if(!typeid || !keyid)
+			if(!confirm("the type and/or key are not selected.\r\n"+
+				"save anyways?"))
+				return;
+
+		doAction("submitNewTune",  
+				"title", escape(title), 
+				"typeId", typeid,
+				"keyId", keyid, 
+				"parts", parts, 
+				"status", status);
+	}
+}
+
+
+
+function addToSet(){
+	var bl = document.getElementById("setlist");
+	var op = new Option(gTuneList.selectedItem.innerHTML, gTuneList.selectedItem.id);
+	bl.options[bl.options.length] = op;
+	
+}
+
+
+function saveNewSetToGroup(){
+	var event = window.event;
+	var ctx = new ContextMenu();
+	for(var i in groupsArr){
+		ctx.addItem(groupsArr[i].title, saveNewSet, groupsArr[i].id);
+	}
+	ctx.show(event);
+}
+
+function saveNewSet(groupId){
+	var sl = document.getElementById("setlist");
+	var arr = new Array();
+	for(var i=0; i<sl.options.length; i++){
+		arr.push(sl.options[i].value);
+	}
+	
+	if(typeof(groupId) == 'undefined')
+		doAction("saveNewSet",  
+				"tuneIds", arr.join(","));
+	else
+		doAction("saveNewSet",  
+				"tuneIds", arr.join(","), 
+				"groupId", groupId);
+}
+
+
+// todo fix this
+function clearList(listId){
+	var ops = document.getElementById(listId).options;
+	while(ops.length){
+		delete ops[0];
+		ops[0] = null;
+	}
+}
+
+
+function updateCount(){
+	document.getElementById("tuneCount").innerHTML = gTuneList.getRowCount();
+}
+
+
+function gotoTunePage(id){
+	location = id;
+}
+
+function submitMultiple(){
+
+	try{
+	
+	var arr = $('#addMultipleBox').val().split("\n");	
+	var arrInvalid = [];
+
+	// make xml 
+	var xmlRoot = document.createElement("tunes");
+	
+	//  split text by lines and make tune node for each
+	for(var i=0; i< arr.length; i++){	
+		var parts = arr[i].split("|");
+		var title = validateTuneTitle(parts[0]);
+		
+		if(title == null){
+			// bad title
+			var elem = arr.splice(i, 1);
+			arrInvalid.push(elem);
+			i--;
+		}
+		else{
+			// tune node
+			var tuneNode = document.createElement("tune");
+			xmlRoot.appendChild(tuneNode);
+			var titleNode = document.createElement("title");
+			var typeNode = document.createElement("type");
+			var keyNode = document.createElement("key");
+			var partsNode = document.createElement("parts");
+			var statusNode = document.createElement("status");
+			tuneNode.appendChild(titleNode);
+			tuneNode.appendChild(typeNode);
+			tuneNode.appendChild(keyNode);	
+			tuneNode.appendChild(partsNode);	
+			tuneNode.appendChild(statusNode);
+			titleNode.innerHTML = title;
+			var type, key;
+			if(type = typeIdFromName(parts[1]))
+				typeNode.innerHTML = type;
+			if(key = keyIdFromName(parts[2]))
+				keyNode.innerHTML = key;
+			partsNode.innerHTML = 2;
+			statusNode.innerHTML = STATUS_ACTIVE;
+		}
+	}
+	
+	var xml = "<\?xml version=\"1.0\" encoding=\"ISO-8859-1\"\?>" + xmlRoot.outerHTML;
+		
+	if(arrInvalid.length){
+		if(arr.length){
+			var msg = "One or more titles were invalid entries. The valid ones are shown below. Proceed?\r\n" + arr.join("\r\n");
+			
+			if(!confirm(msg))
+				return;
+		}
+		else{
+			alert('No valid entries.');
+			return;
+		}
+	}
+
+	
+	// todo show summary before submitting
+	
+	doAction("submitTunes",
+			"xml", escape(xml));
+	}catch(e){"exception caught: "+alert(e.message)}
+}
+
+
+
+
+var gTuneList, gBtnMgr;
+
+
+window.onload = function (){
+try{
+	sizeContentArea();
+	setUpPadSwitches();
+	setUpToolSwitches(); 
+	
+	// has to be called before showing the list
+	gBtnMgr = new ButtonManager();
+	gBtnMgr.setUpButtons();
+
+	// showTunes();
+	updateCount(); 
+	
+	}catch(e){alert('Load Err: '+ e)}	
+}
+ 
+
+ </script>
+ 
+ 
+ </head>
+
+ 
+<body>
+
+	<title>My Tunes Page</title>
+
+	<table class=navtable id=navtable border=0 cellpadding=0 cellspacing=0 align=center>
+		<!-- NAV BAR -->
+		<tr>
+			<td>
+				<%= render 'layouts/navbar' %>
+			</td>
+		</tr>
+	</table>
+	
+	<table id=maintable border=0 cellpadding=0 cellspacing=0 align=center>
+		<tr>
+			<!-- LEFT COLUMN -->			
+			<td height=100% width=650 valign=top id=mainTableLeftColumn>
+				<table class=unpaddedtable height=100% border=0 cellpadding=0 cellspacing=0>
+					<tr>
+						<!-- header -->
+						<td class="contentHeader">
+							<table >
+								<tr>
+									<td width=95 class="toolheader">Tunes</td>
+									<td class="info white">Count: <span id=tuneCount></span></td>
+								</tr>
+							</table>
+						</td>
+					</tr>
+					<tr>
+						<!-- buttons -->
+						<td bgcolor=aaaaaa height=25 style="padding-top:2px;padding-bottom:4px;">	
+							&nbsp;&nbsp;<span class="info gray">View: </span> 
+							<span onOff="on" name=onOffButton id=viewGrid btnGroup=view callback="showTunes"><span>grid</span></span>
+							<span onOff="off" name=onOffButton id=viewList btnGroup=view callback="showTunes"><span>list</span></span>
+							
+							&nbsp;&nbsp;<span class="info gray">Filter by:</span> 
+							
+							<span onOff='off' name=onOffButton id=filterActivity callback=filterClicked padType=activity innerElem=filterActivitySlot>
+								<span>tune activity &nbsp;</span><span id=filterActivitySlot></span></span>
+							<span onOff='off' name=onOffButton id=filterKey callback=filterClicked padType=key innerElem=filterKeySlot>
+								<span>key &nbsp;</span><span id=filterKeySlot></span></span>
+							<span onOff='off' name=onOffButton id=filterType callback=filterClicked padType=type innerElem=filterTypeSlot>
+								<span>type &nbsp;</span><span id=filterTypeSlot></span></span> 
+							<span onOff='off' name=onOffButton id=filterGroup callback=filterClicked padType=group innerElem=filterGroupSlot>
+								<span>group&nbsp;</span><span id=filterGroupSlot></span></span>
+						
+						</td>
+					</tr>
+				
+					<!-- CONTENT -->
+					<tr>
+						<td id=contentarea style="height:100%; width:100%;"></td>
+					</tr>
+				</table>
+				
+			</td>
+			
+			<!-- RIGHT COLUMN, TOOL AREA -->
+			<td class=toolArea valign=top width=350 rowspan=3>
+				<table width=100% height=100%>
+					<tr>
+						<td height=30>
+							<table>
+								<tr>
+									<!-- tool switches -->
+									<td><span class="toolBtnOff" name=toolButton tool=newTuneTable>New Tune</span></td>
+									<td> | </td>
+									<td><span class="toolBtnOff" name=toolButton tool=addMultipleTable>Multiple New</span></td>
+									<td> | </td>
+									<td><span class="toolBtnOff" id=newSetBtn name=toolButton tool=newSetTable>New Set</span></td>
+								</tr>
+							</table>
+						</td>
+					</tr>
+					<tr>
+						<td style='vertical-align:top; '>
+
+						<!-- tool elements -->
+						
+
+						<!-- new tune table -->
+						<table id=newTuneTable name=toolContainer class=toolContainer width=100%>
+							<tr>
+								<td height=60 class=toolheader>New Tune</td>
+							</tr>
+							<tr>
+								<td valign=top align=left class=infohdr>
+									
+									<table border=0 class=bubbleSectionTool>
+										<tr>
+											<td align=left height=35 class="infohdr ltltgray" colspan=3>
+												Title:<input type=text id=newTunetitle size=20 clearOnCancel></input>
+											</td>
+										</tr>				
+										<tr>
+											<td valign=top>
+												<table style="width:300" class="info white" border=0>
+													<tr>
+														<td style="width:100">
+															<span padTarget=newTuneType padSwitch=type padCallback=padItemSelected class="pointer ltcopper">Type... </span>
+															<span id=newTuneType clearOnCancel class="info white"></span>
+															<br><br>
+															<span  padTarget=newTuneKey padSwitch=key padCallback=padItemSelected class="pointer ltcopper">Key... </span>
+															<span id=newTuneKey clearOnCancel class="info white"></span>
+															<br><br>
+															<span padTarget=newTuneParts padSwitch=parts padCallback=padItemSelected class="pointer ltcopper">Parts... </span>
+															<span id=newTuneParts clearOnCancel class="info white"></span>
+														</td>
+														<td style="width:100">
+														</td>
+														<td style="width:100">
+														</td>
+													</tr>
+												</table>
+											</td>
+										</tr>
+										<tr>
+											<td>
+												<br><span onOff="off" name=onOffButton id=saveAsTodo>save as to-do tune</span><br>
+											</td>
+										</tr>
+									</table>
+									<br>
+									<span class="info white pointer" onclick="submitNewTune(); return false;">submit</span> | 
+									<span class="info cancel pointer" id=btn1 name=toolCancel>cancel</span>
+								</td>
+							</tr>					
+						</table>
+						
+						
+						
+						<!-- multiple new tunes table -->
+						<table id=addMultipleTable name=toolContainer class=toolContainer width=100%>
+							<tr>
+								<td height=60 class=toolheader>Add Multiple New Tunes</td>
+							</tr>
+							<tr>
+								<td valign=top >
+									<table >
+										<tr><td class='bubbleSectionTool'>
+											<div height=10 class='plainText white'>To add multiple tunes add a line-separated list of tunes. 
+												<br><span class='copper'>more info&raquo;</span></div>
+											<textarea id=addMultipleBox rows=10 cols=30 clearOnCancel></textarea>
+										</td></tr>
+										<tr>
+											<td align=left>
+												<span class="info white pointer" onclick="submitMultiple(); return false;">submit</span> | 
+												<span class="info cancel pointer" id=btn1 name=toolCancel>cancel</span>
+											</td>
+										</tr>
+									</table>
+								</td>
+								
+							</tr>
+							
+							
+							
+						</table>
+						
+						
+						
+						<!-- new set table -->
+						<table id=newSetTable name=toolContainer class=toolContainer width=100% border=0>
+							<tr><td colspan=3 height=60 class=toolheader>New Set</td></tr>
+							<tr>
+								<td valign=top>
+									<table width=100%>
+										<tr>
+											<td><button onclick="addToSet(); return false;">=></button></td>
+											<td>
+												<select multiple size=5 id=setlist clearOnCancel></select><br>
+												<span class="info white pointer" onclick="clearList('setlist'); return false;">clear</span>
+											</td>
+										</tr>
+									</table>
+									<br>
+									<span class="info white pointer" onclick="saveNewSet(); return false;">save set</span> | 
+									<span class="info white pointer" onclick="saveNewSetToGroup(); return false;">save set to group</span> | 
+									<span class="info cancel pointer" id=btn2 name=toolCancel>cancel</span>
+								</td>	
+							</tr>
+						</table>						
+						
+						
+						</td>
+					</tr>
+					
+				</table>
+		
+			</td>
+		</tr>
+			
+		<!-- BOTTOM SPACER ROW -->
+		<tr>
+			<td bgcolor=#555 height=10 colspan=2>
+				<div class='info pointer' onclick='saveCurrentView();'>save current page view</div>
+			</td>
+		</tr>
+		
+	</table>
+	
+	
+</body>
+</html>
+ 
+ 
+ 

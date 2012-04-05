@@ -1,0 +1,504 @@
+
+
+<script type="text/javascript">
+
+<?php include("jsArrays.php"); ?>
+
+
+<%= render 'layouts/data' %>
+
+
+// page using doAction() must implement getReturnPageParams()
+function getReturnPageParams(){
+
+	var arr = new Array();
+	var btnMgr = new ButtonManager();
+	var buttons = btnMgr.getAllPageButtons()
+	for(var i=0; i<buttons.length; i++){
+		if(buttons[i].getAttribute("onOff") == "on"){
+			arr.push("onBtn=" + buttons[i].id);
+		}
+	}
+	
+	// get expanded groups
+	var arrSections = new Array();
+	for(var i in gGroupSections){
+		if(gGroupSections[i].getState() == ES_STATE_OPEN){
+			arrSections.push(gGroupSections[i].id);
+		}
+			
+	}
+	if(arrSections.length)	
+		arr.push("expandedSections=" + arrSections.join(","));
+		
+		
+	// page scroll
+	try{
+		arr.push("contentScroll=" + getContentArea().scrollTop);
+	}catch(e){}
+	
+		
+	return arr;
+} 
+
+
+function getContentArea(){
+	return document.getElementById("contentarea");
+}
+
+
+function scrollContentArea(){
+	if(scrollPoint = getRequestParam("contentScroll"))
+			getContentArea().scrollTop = scrollPoint;
+}
+
+
+
+// show groups containing search item
+function searchSuggestionClickedCallback(str, id){
+// try{
+	document.getElementById("searchGroupsEntryBox").value = str;
+	gSearchAutoList.close();
+	var type = getCurrentSearchType();
+	
+	var btnMgr = new ButtonManager();
+	var display = btnMgr.getSelectedButtonFromGroup("searchDisplay");
+	
+	switch(display){
+	
+		// open collapsed groups and highlight the found items.
+		case "searchDisplayHilite":
+		
+			unhiliteAllGroups();
+			collapseAllGroupSections();
+			var contentarea = getContentArea();
+
+	
+			for(var j in gGroupSections){
+				var section = gGroupSections[j];
+				var arrAttr = new Array();
+				if(groupsArr[section.id].hasItem(id, type)){
+					arrAttr["value"] = id;
+					arrAttr["itemType"] = type;
+					
+					section.hiliteElemsByAttributes(arrAttr);
+					section.expand();
+				}
+				if(type == ITEM_TYPE_TUNE){
+					var arr;
+					if(arr = groupsArr[section.id].getSetsWithTune(id)){
+						arrAttr["value"] = arr[0].id;
+						arrAttr["itemType"] = ITEM_TYPE_SET;
+						
+						section.hiliteElemsByAttributes(arrAttr);
+						section.expand();
+					}
+				}
+			}
+			
+			break;
+		
+		// just show a list of found items
+		case "searchDisplayList":
+			
+			break;
+	}	
+	// }catch(e){alert(e.message)}
+}
+
+
+function randomSuggestionClickedCallback(str, id){
+	var elem = document.getElementById("randomSetRequiredTune")
+	elem.value = str;
+	elem.setAttribute("tuneId", id);
+}
+
+// makes a new random set
+function makeNewRandomSet(requiredTune){
+
+	var arr = new Array(), setArr = new Array(), arrNames = new Array();
+	
+	var newSetLength = 3;
+	var tuneType = 1;
+	
+	// if a specific tune is required in the set...
+	if(requiredTune){
+		newSetLength--;
+		setArr.push(requiredTune);
+		tuneType = tunesArr[requiredTune].typeId;
+	}
+	else{
+		// determine a type randomly
+		var highest = 0;
+		for(var i in typesArr){
+		
+			// for each tunetype weight the probability 
+			// by number of tunes of that type
+			var tunesOfTypeI = gTunesObj.getTunesByType(typesArr[i].id).length;
+			var ratio =  tunesOfTypeI / tunesArr.length;
+			var weightedProb = ratio * Math.random();
+			
+			// the highest weightedProb gets selected
+			if(weightedProb > highest){
+				tuneType = typesArr[i].id;
+				highest = weightedProb;
+			}
+		}
+	}
+	
+	// select a random tune from tunes of tuneType
+	var arr = gTunesObj.getTunesByType(tuneType);
+	for(var i=0; i<newSetLength; i++){
+		var idx = Math.floor(Math.random() * arr.length);
+		setArr.push(arr[idx].id);
+		arrNames.push(arr[idx].title)
+	}
+	
+	var newSet = new objSet(null, setArr, arrNames.join("/"), false, STATUS_ACTIVE);
+	return newSet;
+}
+
+
+// returns an assoc arr of key=typeId value=array of tunes
+function tunesFromGroupByType(group){
+	var arr = new Array();
+	var tunes = group.getItemsByType(ITEM_TYPE_TUNE);
+	for(var i in tunes){
+		var tuneObj = tunes[i];
+		if(!arr[tuneObj.typeId])
+			arr[tuneObj.typeId] = new Array();
+		arr[tuneObj.typeId].push(tuneObj);
+	
+	}
+	return arr;
+}
+
+
+
+function newGroup(){
+	var title = document.getElementById("newGroupNameBox").value;
+	if(!(title = validateTitleStr(title))){
+		alert("invalid title");
+		return false;
+	}
+	
+	doAction("saveNewGroup", 
+		"newGroupName", title);
+}
+
+
+
+
+// from http://jsfromhell.com/array/shuffle
+function shuffleArray(v){
+    for(var j, x, i = v.length; i; j = parseInt(Math.random() * i), x = v[--i], v[i] = v[j], v[j] = x);
+    return v;
+};
+
+
+
+
+function updateCount(){
+	for(var i in groupsArr)
+		document.getElementById("groupsCount").innerHTML ++;	
+}
+
+
+
+// determine which type of item to show in autosuggest
+// when searching groups
+function getCurrentSearchType(){
+	// get search type
+	var btnMgr = new ButtonManager();
+	var selBtnId = btnMgr.getSelectedButtonFromGroup("searchItemType");
+	switch(selBtnId){			
+		case "searchTunesBtn":
+			type = ITEM_TYPE_TUNE;
+			break;
+		case "searchSetsBtn":
+			type = ITEM_TYPE_SET;
+			break;
+		case "searchResourcesBtn":
+			type = ITEM_TYPE_RESOURCE;
+			break;
+	}
+	return type;
+}
+
+
+function callbackSelectAutosuggType(str){
+	var type = getCurrentSearchType();
+	return autoSuggestCallback(str, type);
+}
+
+
+var gGroupSections = new Array();
+
+function collapseAllGroupSections(){
+	for(var i in gGroupSections){
+		gGroupSections[i].collapse();
+	}
+}
+
+function unhiliteAllGroups(){
+	for(var i in gGroupSections){
+		gGroupSections[i].unhiliteAll();
+	}
+}
+
+
+// todo displayObj?
+
+function showGroups(containerElem){
+
+	clearContentArea();
+	$('contentarea').css('overflow', '');
+	
+	if(typeof(containerElem) == 'string')
+		containerElem = document.getElementById(containerElem);
+		
+	var msl = containerElem ? containerElem : getContentArea();
+	
+	var copyArr = getSortedArrayCopy(groupsArr, SORT_TYPE_PRIORITY); 
+	for(var i in copyArr){
+		var group = copyArr[i];
+		var es = makeGroupElement(group);
+		gGroupSections[group.id] = es;
+		es.getHeader().setAttribute('itemId', group.id);
+		addGroupContextMenu(es.getHeader());
+		es.setHeaderClass("info gray");
+		msl.appendChild(es.getSection());
+		
+	}	
+}
+
+
+function collapseAll(){
+	for(var i in gGroupSections){
+		gGroupSections[i].collapse();
+	}
+}
+
+
+function expandAll(){
+	for(var i in gGroupSections){
+		gGroupSections[i].expand();
+	}
+}
+
+
+
+function reorderGroups(event){
+	// create a reorder widget and add each set
+	var ro = new objReorder(); 
+	ro.allowRemove = false; // no remove. makes save complicated, tool on main page ctx menu
+
+	var copyArr = getSortedArrayCopy(groupsArr, SORT_TYPE_PRIORITY); 
+	for(var i in copyArr){
+		ro.addItem(copyArr[i].title, copyArr[i].id);
+	}
+	ro.assemble();
+	
+	// use floating container to display the reorder widget
+	var fl = new FloatingContainer(groupsReorderCallback, null, ro);
+	fl.addContentElement(ro.box);
+	
+	fl.show(event);
+	return false;
+}
+
+function groupsReorderCallback(ro){
+	doAction("updateGroupsPriority", 
+			"groupIds", ro.getCurrentOrder());
+}
+
+
+
+var newSetList = null;
+var gSearchAutoList = null;
+
+window.onload = function(){
+	
+	sizeContentArea();	
+	setUpToolSwitches();
+	
+	// get "on" buttons
+	var arrParams = getAllRequestParams();
+	var arrOnBtns = new Array();
+	for(var i in arrParams){
+		if(arrParams[i].split("=")[0] == "onBtn"){
+			arrOnBtns.push(arrParams[i].split("=")[1]);
+		}
+	}
+
+	
+	document.getElementById("searchGroupsEntryBox").onfocus = function(){
+		if(!gSearchAutoList)
+			gSearchAutoList = new objAutoSuggest(this, callbackSelectAutosuggType, searchSuggestionClickedCallback);
+	}
+	
+	showGroups();
+	
+	if(ex = getRequestParam("expandedSections")){
+		var arr = ex.split(",");
+		for(var i in arr)
+			gGroupSections[arr[i]].expand()
+	}
+	
+	var btnMgr = new ButtonManager();
+	btnMgr.setUpButtons();
+
+	scrollContentArea();
+	
+	updateCount();
+	
+	$('[itemType='+ITEM_TYPE_TUNE+']').each(function(){colorCodeTune($(this).get(0))})
+}
+
+</script>
+
+<link rel=StyleSheet href="css/style.css" type="text/css" media=screen>
+ 
+	<table class=navtable id=navtable border=0 cellpadding=0 cellspacing=0 align=center>
+		<!-- NAV BAR -->
+		<tr>
+			<td colspan=2>
+				<%= render 'layouts/navbar' %>
+			</td>
+		</tr>
+	</table>
+
+	<table  id=maintable border=0 cellpadding=0 cellspacing=0 align=center>		
+		<tr>
+			<!-- LEFT COLUMN, CONTENT AREA -->
+			<td height=100% width=650 valign=top id=mainTableLeftColumn>
+				<table class=unpaddedtable height=100% border=0 cellpadding=0 cellspacing=0>
+					<tr>
+						<!-- header -->
+						<td class="contentHeader">
+							<table >
+								<tr><td width=95 class="toolheader">Groups</td>
+								<td class="info white">Count: <span id=groupsCount></span></td></tr>
+							</table>	
+						</td>
+					</tr>
+					<tr>
+						<!-- buttons -->
+						<td bgcolor=aaaaaa height=25 style="padding-top:2px;padding-bottom:4px;">
+							<span>&nbsp;&nbsp;&nbsp;</span>
+							<span id=groupsPanel onclick="reorderGroups();" class="info ltltgray pointer">reorder groups</span> | 	
+							<span id=groupsPanel onclick="expandAll();" class="info ltltgray pointer">open all</span> | 
+							<span id=groupsPanel onclick="collapseAll();" class="info ltltgray pointer">collapse all</span>
+							
+							<!-- <span id=groupsPanel onclick="createNewGroup();" class="info ltgray pointer">new group...</span> -->	
+		
+						</td>
+					</tr>
+					
+					<!-- CONTENT -->
+					<tr>
+						<td id=contentarea style="height:100%; width:100%; vertical-align:top;"></td>
+					</tr>
+				</table>
+				
+			</td>
+		
+			
+			<!-- RIGHT COLUMN, TOOL AREA -->
+			<td class=toolArea valign=top width=350>
+				<table width=100% height=100%>
+					<tr>
+						<td height=30>
+							<table>
+								<tr>
+									<!-- tool switches -->
+									<td><span class="toolBtnOff" name=toolButton tool=newGroup>New Group</span></td>
+									<td> | </td>
+									<td><span class="toolBtnOff" name=toolButton tool=searchGroups id=searchGroupsBtn>Search</span></td>
+								</tr>								
+							</table>
+						</td>
+					</tr>
+					<tr>
+						<td colspan=3>
+							<!-- tool elements -->
+									
+							<!-- new set table -->
+							<table id=newGroup class=toolContainer name=toolContainer width=100%>
+								<tr>
+									<td height=60 class=toolheader>New Group</td>
+								</tr>
+								<tr>
+									<td height=40 class="info white">
+										New Group Name:<br>
+										<input type=text id=newGroupNameBox clearOnCancel></input>
+									</td>
+								</tr>
+								
+								<tr height=100%>
+									<td valign=top>
+										<span class="info white pointer" onclick="newGroup(); return false;">save group</span> | 
+										<span class="info cancel pointer" name=toolCancel>cancel</span>
+									</td>
+									<td colspan=2></td>
+								</tr>
+							</table>
+							
+							<!-- search groups tool -->
+							<table id=searchGroups class=toolContainer name=toolContainer border=0 width=100%>
+								<tr>
+									<td colspan=3 height=60 class=toolheader>Search Groups</td>
+								</tr>
+								<tr>
+									<td colspan=3 height=20>
+										<span class="info ltltgray">search for: </span>
+										<span onOff="on" name=onOffButton id=searchTunesBtn btnGroup=searchItemType ><span>tunes</span></span>
+										<span onOff="off" name=onOffButton id=searchSetsBtn btnGroup=searchItemType ><span>sets</span></span>
+										<span onOff="off" name=onOffButton id=searchResourcesBtn btnGroup=searchItemType ><span>resources</span></span>
+									</td>
+								</tr>
+								<tr>
+									<td colspan=3 height=30>
+										<span class="info ltltgray">display results: </span>
+										<span onOff="on" name=onOffButton id=searchDisplayHilite btnGroup=searchDisplay><span>show in groups</span></span>
+										<span onOff="off" name=onOffButton id=searchDisplayList btnGroup=searchDisplay><span>list</span></span>
+									</td>
+								</tr>
+								<tr>
+									<td colspan=3 height=40>
+										<input type=text id=searchGroupsEntryBox size=35 clearOnCancel></input>
+									</td>
+								</tr>
+								<tr>
+									<td colspan=3 height=10>
+										<div id=groupsSearchResultBoxContainer>
+											<div id=resultsLabel class='info white' style="display:none;" hideOnCancel>results:</div>
+											<div id=groupSearchResultBox ></div>
+										</div>
+									</td>
+								</tr>
+								<tr>
+									<td valign=top><span class="info cancel pointer" name=toolCancel>close</span></td>
+									<td></td>
+									<td></td>
+								</tr>
+							</table>						
+						</td>
+					</tr>
+				</table>
+		
+			</td>
+		</tr>
+			
+		<!-- BOTTOM SPACER ROW -->
+		<tr>
+			<td bgcolor=#555 height=10 colspan=2>
+				<div class='info pointer' onclick='saveCurrentView();'>save current page view</div>
+			</td>
+		</tr>		
+	</table>
+	
+	<?php include("emailBox.php"); ?>
+	
+</body>
+</html>

@@ -1,0 +1,12 @@
+class GroupController < ApplicationController
+  def index
+	
+  end
+
+  def add
+  	fp futs 'hey'
+  end
+
+  def delete
+  end
+end

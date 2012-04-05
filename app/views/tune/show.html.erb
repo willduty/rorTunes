@@ -1,0 +1,490 @@
+<script type="text/javascript">
+
+<%= render 'layouts/data' %>
+
+<%= render 'tune' %>
+
+var tuneId = gTune.id;
+
+// page using doAction() must implement getReturnPageParams()
+function getReturnPageParams(){
+	// return page string, to be escaped
+	var arr = new Array();
+	arr.push("tuneId=" + gTune.id);
+	return arr;
+} 
+
+
+
+function ctxDisassociateCallback(param){
+	var objResource = resourcesArr[param];
+	var str = "This will not delete the resource but it will no longer appear on this tune page. ";
+	if(objResource.associatedItemsArr.length > 1){
+		str += "Other tunes currently associated with the resource are: \r\n\r\n";
+		for(n in objResource.associatedItemsArr){
+			str += "  " + tunesArr[objResource.associatedItemsArr[n].id].title + "\r\n"; 
+		}
+	}
+	else 
+		str += "There are no other tunes associated with this resource so "+
+		"it will become an orphaned item viewable on the resource page only.\r\n";
+	if(confirm(str + "\r\nProceed to remove?")){
+		doAction("disassociateResource", 
+				"tuneId", gTune.id,
+				"resourceId", param);
+	}
+}
+
+
+
+function saveProperty(property, value){
+	switch(property){
+		case "otherTitles":
+			doAction("updateTune", 
+			"tuneId", gTune.id,
+			"otherTitles", value);
+			return;
+	}
+}
+
+
+function fieldUpdate(elem, newValue, newText){
+
+
+	if(typeof(newValue) != 'undefined'){
+		if(elem.id == "status"){
+			// turn off both active and inactive bits
+			elem.value &= ~STATUS_ACTIVE;
+			elem.value &= ~STATUS_INACTIVE;
+			
+			// set the correct bit 
+			elem.value |= newValue;
+		}
+		else
+			elem.value = newValue;
+	}
+	if(typeof(newText) != 'undefined') 
+		elem.innerHTML = newText;
+	document.getElementById("saveChangesDiv").style.display = "";
+}
+
+
+function saveTuneChanges(){
+	var comments = document.getElementById("tunecomments").innerHTML;
+	comments = comments.replace(/<br>/g, "\n");
+	doAction("updateTune", 
+			"tuneId", gTune.id,
+			"title", escape(document.getElementById("tunetitle").innerHTML),
+			"comments", escape(comments),
+			"keyId", document.getElementById("tuneKey").value,
+			"typeId", document.getElementById("tuneType").value,
+			"parts", document.getElementById("tuneParts").value,
+			"status", document.getElementById("tuneStatus").value);
+}
+
+
+
+function appendResource(res){	
+	var smbox = document.getElementById("sheetmusicBox");
+	var rbox = document.getElementById("resourceBox");
+	
+	if(res.resourceType == RESOURCE_SHEETMUSIC){
+		removePlaceholder(smbox);
+		var img = document.createElement("img");
+		img.style.display = "none";
+		img.name = "sheetmusic";
+		img.src = res.localFile;
+		img.style.backgroundColor = "white";
+		
+		img.onload = function(){
+			this.width = Math.round(this.width*100/this.height);
+			this.height = 100;
+			this.style.display = "";
+		}
+		smbox.appendChild(img);
+		
+		addResourceContextMenu(img, res);
+		img.onclick = function(){showResource(res);}
+	}
+	// list other resources
+	else{
+		var div = createItemElement(res, ITEM_TYPE_RESOURCE, null, true);
+		addResourceContextMenu(div, res);
+		removePlaceholder(rbox);
+		rbox.appendChild(div);
+	}
+}
+
+
+function suggestionClickedCallback(str, id, updateTargetElem){
+	// put the tune data on the elem to be used when the user clicks the container submit button
+	updateTargetElem.value = str;
+	updateTargetElem.setAttribute("tuneId", id);
+}
+
+
+
+
+function ctxEmailSheetmusicCallback(resourceId){
+	var str = "";
+	str = resourcesArr[resourceId].url + "\r\n\r\n" + str + "\r\n";
+	emailText(str); // see common.js
+}
+
+
+function addTitle(elem){
+	var newTitle;
+	
+	
+	var newTitle = (elem.innerHTML)
+
+	if(!validateTuneTitle(newTitle)){
+		alert('bad title!')
+		return;
+	
+	}
+		
+	if($.inArray(newTitle, gTune.otherTitles) != -1){
+		alert('title \"'+newTitle+'\" already exists.');
+		return;
+	}
+		
+	saveProperty('otherTitles', newTitle);
+	return;
+	
+	gTune.otherTitles.push(newTitle);
+	var elem;
+	if(elem = getTunePropElem('otherTitles')){
+		elem.innerHTML = gTune.otherTitles.join(", ");
+		// fieldUpdate(elem);
+		saveProperty('otherTitles', newTitle);
+	}
+
+}
+
+function getTunePropElem(propName){
+	try{
+		return $("[name=tuneProperty][property="+propName+"]").get(0);
+	}catch(e){return null;}
+}
+
+
+function fillTuneProps(){
+	document.getElementById("saveChangesDiv").style.display = "none";
+	
+	// fill out tune properties
+	var tunePropElems = new Array();
+	CBGetElementsByName("tuneProperty", document.body, tunePropElems);
+	
+	for(var i=0; i<tunePropElems.length; i++){
+		var str = "", value = "";
+		var propName = tunePropElems[i].getAttribute("property");
+		switch(propName){
+		
+			case "otherTitles":
+				if(gTune.otherTitles.length){
+				
+					var arr = [];
+					for(var id in gTune.otherTitles){
+						arr.push("<span class='itemTunePage' property=otherTitle itemId="+id+">"+gTune.otherTitles[id]+"</span>");
+					}
+					str = arr.join(", ");
+				}
+				else
+					str = "<span class='info gray' name=placeholder>&nbsp;[no additional titles have been added.]</span>";
+					
+				var elem =document.getElementById('addNewTitle');
+				new editableItem(elem, MODE_INPUT, addTitle, elem);
+				
+				tunePropElems[i].innerHTML = str;
+				
+				// add ctx menus to alternate titles for removal
+				$(tunePropElems[i]).find('[property=otherTitle]').each(function(){	
+					$(this).get(0).oncontextmenu = function(){
+						var ctxMenu = new ContextMenu();
+						ctxMenu.addItem("remove this title", function(id){
+							doAction("removeOtherTitle", 
+								"id", id);
+						}, $(this).attr('itemId'));
+						ctxMenu.show();
+						return false;
+					}
+				});				
+				break;
+		
+			case "comments":
+				str = (!gTune.comments) ?
+					 "<div class='info gray' name=placeholder>&nbsp;[no comments have been added]</div>" : gTune.comments;
+				var commentsElem = document.getElementById("tunecomments");
+				commentsElem.innerHTML = str.replace(/\n/g, "<br>");
+				var options = (gTune.comments == "" || typeof(gTune.comments) == "undefined" ) ? 
+					MODE_TEXTAREA : (MODE_TEXTAREA | MODE_INCLUDE_ORIGINAL_TEXT);
+				new editableItem(commentsElem, options, fieldUpdate, commentsElem);
+				
+				break;
+				
+			case "typeId":
+				try{
+					str = typesArr[gTune.typeId].title;
+					value = typesArr[gTune.typeId].id;
+				}
+				catch(e){
+					str = "[not set]"
+				}
+				tunePropElems[i].innerHTML = str;
+				break;
+				
+			case "keyId":
+				try{
+					str = keysArr[gTune.keyId].title;
+					value = keysArr[gTune.keyId].id;
+				}
+				catch(e){
+					str = "[not set]"
+				}
+				tunePropElems[i].innerHTML = str;
+				break;
+				
+			case "parts":
+				str = gTune.parts;
+				value = gTune.parts;
+				tunePropElems[i].innerHTML = str;
+				break;
+			
+			case "title":
+				str = gTune.title;
+				var titleElem = document.getElementById("tunetitle");
+				new editableItem(titleElem, MODE_INPUT | MODE_INCLUDE_ORIGINAL_TEXT, fieldUpdate, titleElem);
+				tunePropElems[i].innerHTML = str;
+				break;
+			
+			case "status":
+				str = (gTune.status & STATUS_INACTIVE) ? "To Learn" : "Active";
+				value = gTune.status;
+				tunePropElems[i].innerHTML = str;
+				break;
+			default:
+				str = eval("gTune." + propName);
+				value = eval("gTune." + propName);
+				tunePropElems[i].innerHTML = str;
+		}
+		
+		tunePropElems[i].value = value;
+	}
+}
+
+
+
+
+window.onload = function(){
+
+	setUpPadSwitches();
+		
+	for(var i in resourcesArr){	
+		appendResource(resourcesArr[i])
+	};
+	
+	// put notice if no items in resource lists
+	var smbox = document.getElementById("sheetmusicBox");
+	var rbox = document.getElementById("resourceBox");
+	if(smbox.firstChild == null)
+		smbox.innerHTML = "<div class='info gray' name=placeholder>&nbsp;[no sheetmusic has been added]</div>";
+	if(rbox.firstChild == null)
+		rbox.innerHTML = "<div class='info gray' name=placeholder>&nbsp;[no resources have been added]</div>";
+	
+	fillTuneProps();
+	
+	// show related items...
+	// sets
+	var relItems = document.getElementById("relateditems")
+	for(var j in setsArr){
+		if(setsArr[j].hasTune(gTune.id)){
+			relItems.appendChild(createItemElement(setsArr[j], ITEM_TYPE_SET, null, true));
+		}
+	}
+	
+	// groups
+	for(var j in groupsArr){
+		if(groupsArr[j].hasItem(gTune.id, ITEM_TYPE_TUNE)){
+			try{
+				relItems.appendChild(createItemElement(groupsArr[j], ITEM_TYPE_GROUP, null, true));	
+			}catch(e){
+				//alert(e.message)
+			}
+		}
+	}
+	
+	setUpToolSwitches(); 
+	addResourceOptions();
+
+}
+
+
+</script>
+ 
+	<title>My Tunes Page</title>
+
+	<table class=navtable id=navtable border=0 cellpadding=0 cellspacing=0 align=center>
+		<!-- NAV BAR -->
+		<tr>
+			<td>
+				<%= render 'layouts/navbar' %>
+			</td>
+		</tr>
+	</table>
+	
+	<table id=maintable border=0 cellpadding=0 cellspacing=0 align=center>
+		<tr>
+		
+			<td style="vertical-align:top;padding:0;margin:0;">
+				<table width=100% class=unpaddedtable border=0 cellpadding=0 cellspacing=0>
+					<tr>
+						<!-- header -->
+						<td class="contentHeader">
+							<table class="info black">
+								<tr>
+									<td class="toolheader"><span id=tunetitle name=tuneProperty property=title></span></td>
+									<td style='width:50px;'></td>
+									
+									<td valign=top>
+										<span >Entry Date: </span>
+										<span id=tuneEntryDate name=tuneProperty property=entryDate class="info ltltgray"></span>
+									</td>
+									<td valign=top >
+										<span >Last Update: </span>
+										<span id=tuneLastUpdate name=tuneProperty property=lastUpdate class="info ltltgray"></span>
+									</td>
+								</tr>
+							</table>
+						</td>
+					</tr>
+				</table>
+
+
+				<table class=unpaddedtable style="height:70" bgcolor=aaaaaa>
+
+					<tr>
+						<td valign=top class=infohdr width=10%>
+							<span>Type: </span>
+							<span id=tuneType class="info white pointer" name=tuneProperty property=typeId padSwitch=type padCallback=fieldUpdate></span>
+						</td>
+
+						<td valign=top class=infohdr width=10%>
+							<span>Key: </span>
+							<span id=tuneKey class="info white pointer" name=tuneProperty property=keyId padSwitch=key padCallback=fieldUpdate></span>
+						</td>
+						<td valign=top class=infohdr width=10%>
+							<span>Parts: </span>
+							<span id=tuneParts class="info white pointer" name=tuneProperty property=parts padSwitch=parts padCallback=fieldUpdate></span>
+						</td>
+						<td valign=top class=infohdr width=70%>
+							<span>Status: </span>
+							<span id=tuneStatus class="info white pointer" name=tuneProperty property=status padSwitch=status padCallback=fieldUpdate></span>
+						</td>
+					</tr>
+
+					
+					<tr>
+						<td valign=top colspan=4>
+						<br>
+							<span class=infohdr>Additional Titles:</span>									
+							<span class=infohdr style='color:#ddd; cursor:pointer;' id=addNewTitle>[add&raquo;]</span><br>
+							<span style="width:100%;" name=tuneProperty property=otherTitles></span>							
+							<br>
+						</td>
+					</tr>
+					
+					<tr>
+						<td valign=top colspan=4>
+							<br>
+							<span class=infohdr>Comments</span><br>
+							<div><span id=tunecomments class="itemTunePage" style="width:100%;" name=tuneProperty property=comments></span></div>
+							<br>
+						</td>
+					</tr>
+					
+					<tr>
+						<td valign=top class=infohdr colspan=4 width=100%>
+							
+						</td>	
+					</tr>
+					<!--
+					<?php
+					@$flash = new sessionFlash();
+					$msg = "";
+					if($msg = $flash->getFlash())
+						echo "<tr><td valign=top colspan=4>$msg</td></tr>";
+					?>
+					-->
+					<tr>
+						<td align=right valign=top colspan=4 id=saveChangesDiv style="display:none;" >
+							<span class="toolBtn white blackBkgd" onclick="saveTuneChanges();">save changes</span>  
+							<span id=cancelChangesButton class="toolBtn white blackBkgd" onclick="fillTuneProps();">cancel</span>
+						</td>
+					</tr>
+				</table>		
+
+
+				<br>
+				<div class=infohdr>Belongs To</div>
+				<table>
+					<tr>
+						<td valign=top>
+							<div><span id=relateditems class=item style="width:450;"></span></div>
+						</td>
+					</tr>
+				</table>
+				<br>
+				
+
+				<!-- resources -->
+				<span class=infohdr>Resources </span><span class="toolBtnOff" name=toolButton tool=newResource fullPageTool>[New Resource]</span>
+				
+				<?php include("resourceSearchTool.php"); ?>
+
+				<table width=100%>
+					<tr>
+						<td valign=top >
+							<span id=resourceBox class=item></span>
+						</td>
+					</tr>
+				</table>
+				
+
+				<!-- sheetmusic -->
+				<br>
+				<span class=infohdr>Sheetmusic </span><span class="toolBtnOff" name=toolButton tool=newSheetMusic fullPageTool>[New SheetMusic]</span>
+				<table>										
+					<tr>
+						<td valign=top class=infohdr style="height:400;">	
+							<span id=sheetmusicBox></span>
+						</td>
+					</tr>								
+				</table>
+				
+				<table id=newSheetMusic class=toolContainer name=toolContainer width=100%>
+					<tr>
+						<td height=60 class=toolheader>New Sheetmusic<br>
+							<span class="info cancel pointer" name=toolCancel onclick="closeSearchFrame(this)">close</span>
+						</td>
+						<td rowspan=2 width=85%>
+							<div name=frameBox style="display:none; ">
+								<iframe name=searchFrame></iframe><br>
+							</div>
+						</td>
+					</tr>
+					<tr>
+						<td valign=top class=infohdr name=resourceOptionsBox></td>
+					</tr>	
+				</table>
+				
+			</td>
+		</tr>
+		
+	</table>	
+			
+			
+			
+	<?php include("emailBox.php"); ?>
+
+

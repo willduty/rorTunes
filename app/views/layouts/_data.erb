@@ -1,0 +1,197 @@
+
+// arrays
+var tunesArr = new Array(); 
+var keysArr = new Array(); 
+var typesArr = new Array(); 
+var setsArr = new Array();
+var groupsArr = new Array();
+var resourcesArr = new Array();
+var favoritesArr = new Array();
+
+var gTunesObj = new objTunes();
+
+<% 
+user = User.find_by_id(1)
+
+tunes = user.tunes.find(:all, :include => [:keys, :tune_types])
+tunes.each do |t| 
+	
+	unless t.keys.first.nil?
+		begin
+		
+		keyId = t.keys.first.id
+		tuneTypeId = t.tune_types[0].id
+		%>
+			tunesArr[<%= t.id %>] = new objTune(<%= t.id %>, 
+			"<%= t.title %>", <%= tuneTypeId %>, <%= keyId %>, 
+			<%= t.status %>, <%= t.parts %>, "", "<%= t.entryDate %>", "<%= t.lastUpdate %>");
+		<% rescue %>
+			<%= '// baad' %>
+		<% end 
+	end
+	
+end
+
+tune_types = TuneType.all
+tune_types.each do |tt| %>
+	typesArr["<%= tt.id %>"] = new objType(<%= tt.id %>, "<%= tt.title %>", "<%= tt.color %>");	
+	<%	
+end
+
+keys = Key.all
+keys.each do |k|
+	%>
+	keysArr["<%= k.id %>"] = new objKey(<%= k.id %>, "<%= k.title %>", 1);
+	<%	
+end
+
+
+
+
+
+sets = TuneSet.all
+sets.each do |s|
+	flagged = s.flagged.nil? ? 0 : s.flagged
+	
+%>
+	setsArr[<%= s.id %>] = new objSet(<%= s.id %>, new Array(<%= s.tuneIds %>), 
+			'tune/tune/tune', <%= flagged %>, <%= s.status %>, '<%= s.entryDate %>');		
+<%
+end
+
+
+
+
+
+resources = user.resources
+resources.each do |r|
+
+%>
+
+resourcesArr[<%= r.id %>] = new objResource(<%= r.id %>, <%= r.resourceType %>, "<%= r.title %>",
+					"<%= r.url %>", "<%= r.localFile %>",
+					 "<%= r.comments %>", "<%= r.entryDate %>", "<%= r.priority %>");					 	
+<%
+end
+
+
+groups = user.groups
+groups.each do |g|
+
+%>
+	groupsArr[<%= g.id %>] = new objGroup(<%= g.id %>, "<%= g.title %>", <%= g.status %>, <%= g.priority %>, '<%= g.entryDate %>');	
+	<% g.group_items.each do |gi|%>				
+		groupsArr[<%= g.id %>].itemsArr.push(new groupItem(<%= gi.itemable_id %>, <%= gi.itemable_typebackup %>, 
+			<%= gi.priority.nil? ? 0 : gi.priority %>));
+	<%end%>
+<%
+end
+
+
+
+
+
+
+
+
+
+=begin
+
+
+
+if($get & GET_RESOURCES){
+	// echo "\r\n";
+	
+	// get array of all resources
+	// if a tuneId is specified the array will return only resources for that tune
+	if(isset($_REQUEST['tuneId']))
+		$resourceArr = getResourcesByTune($_REQUEST['tuneId']);
+	else
+		$resourceArr = getResources($_SESSION["userId"]);
+	// write javascript array
+	$arrPushStr = "";
+	foreach($resourceArr as $res){
+		$arrPushStr .= "resourcesArr[".$res->id."] = new objResource(".
+					 $res->id . ",".
+					 $res->resourceType . ",".
+					 "\"" . str_replace("\"", "\\\"", $res->title) . "\",".
+					 "\"" . $res->url . "\",".
+					 "\"" . $res->localFile . "\",".
+					 "\"" . str_replace("\"", "\\\"", $res->comments) . "\",".
+					 "\"" . $res->entryDate . "\",".
+					 "\"" . $res->priority . "\"".
+					 ");";
+				
+		if($res->arrAssocItems)
+			foreach($res->arrAssocItems as $itemId){
+				$arrPushStr .= "resourcesArr[".$res->id."].associatedItemsArr.push(new groupItem(".$itemId.", ITEM_TYPE_TUNE));";
+			}	
+	}
+	
+	
+	
+	echo $arrPushStr;
+}
+
+
+
+
+
+
+
+
+
+if($get & GET_GROUPS){
+	$groupArr = getGroups($_SESSION["userId"]);
+	foreach($groupArr as $group){
+		$title = str_replace("\"", "\\\"", $group->title);
+		echo "groupsArr[".$group->id."] = new objGroup(".$group->id.", \"".$title."\", ".$group->status.", ".$group->priority.", '".$group->entryDate."');";
+		foreach($group->itemArr as $groupItem){
+			echo "groupsArr[".$group->id."].itemsArr.push(new groupItem(".$groupItem->id.",".$groupItem->type.", ".$groupItem->priority."));";
+		}
+		echo "groupsArr[groupsArr.length - 1].itemsArr.sort(prioritySort);";
+	}
+}
+
+
+
+
+
+
+
+
+if($get & GET_SETS){
+	$setArr = getSets($_SESSION["userId"]);
+	
+	// reuse the $tunesArr from above if available
+	$tunesArr = ($tunesArr ? $tunesArr : getTunes());
+	echo "\r\n\r\n\r\n";
+	foreach($setArr as $set){
+-		$idsArr = array();
+		$namesArr = array();
+		$tuneId = strtok($set->tuneIds, ",");
+		while($tuneId !== FALSE){
+			if(array_key_exists($tuneId, $tunesArr)){
+				$objTune = $tunesArr[$tuneId];
+				array_push($idsArr, "\"".$objTune->id."\"");
+				array_push($namesArr, $objTune->title);
+			}
+			else{
+				// tune in set does not exist ??
+				// todo cleanup for nonexistent tune on tune delete (actions.php)
+			}
+			$tuneId = strtok(",");
+		}
+		
+		echo "setsArr[".$set->id."] = new objSet(".$set->id.", new Array(".implode(",", $idsArr)."), 
+			\"".str_replace("\"", "\\\"", implode("/", $namesArr))."\", ".$set->flagged.", ".$set->status.", '".$set->entryDate."');";
+	}
+}
+
+
+=end
+
+
+	
+%>
+

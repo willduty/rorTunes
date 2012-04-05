@@ -1,0 +1,628 @@
+
+<html>
+
+<head>
+
+<script type="text/javascript">
+
+<%= render 'tune/data' %>
+
+var PAGE_VIEW_ALL = 1;
+var PAGE_VIEW_BYGROUPS = 2;
+
+var gViewMode;
+var gTunesObj = new objTunes();
+
+
+// page using doAction() must implement getReturnPageParams()
+function getReturnPageParams(){
+	
+	var arr = new Array();
+	var btnMgr = new ButtonManager();
+	var buttons = btnMgr.getAllPageButtons()
+	for(var i=0; i<buttons.length; i++){
+		if(buttons[i].getAttribute("onOff") == "on"){
+			arr.push("onBtn=" + buttons[i].id);
+		}
+	}
+
+	try{
+		arr.push("contentScroll=" + getContentArea().scrollTop);
+	}catch(e){}
+
+	return arr;
+} 
+
+function getContentArea(){
+	return document.getElementById("contentarea");
+}
+
+function scrollContentArea(){
+	if(scrollPoint = getRequestParam("contentScroll"))
+		getContentArea().scrollTop = scrollPoint;
+}
+
+
+
+function suggestionPressedCallback(str, id, tuneSelectionBox){
+	if(id){
+		return suggestionClickedCallback(str, id, tuneSelectionBox);
+	}
+	else {
+		
+		// todo determine which box was clicked
+		
+		
+		// tune was not selected from list
+		// prompt user to create new tune		
+		if(confirm("\"" + tuneSelectionBox.value + "\" does not exist.\r\n create it now?")){
+			var fl = new FloatingContainer(newTuneCallback, null, null);
+			var iframe = document.createElement("iframe");
+			iframe.src = "newtune.php";
+			iframe.style.borderWidth = 0;
+			fl.addContentElement(iframe);
+			fl.show(event);
+			
+		}
+	}
+	return false;
+}
+
+function newTuneCallback(){
+	alert("")
+}
+
+
+
+// callback from objAutoSuggest when the user selects a suggestion. 
+function suggestionClickedCallback(str, id, tuneSelectionBox){
+	
+	// clear entry box
+	tuneSelectionBox.value = "";
+	tuneSelectionBox.setAttribute("tuneId", id)
+
+	var item = newSetList.addItem(str, id, null);
+	item.oncontextmenu = function(){
+		var cm = new ContextMenu();
+		cm.addItem("Remove", removeTuneFromNewSet, item);
+		cm.show();
+		return false;
+	}
+	newSetList.show();
+}
+
+
+function removeTuneFromNewSet(item){
+	newSetList.removeItem(item);
+}
+
+
+
+
+function randomSuggestionClickedCallback(str, id){
+	var elem = document.getElementById("randomSetRequiredTune")
+	elem.value = str;
+	elem.setAttribute("tuneId", id);
+}
+
+// makes a new random set
+function makeNewRandomSet(requiredTune){
+
+	var arr = new Array(), setArr = new Array(), arrNames = new Array();
+	
+	var newSetLength = 3;
+	var tuneType = 1;
+	
+	// if a specific tune is required in the set...
+	if(requiredTune){
+		newSetLength--;
+		setArr.push(requiredTune);
+		tuneType = tunesArr[requiredTune].typeId;
+	}
+	else{
+		// determine a type randomly
+		var highest = 0;
+		for(var i in typesArr){
+			// for each tunetype weight the probability 
+			// by number of tunes of that type
+			var tunesOfTypeI = gTunesObj.getTunesByType(typesArr[i].id).length;
+			alert(tunesOfTypeI)
+			
+			var ratio =  tunesOfTypeI / tunesArr.length;
+			var weightedProb = ratio * Math.random();
+			
+			// the highest weightedProb gets selected
+			if(weightedProb > highest){
+				tuneType = typesArr[i].id;
+				highest = weightedProb;
+			}
+		}
+	}
+	
+	// select a random tune from tunes of tuneType
+	var arr = gTunesObj.getTunesByType(tuneType);
+	
+	for(var i=0; i<newSetLength; i++){
+		var idx = Math.floor(Math.random() * arr.length);
+		setArr.push(arr[idx].id);
+		arrNames.push(arr[idx].title)
+	}
+	var newSet = new objSet(null, setArr, arrNames.join("/"), false, STATUS_ACTIVE);
+
+	return newSet;
+}
+
+
+var gTempSets = new Array(); // to hold newly created sets, needed?
+
+function generateRandomSets(){
+	var resultbox = document.getElementById("randomSetResultBox");
+	var requiredTune = document.getElementById("randomSetRequiredTune").getAttribute("tuneId");
+	
+	var newSet = makeNewRandomSet(requiredTune); // todo need to put this in a glo
+	gTempSets.push(newSet);
+	
+	setElem = appendSet(newSet, null, resultbox);
+	setElem.setAttribute("ids", newSet.tunesArr.join(","));
+	
+	resultbox.lastChild.innerHTML = newSet.getLabel() + resultbox.lastChild.innerHTML;
+	resultbox.lastChild.className = "item white pointer";
+	
+	setElem.oncontextmenu = function(){
+		var ctx = new ContextMenu();
+		var ss = {setElem: this, groupId: 0};
+		
+		ctx.addItem("Save Set", saveNewSet, ss);
+		
+		var group = ctx.addSubMenu("Save Set to Group");
+		for(var i in groupsArr){
+			var ss = {setElem: setElem, groupId: groupsArr[i].id};
+			group.addItem(groupsArr[i].title, saveNewSet, ss);
+		}
+		ctx.show(event);
+		return false;
+	}	
+}
+
+
+// from http://jsfromhell.com/array/shuffle
+function shuffleArray(v){
+    for(var j, x, i = v.length; i; j = parseInt(Math.random() * i), x = v[--i], v[i] = v[j], v[j] = x);
+    return v;
+};
+
+
+
+
+function showAllSets(){
+	gViewMode = PAGE_VIEW_ALL;
+	clearContentArea();
+	//try{
+	var copyArr = getSortedArrayCopy(setsArr, SORT_TYPE_SETS_ALPHA);
+	//}catch(e){alert('2:'+e)}	
+	alert(copyArr.length)
+	function func(){
+		alert('todo');
+	}
+	
+	var ca =  document.getElementById('contentarea');
+	var grid = new Grid(ca, LIST_VIEW_FULL);
+	
+	grid.returnKeyCallback = func;
+	grid.addColumn("Set", 400);
+	grid.addColumn("Type", 100);
+	grid.addColumn("Entry Date", 100);
+	
+	for(var i in copyArr){
+		try{
+			var set = copyArr[i];
+			grid.addItem(GRID_OPTIONS_SINGLE_ROW_CALLBACK, 
+							set.getSetAsString(false), 
+							set.getTypeAsString(), 
+							set.entryDate,
+							showSetEditDlg, 
+							set.id);
+		}catch(e){alert(e)}
+	}	
+	grid.show();
+	grid.sortByColumn(1, SORT_DESC);
+	$("#setCount").html(grid.getRowCount());
+	
+	
+}
+
+
+// shows group titles containing sets followed by the sets
+// tunes or other items in groups are not shown
+
+function showSetsByGroup(){
+
+	gViewMode = PAGE_VIEW_BYGROUPS;
+	clearContentArea();
+	var setsCount = 0;
+	var msl = getContentArea();
+	msl.style.overflow = "scroll";
+	
+	// get priority sorted copy of groupsArr
+	var sortedGroupsArr = getSortedArrayCopy(groupsArr, SORT_TYPE_PRIORITY); 
+	
+	var inGroupArr = new Array();
+	for(var i in sortedGroupsArr){
+		var group = sortedGroupsArr[i];
+		var sets;
+			
+		if(group.status & STATUS_ACTIVE && (sets = group.getItemsByType(ITEM_TYPE_SET))){
+			// set up the group title header
+			var groupTitleDiv = createTitleDiv(group.title, group.id);
+			groupTitleDiv.style.backgroundColor = "eeeeee";
+			addGroupContextMenu(groupTitleDiv);
+			msl.appendChild(groupTitleDiv);
+			
+			// show the sets in a "reorder" object so user can
+			// reorder right on the page
+			var ro = new objReorder();
+			for(var k in sets){	
+			try{	
+				inGroupArr.push(sets[k].id);
+				setsCount++;
+			}catch(e){alert(k)}
+				
+				var setdiv = createItemElement(sets[k], ITEM_TYPE_SET, group.id, false);
+				ro.addItem(setdiv, sets[k].id);
+			}
+			
+			var box = ro.getBox();
+			ro.saveCallback = groupSetsReorderCallback
+			ro.saveParam = ro;
+			ro.assemble(msl);
+			
+			msl.appendChild(document.createElement("br"));
+		}	
+		
+
+	}
+	
+	// sets not in groups
+	var groupTitleDiv = createTitleDiv("[ungrouped]");
+	msl.appendChild(groupTitleDiv);
+	for(var i in setsArr){
+		var b = true;
+		for(var j in inGroupArr){
+			if(inGroupArr[j] == setsArr[i].id){			
+				b = false;
+				break;
+			}
+		}	
+		if(b) 
+			appendSet(setsArr[i], 0);
+	}	
+	$("#setCount").html(setsCount);
+}
+
+
+
+
+
+
+function searchSuggestionClickedCallback(str, id){
+
+	// clear the entry box
+	var elem = document.getElementById("setSearchEntryBox")
+	elem.value = str;
+	elem.attributes.tuneId = id;
+
+	var resultBox = document.getElementById("setSearchResultBox");
+	document.getElementById("resultsLabel").style.display = "";
+	var b = false;
+	for(var i in setsArr){
+		if(setsArr[i].hasTune(id)){
+			var set = appendSet(setsArr[i], 0, "setSearchResultBox");
+			set.innerHTML = bullet + set.innerHTML;
+			b = true;
+		}
+	}
+	
+	if(!b)
+		resultBox.innerHTML = "<span class='info white'>[no results]</span>";
+}
+
+
+
+
+// show search results if there was a search
+function showSearchResults(){
+	var ids = getRequestParam("setSearchIds");
+	if(ids != null){
+		switchOnToolByButton("searchSetsBtn");
+		var resultBox = document.getElementById("setSearchResultBox");
+		if(ids.length){
+			var resultSetIds = ids.split(",");
+			document.getElementById("resultsLabel").style.display = "";
+			for(var i in resultSetIds){
+				var set = appendSet(setsArr[resultSetIds[i]], 0, "setSearchResultBox");
+				set.innerHTML = bullet + set.innerHTML;
+			}
+		}
+		else
+			resultBox.innerHTML = "<span class='info white'>[no results]</span>";
+	}
+}
+
+
+
+function appendSet(setObj, groupId, targetElem, className){
+	
+	// assume targetElem is main content area unless specified
+	if(typeof(targetElem) == 'undefined'){
+		targetElem = getContentArea();
+	}
+	
+	// if a string is sent assume id of targetElem
+	if(typeof(targetElem) == 'string'){
+		targetElem = document.getElementById(targetElem);
+	}
+	
+	setdiv = createItemElement(setObj, ITEM_TYPE_SET, groupId, false);
+	
+	var className;
+	if(targetElem.id == "setSearchResultBox")
+		setdiv.className += " white";
+	
+	targetElem.appendChild(setdiv);
+	return setdiv;
+}
+
+
+
+function saveNewSetFromList(){
+	saveNewSet({setElem:newSetList, groupId:0})
+}
+
+
+function showSaveToGroupMenu(){
+	var event = window.event;
+	var ctx = new ContextMenu();
+	for(var i in groupsArr){
+		var ss = {setElem: newSetList, groupId: groupsArr[i].id};
+		ctx.addItem(groupsArr[i].title, saveNewSet, ss);
+	}
+	ctx.show(event);
+}
+
+
+
+
+var newSetList = null;
+
+var auto; 
+		
+// onload stuff
+window.onload = fillPage;
+
+function fillPage(){	
+	gViewMode  = PAGE_VIEW_BYGROUPS;
+	
+	setUpToolSwitches();
+	showSearchResults();
+	
+	// get "on" buttons
+	var arrParams = getAllRequestParams();
+	var arrOnBtns = new Array();
+	for(var i in arrParams){
+		if(arrParams[i].split("=")[0] == "onBtn"){
+			arrOnBtns.push(arrParams[i].split("=")[1]);
+		}
+	}
+	
+	
+	
+	// has to be called before showing the list
+	var btnMgr = new ButtonManager();
+	btnMgr.setUpButtons(arrOnBtns);
+	
+	// set up autosuggest
+	var setEntryBox = document.getElementById("manualSetEntryBox");
+	auto = new objAutoSuggest(setEntryBox, autoSuggestCallback);
+	
+	// set up handlers and callbacks for input boxes that will use autosuggest
+	setEntryBox.onfocus = function(){
+		auto.setElement(this);
+		auto.suggestionClickedCallback = suggestionClickedCallback;
+		auto.suggestionPressedCallback = suggestionPressedCallback;
+	}
+	
+	document.getElementById("setSearchEntryBox").onfocus = function(){
+		auto.setElement(this);
+		auto.suggestionClickedCallback = searchSuggestionClickedCallback;
+		auto.suggestionPressedCallback = searchSuggestionClickedCallback;
+	}
+	document.getElementById("randomSetRequiredTune").onfocus = function(){
+		// var auto = new objAutoSuggest(this, autoSuggestCallback, randomSuggestionClickedCallback);
+		auto.setElement(this);
+		auto.suggestionClickedCallback = randomSuggestionClickedCallback;
+		auto.suggestionPressedCallback = randomSuggestionClickedCallback;
+	}
+	
+	// add the newly selected tune to the new set 
+	newsetbox = document.getElementById("manualSetResultBox");
+	newSetList = new objList(newsetbox, LIST_VIEW_SCROLLBOX);
+	newSetList.useMinimumNeededWidth = true;
+	newSetList.width = 200;
+	
+	scrollContentArea();
+	
+}
+
+
+</script>
+
+<link rel=StyleSheet href="css/style.css" type="text/css" media=screen>
+ 
+</head>
+
+
+<body>
+
+	<title>My Tunes Page</title>
+
+
+	<table class=navtable id=navtable border=0 cellpadding=0 cellspacing=0 align=center>
+		<!-- NAV BAR -->
+		<tr>
+			<td class=headerbar colspan=2>
+				<%= render 'layouts/navbar' %>
+			</td>
+		</tr>
+	</table>
+	
+	<table class=maintable id=maintable border=0 cellpadding=0 cellspacing=0 align=center>	
+		<tr>
+			<!-- LEFT COLUMN, CONTENT AREA -->			
+			<td height=100% width=650 valign=top id=mainTableLeftColumn>
+				<table class=unpaddedtable height=100% border=0 cellpadding=0 cellspacing=0>
+					<tr>
+						<!-- header -->
+						<td class="contentHeader">
+							<table >
+								<tr><td width=95 class="toolheader">Sets</td>
+								<td class="info white">Count: <span id=setCount></span></td></tr>
+							</table>	
+						</td>
+					</tr>
+					<tr>
+						<!-- buttons -->
+						<td bgcolor=aaaaaa height=25 style="padding-top:2px;padding-bottom:4px;">
+							<span class="info gray">view: </span>
+							<span onOff="on" name=onOffButton id=viewAllSets btnGroup=view callback=showAllSets><span>grid</span></span>
+							<span onOff="off" name=onOffButton id=viewSetsByGroup btnGroup=view callback=showSetsByGroup><span>by group</span></span>
+							<span>&nbsp;&nbsp;&nbsp;</span>
+							
+						</td>
+					</tr>
+					
+					<!-- content -->
+					<tr>
+						<td><div id=contentarea style="height:100%; width:100%; overflow:scroll; overflow-x:hidden;"></div></td>
+					</tr>
+				</table>
+				
+			</td>
+		
+			
+			<!-- RIGHT COLUMN, TOOL AREA -->
+			<td class=toolArea valign=top width=350>
+				<table width=100% height=100%>
+					<tr>
+						<td height=30>
+							<table>
+								<tr>
+									<!-- tool switches -->
+									<td><span class="toolBtnOff" name=toolButton tool=manualSetEntry>New Set</span></td>
+									<td> | </td>
+									<td><span class="toolBtnOff" name=toolButton tool=searchSets id=searchSetsBtn>Search</span></td>
+									<td> | </td>
+									<td><span class="toolBtnOff" name=toolButton tool=randomSet>Random Sets</span></td>
+								</tr>								
+							</table>
+						</td>
+					</tr>
+					<tr>
+						<td colspan=3>
+							<!-- tool elements -->
+									
+							<!-- new set table -->
+							<table id=manualSetEntry class=toolContainer name=toolContainer width=100%>
+								<tr>
+									<td height=60 class=toolheader>New Set</td>
+								</tr>
+								<tr>
+									<td height=40>
+										<input type=text id=manualSetEntryBox clearOnCancel></input>
+									</td>
+								</tr>
+								<tr>
+									<td>
+										<div id=manualSetResultBox class="info white pointer"></div>	
+									</td>
+								</tr>
+								<tr height=100%>
+									<td valign=top>
+										<span class="info white pointer" onclick="saveNewSetFromList(); return false;">save set</span> | 
+										<span class="info white pointer" onclick="showSaveToGroupMenu(); return false;">save set to group</span> | 
+										<span class="info cancel pointer" name=toolCancel onclick="newSetList.clearList();">cancel</span>
+									</td>
+									<td colspan=2></td>
+								</tr>
+							</table>
+							
+							<!-- random sets tool -->
+							<table id=randomSet class=toolContainer name=toolContainer width=100%>
+								<tr>
+									<td height=60 class=toolheader>Generate Random Sets</td>
+								</tr>
+								<tr>
+									<td height=40 class="info white">
+										Start With (or leave blank):<br>
+										<input type=text id=randomSetRequiredTune clearOnCancel>
+									</td>
+								</tr>
+								<tr>
+									<td height=20 valign=top>
+										<span class="info pointer" onclick="generateRandomSets();">generate</span> | 
+										<span class="info pointer" onclick="clearContentArea('randomSetResultBox');">clear</span> | 
+										<span class="info cancel pointer" name=toolCancel>cancel</span>
+									</td>
+								</tr>
+								<tr>
+									<td height=100% valign=top>
+										<div id=randomSetResultBox class="info white" clearOnCancel></div>
+									</td>
+								</tr>
+							</table>
+							
+							<!-- search sets tool -->
+							<table id=searchSets class=toolContainer name=toolContainer border=0 width=100%>
+								<tr>
+									<td colspan=3 height=60 class=toolheader>Search Sets</td>
+								</tr>
+								<tr>
+									<td colspan=3 height=40 class="info white">
+										Search For:<br>
+										<input type=text id=setSearchEntryBox clearOnCancel></input>
+									</td>
+								</tr>
+								<tr>
+									<td colspan=3 height=10>
+										<div id=setSearchResultBoxContainer>
+											<div id=resultsLabel class='info white' style="display:none;" hideOnCancel>results:</div>
+											<div id=setSearchResultBox clearOnCancel></div>
+										</div>
+									</td>
+								</tr>
+								<tr>
+									<td valign=top><span class="info cancel pointer" name=toolCancel>close</span></td>
+									<td></td>
+									<td></td>
+								</tr>
+							</table>						
+							
+							
+						</td>
+					</tr>
+				</table>
+		
+			</td>
+		</tr>
+			
+			
+		<!-- BOTTOM SPACER ROW -->
+		<tr>
+			<td bgcolor=555555 colspan=2 height=10></td>
+		</tr>	
+			
+	</table>
+	
+	<?php include("emailBox.php"); ?>
+	
+</body>
+</html>

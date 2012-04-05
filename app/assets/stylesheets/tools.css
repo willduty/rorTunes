@@ -1,0 +1,202 @@
+
+.toolBox {
+	position:absolute; 
+	background:#f2f2ff; 
+	border: 1px solid gray;}
+	
+.toolBtn {
+	color:white;
+	font: bold 13px helvetica;
+	background:#999; 
+	border:1px outset lightgray; 
+	cursor:pointer; 
+	padding: 0px 5px 0px 5px; 
+	margin:0px;}
+	
+.toolBtn:active { 
+	border-style:inset; 
+	background:#b5ced5; }
+	
+.toolLine {background:gray; 
+	height:1px; 
+	margin:0px;}
+.toolHdr {color:white; 
+	font:bold 13px helvetica; 
+	background:black; }
+
+.onOffBtnOn {
+	background:#777; 
+	border:1px inset #999; 
+	padding:1px 2px 1px 3px;
+	font: bold 12px helvetica;
+	text-decoration:none;
+	color:white;  
+}
+
+.onOffBtnOff{
+	border:1px outset #999; 
+	padding:1px 2px 1px 3px;
+	font: bold 12px helvetica;
+	text-decoration:none;
+	color:white;  
+}
+
+.ctxMenuItem { 
+	color:#530; 
+	font: 12px helvetica;
+	padding: 2px 5px 2px 15px;
+	}
+
+.ctxMenuItem:hover {
+	background-color:#b5ced5;
+	}
+
+.ctxMenuInactiveItem {color:#aaa; 
+	font: 12px helvetica;	
+	padding: 1px 5px 2px 15px;
+}
+.ctxMenuDropShadow{color:#aaa; 
+	position: absolute; 
+		background: gray;
+		z-Index: 1; 
+		opacity: .5;
+		
+}
+
+
+.autoSuggestBox {position:absolute; 
+	background:white; 
+	border:1px solid black;}
+
+.hilited {background:blue; 
+	color:white;}
+.unhilited {background:none;}
+
+.separator {line-height: 1px; }
+
+.selectPad {position:absolute; 
+	background:orange; 
+	border:1px solid black;}
+.selectPadItem {background:#dd8545; 
+	border:1px outset; 
+	padding:2px; 
+	font: normal 12px arial ;
+	}
+.selectPadItem:hover {background-color:white;}
+
+
+.listItem {
+	padding: 1px 0px 1px 0px;
+	color:#750; 
+	font:normal 12px helvetica; }
+
+.listItemSelected {
+	background-color:#8ab; 
+	color:black; 
+	font:normal 12px helvetica; }
+	
+.gridRowHdrItem {
+	display:inline; 
+	float:left;
+	margin:0px;
+	padding:0px;
+	background-color:orange;
+	border-style:outset;
+}
+			
+.gridRow{
+	list-style:none;
+	clear:both;
+	margin:0px;
+	padding:0px;
+	border-width:1px;
+	border-bottom-color:lightgray;
+	border-bottom-style:solid;		
+}
+
+.gridRow:hover{
+	cursor:pointer;
+	background: black;
+}
+
+.gridCell{
+	float:left;
+	padding:1px;
+	width:100px;
+	overflow:hidden;
+	white-space:nowrap;
+	text-overflow:ellipsis;
+}
+
+ul.expandableSectionHdr {
+	list-style:none;
+	clear:both;
+	margin:0px;
+	padding:0px;
+	border:none;
+}
+	
+ul.expandableSectionHdr  li{
+	display:inline; 
+	float:left;
+	padding:1px;
+	width:100;
+	overflow:hidden;
+	white-space:nowrap;
+	text-overflow:ellipsis;
+}
+ul.expandableSectionHdr [name=expandIcon]{
+	font: normal 14px helvetica;
+	width: 1.2em;
+	height: 1em;
+	background:#eee;
+	cursor: pointer;
+	padding: 2px 0px 2px 7px;
+	margin: 1px;
+}
+ul.expandableSectionHdr  li:last-child{
+	width: 90%;
+}
+
+
+div.expandableSectionBody {
+	width: 90%;
+	margin: 2px 0px 15px 15px;
+}
+
+.setDeveloper{
+	width: 500px;
+	#height: 400px;
+	background: white;
+	border: 1px solid gray;
+}
+
+.setDeveloperTune{
+	font:normal 12px helvetica; 
+	cursor:pointer;
+	margin:0px;
+	padding:2px;
+	}
+
+.setDeveloperTune:hover{
+	background:lightgray; 
+	cursor:move;
+}
+
+.setDeveloperSet{
+	background: orange;
+	border:1 solid red;
+	margin:1 0 1 0;
+}
+
+
+.setDeveloperSetHover{
+	background: orange;
+	border:1 solid red;
+}
+
+.setDeveloperSetHover:hover{
+	background:lightgray; 
+	border:1 solid blue;
+}
+

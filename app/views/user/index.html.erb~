@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+
+<html>
+
+<head>
+
+
+<script type="text/javascript">
+
+<%= render 'layouts/data' %>
+<?php
+
+
+
+$counts = getCounts($_SESSION['userId']);
+	
+echo "var countsArr = new Array();";
+foreach($counts as $itemType=>$count){	
+	echo "countsArr[$itemType] = $count;";
+}
+
+?>
+
+function getReturnPageParams(){
+	var arr = new Array();
+	return arr;
+}
+
+
+function showChangePassword(cancel){
+	var changePwdBox = document.getElementById("changePasswordBox");	
+	if(typeof(cancel) == 'undefined')
+		changePwdBox.style.display = "";
+	else{
+		changePwdBox.style.display = "none";
+		closeTool("changePwdBox");
+	}
+}
+
+function changePassword(){
+	var oldPwd = document.getElementById("oldPassword").value;	
+	var newPwd1 = document.getElementById("newPassword1").value;	
+	var newPwd2 = document.getElementById("newPassword2").value;	
+	if(oldPwd == "" || newPwd1 == "" || newPwd2 == "")
+	{
+		alert("One or more fields are blank.");
+		return;
+	}
+	
+	if(newPwd1 != newPwd2){
+		alert("New password entries do not match.");
+		return;
+	}
+
+	doAction("changePassword",
+			"oldPwd", oldPwd,
+			"newPwd", newPwd1);
+}
+
+window.onload = function(){
+	
+	// favorites
+	var favBox = document.getElementById("favoritesBox");
+	if(favoritesArr.length){
+		removePlaceholder(favBox);
+		
+		for(var i in favoritesArr){
+			var div = createItemElement(favoritesArr[i], ITEM_TYPE_FAVORITE, null, true);
+			var favItem = favoritesArr[i];
+			div.oncontextmenu = function(e){
+				var cm = new ContextMenu();
+				cm.addItem("remove favorite", removeFavorite, this.getAttribute("itemId"));
+				cm.show(e);
+				return false;
+			};
+			favBox.appendChild(div);
+		}
+		
+		
+	}
+	
+	
+	// latest
+	var arr = [tunesArr, resourcesArr, setsArr, groupsArr];
+	var latestBox = document.getElementById("latestBox");
+	for(var i in arr){
+		var itemArr = getSortedArrayCopy(arr[i], SORT_TYPE_ENTRY_DATE_ASC);	
+		var ctr = 0;
+		for(var j in itemArr){
+			var boxId, hdrId, count;
+			switch(arr[i]){
+				case tunesArr: 
+					boxId = "latestTunesBox"; 
+					hdrId = "tunesSectionHdr"; 
+					count = tunesArr.length; 
+					break;
+				case resourcesArr: 
+					boxId = "latestResourcesBox"; 
+					hdrId = "resourcesSectionHdr"; 
+					count  = resourcesArr.length; 
+					break;
+				case setsArr: 
+					boxId = "latestSetsBox"; 
+					hdrId = "setsSectionHdr"; 
+					count = setsArr.length;
+					break;
+				case groupsArr: 
+					boxId = "latestGroupsBox"; 
+					hdrId = "groupsSectionHdr"; 
+					count = groupsArr.length; 
+					break;
+			}
+			var box = document.getElementById(boxId);
+			var div = createItemElement(itemArr[j], itemArr[j].itemType, null, false);
+			div.innerHTML = itemArr[j].entryDate + ": " + div.innerHTML
+			
+			try{
+				div.getHeader().setAttribute('itemId', group.id);
+				addGroupContextMenu(div.getHeader());
+				es.setHeaderClass("info");
+			}catch(e){}
+			
+			
+			box.appendChild(div);
+			ctr++;
+			if(ctr>2)
+				break;
+		}
+		
+		var hdr = document.getElementById(hdrId);
+			hdr.innerHTML += " [item count: " + count + "]";
+			
+		box.appendChild(document.createElement("br"))
+	}
+	
+	setUpToolSwitches()
+
+	$('[itemType='+ITEM_TYPE_TUNE+']').each(function(){colorCodeTune($(this).get(0))})
+	
+}
+
+
+</script>
+
+</head>
+
+
+<body>
+	<table class=navtable id=navtable border=0 cellpadding=0 cellspacing=0 align=center>
+		<!-- NAV BAR -->
+		<tr>
+			<td class=headerbar>
+				<%= render 'layouts/navbar' %>
+			</td>
+		</tr>
+	</table>
+	<table id=maintable class=maintable width=600 cellpadding=0 cellspacing=0 align=center>
+		
+		<tr>
+			<!-- header -->
+			<td class="contentHeader">
+				<table>
+					<tr>
+						<td width=95 class="toolheader">Tunes Home</td>
+						<td class="info white"></td>
+					</tr>
+				</table>	
+			</td>
+		</tr>
+		
+		<tr>
+			<td class=info valign=top height=100%>
+
+
+
+tunes: 
+<%= @user.tunes.length %>
+<br>
+
+sets: 
+<%= @user.tune_sets.length %>
+<br>
+resources: 
+<%= @user.resources.length %>
+<br>
+groups: 
+<%= @user.groups.length %>
+<br>
+
+				
+				<!-- content table -->
+				<table cellspacing=20>
+					<tr>
+						<td valign=top>
+						
+						<!--<span><div class=helpicon>?</div></span>-->
+							
+							<div class=infohdr>Favorites&nbsp;&nbsp;<img src='img/helpIcon.gif'></img></div>
+							<div class="item ltltgrayBkgd bubbleSection" style="width:500;"  id=favoritesBox style="margin-left:10px">
+								<div class='info gray' name=placeholder>&nbsp;[no favorites have been added]</div>
+							</div>
+							<br>
+							
+							<div class=infohdr>Latest</div>
+							<div class="item ltltgrayBkgd bubbleSection" style="width:500;"  id=latestBox style="margin-left:10px">
+								<div><a href="tunes.php" id=tunesSectionHdr class="info copper">Tunes:</a></div>
+								<div class="indentedbox" id=latestTunesBox></div>
+								<div><a href="resources.php" id=resourcesSectionHdr class="info copper">Resources:</a></div>
+								<div class="indentedbox" id=latestResourcesBox></div>
+								<div><a href="sets.php" id=setsSectionHdr class="info copper ">Sets:</a></div>
+								<div class="indentedbox" id=latestSetsBox></div>
+								<div><a href="groups.php" id=groupsSectionHdr class="info copper">Groups:</a></div>
+								<div class="indentedbox" id=latestGroupsBox></div>
+							</div>
+							<br>			
+						</td>
+						
+						<td valign=top>
+							<div class=infohdr>Account</div>
+							<div class="item ltltgrayBkgd bubbleSection" style="width:300;"  id=accountBox style="margin-left:10px">
+								
+								<div class=info style="margin-top:5">username: <span class=item><?php echo $_SESSION['userName']; ?></span></div>
+								<div class=info>password: <span class=item><?php for($i=0;$i<$_SESSION['passwordLength'];$i++) echo "&#8226;"; ?></span>
+									<span onclick="showChangePassword();" class="info ltgray">[change password]</span>
+								</div>
+								<div class="info bubbleSection whiteBkgd" id=changePasswordBox style="display:none; margin-bottom:10px;">
+									<form>
+									<br>
+									<label> Old password:</label><input type=password id=oldPassword clearOnCancel></input><br>
+									<label> New password:</label><input type=password id=newPassword1 clearOnCancel></input><br>
+									<label> Reenter new password:</label><input type=password id=newPassword2 clearOnCancel></input><br>
+									</form>
+									<div class="grayBkgd white"><span onclick="changePassword()">save</span> | <span class="cancel" onclick="showChangePassword(true)">cancel</span></div>
+									
+								</div>
+								
+								<div class=info>email: <span class=item><?php echo $_SESSION['email']; ?></span></div>
+								<div class=info>registered: <span class=item><?php 
+										
+										echo @date('M j, Y h:i A', strtotime($_SESSION['createDate']));
+										?></span></div>
+								<div class=info style="margin-bottom:5">last login: <span class=item><?php 
+										echo @date('M j, Y h:i A', strtotime($_SESSION['lastLogin'])); 
+									?></span></div>
+								<div class="info white grayBkgd">&nbsp;<span>edit</span>&nbsp;&nbsp;|&nbsp;&nbsp;<span>close account</span></div>
+								
+							</div>
+							<br>
+							
+							<div class=infohdr>Options</div>
+							<div class="item ltltgrayBkgd bubbleSection" style="width:300;"  id=settingsBox style="margin-left:10px">
+								<div class=info tool=generalSettings name=toolButton >general</div>
+								
+								<div id=generalSettings name=toolContainer style="display:none;">hello<br>hello<br>hello</div>
+								<div class=info>sharing</div>
+								
+							</div>
+							<br>
+						</td>
+					
+					</tr>
+				</table>
+				
+			</td>
+		</tr>
+		
+	</table>		
+</body>
+</html>
+
+concat tag('br')
+concat @user.email
+concat @user.username 
+concat @user.password 
+concat @user.createDate 
+concat @user.lastUpdate 
+concat @user.userType
+concat @user.firstName
+concat @user.lastName
+concat @user.lastLogin
+concat @user.status
+concat @user.fkUserGroup
+concat @user.initialIPAddr
+
+
+%>

@@ -1,0 +1,335 @@
+<script type="text/javascript">
+
+
+
+<%= render 'layouts/data' %>
+
+var TOOL_NEW_SET = 1;
+var TOOL_NEW_SET_MANUAL = 2;
+var TOOL_SEARCH_SETS = 3;
+
+
+function getReturnPageParams(){
+	var arr = new Array();
+	try{
+		arr.push("contentScroll=" + getContentArea().scrollTop);
+	}catch(e){}
+	return arr;
+}
+
+function getContentArea(){
+	return document.getElementById("contentarea");
+}
+
+
+function scrollContentArea(){	
+	if(scrollPoint = getRequestParam("contentScroll")){
+		getContentArea().scrollTop = scrollPoint;
+	}
+}
+
+
+// show all the resources
+function showList(){
+	clearContentArea();
+	var resArr = getSortedArrayCopy(resourcesArr, SORT_TYPE_RESOURCETYPE);
+	var sheetMusicArr = new Array();
+	
+	for (var i in resArr){
+		var res = resArr[i];
+		var div = createItemElement(res, ITEM_TYPE_RESOURCE, null, true);
+		if(res.resourceType == RESOURCE_SHEETMUSIC){
+			sheetMusicArr.push(res);
+		}		
+		else{
+			getContentArea().appendChild(div);
+		}
+	}	
+	
+	getContentArea().style.overflow = "scroll";
+	var title = createTitleDiv("sheetmusic", 0, "div");
+	getContentArea().appendChild(title);
+	var table = itemsInMultiCol(sheetMusicArr, ITEM_TYPE_RESOURCE, null);
+	getContentArea().appendChild(table);
+}
+
+
+
+// show all the resources
+function showGrid(){
+	clearContentArea();
+	
+	// create tune list
+	var ca = getContentArea();
+	var grid = new Grid(ca, LIST_VIEW_FULL); // LIST_VIEW_SCROLLBOX
+	
+	grid.addColumn("Title", 240);
+	grid.addColumn("Type", 90);
+	grid.addColumn("Source", 150);
+	grid.addColumn("Entry Date", 80);
+	
+	var resArr = getSortedArrayCopy(resourcesArr, SORT_TYPE_RESOURCETYPE);
+	var sheetMusicArr = new Array();
+	
+	for (var i in resArr){
+		var res = resArr[i];
+		var title = "";
+		try{
+			if(res.resourceType == RESOURCE_SHEETMUSIC){
+				if(res.associatedItemsArr.length){
+					title = tunesArr[res.associatedItemsArr[0].id].title;
+				}
+				else{
+					title = (res.localFile.length) ? res.localFile : res.url;
+				}
+			}
+			else
+				title = res.title.substr(0, 37);
+			
+			var elem = grid.addItem(GRID_OPTIONS_SINGLE_ROW_CALLBACK, 
+									title, 
+									res.getLabel(), 
+									res.url,
+									res.entryDate, 
+									showResource, 
+									res);
+			addResourceContextMenu(elem, res);
+		
+		}catch(e){
+			alert(e.message + "\r\n\r\ntuneId:" +  
+					res.tuneId + 
+					" res.id:" +res.id +
+					" res.type:" + res.itemType +
+					" assoc arr:" + res.associatedItemsArr.length
+					)
+		}
+	}
+	grid.show();
+	grid.sortByColumn(3, SORT_DESC);
+}
+
+
+
+// show list of tunes with associate resources
+// todo, should make this list of *items* not just tunes
+function showByTune(){
+	// make array of tunes with its associated resources
+	// key=tuneId value=[array of resource objects]
+	var arrTunesWithResources = new Array();
+	
+	// go through resource array and find any resource with tunes 
+	for(var i in resourcesArr){
+		var iarr = resourcesArr[i].associatedItemsArr;
+		
+		for(var j in iarr){
+			// make the array key the tuneId and the value an array to push on resources
+			var tuneId = iarr[j].id;
+			if(!arrTunesWithResources[tuneId])
+				arrTunesWithResources[tuneId] = new Array();
+			arrTunesWithResources[tuneId].push(resourcesArr[i]);
+		}
+	}
+	
+	
+	// clear the box
+	var contentArea = getContentArea();
+	clearContentArea();
+	contentArea.style.overflow = "scroll";
+	
+	// iterate through array of tunes/resources
+	var tunesAlpha = getSortedArrayCopy(tunesArr, SORT_TYPE_ALPHA)
+	for(var n in tunesAlpha){
+		
+		var i = tunesAlpha[n].id;
+		// try{
+		if(arrTunesWithResources[i])
+		{
+		
+			// append the tune title div
+			var tune = createTitleDiv(tunesArr[i].title, i);
+			tune.style.fontSize = "12px";
+			tune.style.backgroundColor = "eeeeee";
+			
+			tune.setAttribute("tuneId", tunesArr[i].id);
+			tune.onclick = function(){
+				location = "tune.php?tuneId=" + this.getAttribute("tuneId");
+			}
+			contentArea.appendChild(tune);
+			
+			// create display area for tunes
+			var section = document.createElement("div");
+			section.style.backgroundColor = "white";
+			contentArea.appendChild(section);
+
+			// iterate through resources for the tune (sort first)
+			var resArr = arrTunesWithResources[i];
+			resArr.sort(sortByResourceType);
+			
+			for(var j in resArr){
+				var res = arrTunesWithResources[i][j];			
+				var div = createItemElement(res, ITEM_TYPE_RESOURCE, null, true);
+				div.style.padding = "2 0 0 5";
+				addResourceContextMenu(div, res);
+				
+				// append resource title div 
+				section.appendChild(div);
+			}
+			
+			// a line break to separate each tune/resource block
+			contentArea.appendChild(document.createElement("br"));
+		}
+	}	
+}
+
+
+function clearContentArea(){
+	var contentArea = getContentArea();
+	while(contentArea.hasChildNodes())
+		contentArea.removeChild(contentArea.firstChild)
+}
+
+function updateCount(){
+	for(var i in resourcesArr)
+	document.getElementById("resourceCount").innerHTML++;	
+}
+
+window.onload = function (){
+try{	
+	sizeContentArea();
+	setUpToolSwitches(); 
+	var btnMgr = new ButtonManager();
+	btnMgr.setUpButtons(); // this calls show resources
+	
+	updateCount(); 
+	scrollContentArea();
+	addResourceOptions();
+}catch(e){alert(e)}	
+}
+
+</script>
+
+<link rel=StyleSheet href="css/style.css" type="text/css" media=screen>
+ 
+</head>
+
+
+<body>
+	<title>My Tunes Page</title>
+
+	<table class=navtable id=navtable border=0 cellpadding="0" border="0" cellspacing="0" align=center>
+		<!-- NAV BAR -->
+		<tr>
+			<td colspan=2>				
+				<%= render 'layouts/navbar' %>
+			</td>
+		</tr>
+	</table>
+	
+	<table  id=maintable onselectstart="return false;" cellpadding="0" border="0" cellspacing="0" align=center>
+		<tr id=mainRow>
+			<!-- LEFT COLUMN, CONTENT AREA -->
+			<td height=100% width=650 valign=top id=mainTableLeftColumn >
+				<table class=unpaddedtable height=100%  cellpadding="0" border="0" cellspacing="0" >
+					<tr>
+						<!-- header -->
+						<td class="contentHeader" >
+							<table >
+								<tr>
+									<td width=95 class="toolheader">Resources</td>
+									<td class="info white">Count: <span id=resourceCount></span></td>
+								</tr>
+							</table>
+						</td>
+					</tr>
+					<tr>
+						<!-- buttons -->
+						<td bgcolor=aaaaaa height=25 style="padding-top:2px;padding-bottom:4px;" onselectstart="return false;">
+							&nbsp;&nbsp;<span class="info gray">View: </span>
+							<span onOff="on" name=onOffButton id=viewResources btnGroup=view callback=showGrid><span>grid</span></span>
+							<span onOff="off" name=onOffButton id=viewResources btnGroup=view callback=showList><span>as list</span></span>
+							<span onOff="off" name=onOffButton id=viewResourcesByTune btnGroup=view callback=showByTune><span>by tune</span></span>
+						</td>
+					</tr>
+				
+					<!-- CONTENT -->
+					<tr>
+						<td id=contentarea style="height:100%; width:100%;"></td>
+					</tr>
+					
+				</table>		
+			</td>
+		
+			
+				
+			<!-- RIGHT COLUMN, TOOL AREA -->
+			<td class=toolArea valign=top width=350>
+				<table width=100% height=100%>
+					<tr>
+						<td height=30>
+							<table>
+								<tr>
+									<!-- tool switches -->
+									<td>
+										<span class="toolBtnOff" name=toolButton tool=newResource fullPageTool>New Resource</span> | 
+										<span class="toolBtnOff" name=toolButton tool=searchResources>Search</span>
+									
+									</td>
+								</tr>								
+							</table>
+						</td>
+					</tr>
+					<tr>
+						<td colspan=3>
+							<!-- tool elements -->
+							
+													
+							<!-- new resource tool -->
+							<?php include("resourceSearchTool.php"); ?>
+						
+							
+							<!-- search sets tool -->
+							<table id=searchResources class=toolContainer name=toolContainer border=0 width=100%>
+								<tr>
+									<td colspan=3 height=60 class=toolheader>Search Resources</td>
+								</tr>
+								<tr>
+									<td colspan=3 height=40 class="info white">
+										Search For:<br>
+										<input type=text id=searchResourcesEntryBox clearOnCancel></input>
+									</td>
+								</tr>
+								<tr>
+									<td colspan=3 height=10>
+										<div id=searchResourcesResultBoxContainer>
+											<div id=resultsLabel class='info white' style="display:none;" hideOnCancel>results:</div>
+											<div id=searchResourcesResultBox clearOnCancel></div>
+										</div>
+									</td>
+								</tr>
+								<tr>
+									<td valign=top>
+										<span class="info white pointer" onclick="alert('todo')">search</span> | 
+										<span class="info cancel pointer" name=toolCancel>close</span>
+									</td>
+									<td></td>
+									<td></td>
+								</tr>
+							</table>
+						</td>
+					</tr>
+					
+				</table>
+		
+			</td>
+		</tr>
+		
+		<!-- BOTTOM SPACER ROW -->
+		<tr>
+			<td bgcolor=#555 height=10 colspan=2>
+				<div class='info pointer' onclick='saveCurrentView();'>save current page view</div>
+			</td>
+		</tr>
+		
+	</table>		
+</body>
+</html>
