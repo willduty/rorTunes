@@ -1,9 +1,0 @@
-
-<%
-
-
-@tunes.each do |t|
-	concat t.title;
-end
-
-%>
