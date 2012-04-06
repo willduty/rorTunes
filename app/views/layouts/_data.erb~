@@ -21,6 +21,7 @@ tunes.each do |t|
 		
 		keyId = t.keys.first.id
 		tuneTypeId = t.tune_types[0].id
+		
 		%>
 			tunesArr[<%= t.id %>] = new objTune(<%= t.id %>, 
 			"<%= t.title %>", <%= tuneTypeId %>, <%= keyId %>, 
@@ -81,7 +82,8 @@ groups.each do |g|
 %>
 	groupsArr[<%= g.id %>] = new objGroup(<%= g.id %>, "<%= g.title %>", <%= g.status %>, <%= g.priority %>, '<%= g.entryDate %>');	
 	<% g.group_items.each do |gi|%>				
-		groupsArr[<%= g.id %>].itemsArr.push(new groupItem(<%= gi.itemable_id %>, <%= gi.itemable_typebackup %>, <%= gi.priority %>));
+		groupsArr[<%= g.id %>].itemsArr.push(new groupItem(<%= gi.itemable_id %>, <%= gi.itemable_typebackup %>, 
+			<%= gi.priority.nil? ? 0 : gi.priority %>));
 	<%end%>
 <%
 end

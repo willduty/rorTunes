@@ -326,6 +326,11 @@ function gridCallbackSetParts(item){
 
 
 function submitNewTune(){
+	
+	$('form[name=newTuneForm]')
+	alert(4);
+
+
 	var title = document.getElementById("newTunetitle").value;
 	var typeid = document.getElementById("newTuneType").value;
 	var keyid = document.getElementById("newTuneKey").value;
@@ -602,11 +607,14 @@ try{
 							</tr>
 							<tr>
 								<td valign=top align=left class=infohdr>
+									<%= form_for @newTune, {:url=>{:action=>'add'}} do |nt| %>
 									
 									<table border=0 class=bubbleSectionTool>
 										<tr>
 											<td align=left height=35 class="infohdr ltltgray" colspan=3>
-												Title:<input type=text id=newTunetitle size=20 clearOnCancel></input>
+												Title: <%= nt.text_field :title, :size => '20' %>
+												
+												<!-- <input type=text id=newTunetitle size=20 clearOnCancel></input>-->
 											</td>
 										</tr>				
 										<tr>
@@ -614,13 +622,18 @@ try{
 												<table style="width:300" class="info white" border=0>
 													<tr>
 														<td style="width:100">
-															<span padTarget=newTuneType padSwitch=type padCallback=padItemSelected class="pointer ltcopper">Type... </span>
+															<span padTarget=newTuneType padSwitch=type padCallback=padItemSelected padHiddenTarget=newTuneTypesHidden class="pointer ltcopper">Type... </span>
 															<span id=newTuneType clearOnCancel class="info white"></span>
 															<br><br>
-															<span  padTarget=newTuneKey padSwitch=key padCallback=padItemSelected class="pointer ltcopper">Key... </span>
+															<span  padTarget=newTuneKey padSwitch=key padCallback=padItemSelected padHiddenTarget=newTuneKeysHidden class="pointer ltcopper">Key... </span>
 															<span id=newTuneKey clearOnCancel class="info white"></span>
+															<input type=hidden name='tune[key_ids]' value=1 id=newTuneKeysHidden>
+															<input type=hidden name='tune[tune_type_ids]' value=1 id=newTuneTypesHidden>
+															<input type=hidden name='tune[status]' value=1>
+															<input type=hidden name='tune[parts]' id=newTunePartsHidden value=2>
+															
 															<br><br>
-															<span padTarget=newTuneParts padSwitch=parts padCallback=padItemSelected class="pointer ltcopper">Parts... </span>
+															<span padTarget=newTuneParts padSwitch=parts padCallback=padItemSelected padHiddenTarget=newTunePartsHidden class="pointer ltcopper">Parts... </span>
 															<span id=newTuneParts clearOnCancel class="info white"></span>
 														</td>
 														<td style="width:100">
@@ -638,8 +651,10 @@ try{
 										</tr>
 									</table>
 									<br>
+									<%= nt.submit %>
 									<span class="info white pointer" onclick="submitNewTune(); return false;">submit</span> | 
 									<span class="info cancel pointer" id=btn1 name=toolCancel>cancel</span>
+									<% end %>
 								</td>
 							</tr>					
 						</table>

@@ -1,8 +1,0 @@
-class User < ActiveRecord::Base
-	has_many :items
-	has_many :tunes, :through => :items, :source => :itemable, :source_type => 'Tune'
-	
-	has_many :tune_sets, :through => :items
-	has_many :resources, :through => :items
-	has_many :groups, :through => :items
-end

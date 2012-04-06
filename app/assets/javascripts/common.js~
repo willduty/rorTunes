@@ -49,10 +49,10 @@ function doAction(action){
 		paramsArr.push(key +"="+ value);
 		i++;
 	}
-	var loc = "actions.php?" + paramsArr.join("&");
+	var loc = "/tune/add?" + paramsArr.join("&");
 
-	// alert(loc);
-	location = loc;
+	alert(loc);
+	//location = loc;
 }
 
 
@@ -167,15 +167,6 @@ function setUpToolSwitches(){
 		})
 	})
 	hideAllTools();
-}
-
-function setUpPadSwitches(){
-	$('[padSwitch]').click(function(e){
-		var target = $(this).attr("padTarget");
-		target = target ? $('#' + target).get(0) : $(this).get(0);
-		showPad($(this).attr('padSwitch'), target , eval($(this).attr('padCallback')), e);
-	})
-
 }
 
 function switchToolArea(btn){
@@ -310,6 +301,13 @@ function hideAllTools(){
 // FLOATING SELECT PAD FUNCTIONS
 
 
+function setUpPadSwitches(){
+	$('[padSwitch]').click(function(e){
+		showPad($(this).attr('padSwitch'), $(this).get(0) , eval($(this).attr('padCallback')), e);
+	})
+}
+
+
 // factory type function to show floating pad of various types, key, tunetype, etc
 function showPad(padtype, targetElem, callback, event){
 
@@ -373,11 +371,16 @@ function showPad(padtype, targetElem, callback, event){
 // targetElem: the page element which is to be filled with values from clicked pad item
 // padItemValue & padItemText: the element value and innerHTML respectively from clicked pad item
 
-function padItemSelected(targetElem, padItemValue, padItemText){
-	var container = null;
-	var name = "";
-	targetElem.innerHTML = padItemText;
-	targetElem.value = padItemValue; // id of whatever was selected (key, type, group etc)
+function padItemSelected(originElem, padItemValue, padItemText){
+	// put the selected text in the target
+	alert('#' + originElem.getAttribute("padTarget"))
+	var target = originElem.getAttribute("padTarget");
+	target = target ? $('#' + target).get(0) : originElem;
+	target.innerHTML = padItemText;
+	target.value = padItemValue; 
+	// put selected value in a hidden field if specified 
+	$('#' + originElem.getAttribute("padHiddenTarget")).val(padItemValue);
+	alert($(originElem).parent().parent().html())
 	return true;
 }
 
@@ -659,6 +662,11 @@ function deleteTune(tuneId){
 		"\" will be deleted. This cannot be undone.")){
 		return;
 	}
+	
+	$('<form method=post action=delete/'+tuneId+'><input type=hidden name=_method value=\'delete\'></form>').appendTo(document.body).submit();
+	
+	
+	return;
 	doAction("deleteTune",  
 			"tuneId", tuneId)
 }
@@ -1332,7 +1340,6 @@ function showResource(res){
 }
 
 function goToTunePage(id){
-alert(id)
 	location = "/tune/" + id;
 }
 

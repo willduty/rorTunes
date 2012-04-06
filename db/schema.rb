@@ -22,7 +22,7 @@ ActiveRecord::Schema.define(:version => 0) do
   end
 
   create_table "favorites", :force => true do |t|
-    t.string "fkItem",    :limit => 45
+    t.string "item_id",   :limit => 45
     t.string "itemType",  :limit => 45
     t.date   "entryDate"
   end
@@ -59,8 +59,8 @@ ActiveRecord::Schema.define(:version => 0) do
   end
 
   create_table "other_titles", :force => true do |t|
-    t.string  "title",  :null => false
-    t.integer "fkTune", :null => false
+    t.string  "title",   :null => false
+    t.integer "tune_id", :null => false
   end
 
   create_table "resources", :force => true do |t|
@@ -76,8 +76,8 @@ ActiveRecord::Schema.define(:version => 0) do
   end
 
   create_table "resources_tunes", :id => false, :force => true do |t|
-    t.integer "fkTune"
-    t.integer "fkResource"
+    t.integer "tune_id"
+    t.integer "resource_id"
   end
 
   create_table "tune_sets", :force => true do |t|
@@ -107,6 +107,17 @@ ActiveRecord::Schema.define(:version => 0) do
     t.integer "status",     :default => 0
   end
 
+  create_table "user_groups", :force => true do |t|
+    t.string "title", :limit => 45, :null => false
+  end
+
+  create_table "user_settings", :force => true do |t|
+    t.integer "user_id",               :null => false
+    t.string  "name",    :limit => 45, :null => false
+    t.string  "page",    :limit => 45
+    t.string  "value",                 :null => false
+  end
+
   create_table "users", :force => true do |t|
     t.string   "email",                       :null => false
     t.string   "username"
@@ -120,13 +131,6 @@ ActiveRecord::Schema.define(:version => 0) do
     t.integer  "status"
     t.integer  "fkUserGroup"
     t.string   "initialIPAddr", :limit => 45
-  end
-
-  create_table "usersettings", :force => true do |t|
-    t.integer "fkUser",               :null => false
-    t.string  "name",   :limit => 45, :null => false
-    t.string  "page",   :limit => 45
-    t.string  "value",                :null => false
   end
 
 end

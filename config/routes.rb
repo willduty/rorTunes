@@ -1,7 +1,7 @@
 RorTunes::Application.routes.draw do
 get "tune/index"
-get "tune/add"
-get "tune/delete"
+post "tune/add"
+delete "tune/delete/:id", :to => "tune#delete"
 match "tune/:id", :to=>'tune#show'
 
 get "resource/index"

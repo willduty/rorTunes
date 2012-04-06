@@ -21,6 +21,7 @@ tunes.each do |t|
 		
 		keyId = t.keys.first.id
 		tuneTypeId = t.tune_types[0].id
+		
 		%>
 			tunesArr[<%= t.id %>] = new objTune(<%= t.id %>, 
 			"<%= t.title %>", <%= tuneTypeId %>, <%= keyId %>, 
@@ -44,9 +45,6 @@ keys.each do |k|
 	keysArr["<%= k.id %>"] = new objKey(<%= k.id %>, "<%= k.title %>", 1);
 	<%	
 end
-
-
-
 
 
 sets = TuneSet.all
