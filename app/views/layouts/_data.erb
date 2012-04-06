@@ -47,7 +47,7 @@ keys.each do |k|
 end
 
 
-sets = TuneSet.all
+sets = user.tune_sets
 sets.each do |s|
 	flagged = s.flagged.nil? ? 0 : s.flagged
 	

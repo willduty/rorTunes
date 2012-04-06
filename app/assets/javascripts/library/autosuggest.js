@@ -85,7 +85,6 @@ function objAutoSuggest(elem, fnSearchCallback, fnSuggestionClickedCallback, fnS
 	
 	this.box.className = "autoSuggestBox";
 
-
 	this.box.innerHTML = "";
 	this.box.style.display = "none";
 
@@ -149,14 +148,15 @@ function objAutoSuggest(elem, fnSearchCallback, fnSuggestionClickedCallback, fnS
 	// catch relevant key events 
 	this.catchKeyPress = function(event){
 	
+		try{
 		if(typeof(event) == "undefined")	
 			event = window.event;
 
 		// show box and position
 		keyHiliteCleared = false;
 		_this.box.style.display = "";
-		_this.box.style.left = getXCoord(_this.elem);
-		_this.box.style.top = getYCoord(_this.elem) + _this.elem.offsetHeight;
+		_this.box.style.left = getXCoord(_this.elem) + 'px';
+		_this.box.style.top = getYCoord(_this.elem) + _this.elem.offsetHeight + 'px';
 		
 		var keyPressed = event.keyCode;
 		var b;
@@ -239,6 +239,8 @@ function objAutoSuggest(elem, fnSearchCallback, fnSuggestionClickedCallback, fnS
 				
 				return true;
 		}	 
+		
+		}catch(e){alert('Autosuggest Err: '+e)}
 	}
 	
 	

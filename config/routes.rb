@@ -9,8 +9,8 @@ get "resource/add"
 get "resource/delete"
 
 get "set/index"
-get "set/add"
-get "set/delete"
+post "tune_set/add"
+delete "tune_set/delete/:id", :to => "tune_set#delete"
 
 get "tune_set/index"
   

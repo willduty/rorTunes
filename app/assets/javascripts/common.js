@@ -661,11 +661,6 @@ function deleteTune(tuneId){
 	}
 	
 	$('<form method=post action=delete/'+tuneId+'><input type=hidden name=_method value=\'delete\'></form>').appendTo(document.body).submit();
-	
-	
-	return;
-	doAction("deleteTune",  
-			"tuneId", tuneId)
 }
 	
 
@@ -734,7 +729,6 @@ function sortByResourceType(a, b){
 }
 
 function sortBySetAsString(a, b){
-	//alert(a.getSetAsString(false) +","+ b.getSetAsString(false))
 	return (a.getSetAsString(false) > b.getSetAsString(false)) ? 1 : -1;
 }
 
@@ -1443,7 +1437,6 @@ function validateTitleStr(str, itemType){
 
 // create context menu for set item
 function makeSetContextMenu(event){
-	
 	event = event ? event : window.event;
 	
 	var srcElem = CBEventSrcElement(event);
@@ -1453,8 +1446,8 @@ function makeSetContextMenu(event){
 	var setId = srcElem.getAttribute("itemId");
 	
 	// same as if being clicked on
-	selectItem(srcElem);
-
+//	selectItem(srcElem);
+	
 	// creat the context menu
 	var ctxMenu = new ContextMenu();
 	// add context menu items and submenus
@@ -1468,7 +1461,9 @@ function makeSetContextMenu(event){
 	ctxMenu.addItem("Edit Set", showSetEditDlg, setId);
 	ctxMenu.addSeparator();
 	
+	
 	// submenu: tune pages
+	try{
 	var tunes = ctxMenu.addSubMenu("Tune Pages");
 	var tuneIds = setsArr[setId].tunesArr;
 	for(var i in tuneIds){
@@ -1477,6 +1472,7 @@ function makeSetContextMenu(event){
 						tuneIds[i]);
 	}
 	ctxMenu.addSeparator();
+	}catch(e){}
 	
 	// add to group submenu
 	var groups = ctxMenu.addSubMenu("Add to Group");
@@ -1624,9 +1620,11 @@ function showSetEditDlg(id, event){
 
 
 function deleteSet(id){
-	if(confirm("Are you sure? This cannot be undone."))	
-		doAction("deleteSet", 
-					"setId", id);
+	if(confirm("Are you sure you want to delete set "+id+"? This cannot be undone."))	
+	
+	$('<form method=post action=/tune_set/delete/'+id+'><input type=hidden name=_method value=\'delete\'></form>').appendTo(document.body).submit();
+	
+	
 }
 
 

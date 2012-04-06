@@ -195,6 +195,7 @@ function shuffleArray(v){
 
 
 function showAllSets(){
+
 	gViewMode = PAGE_VIEW_ALL;
 	clearContentArea();
 	
@@ -214,13 +215,15 @@ function showAllSets(){
 	
 	for(var i in copyArr){
 			var set = copyArr[i];
-			grid.addItem(GRID_OPTIONS_SINGLE_ROW_CALLBACK, 
+			var row = grid.addItem(GRID_OPTIONS_SINGLE_ROW_CALLBACK, 
 							set.getSetAsString(false), 
 							set.getTypeAsString(), 
 							set.entryDate,
 							showSetEditDlg, 
 							set.id);	
-							
+			row.setAttribute('itemId', set.id)
+			row.setAttribute('itemType', ITEM_TYPE_SET)
+			row.oncontextmenu = function(e){return makeSetContextMenu(e)}
 	}	
 	try{
 	grid.show();
