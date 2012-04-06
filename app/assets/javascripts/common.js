@@ -366,10 +366,9 @@ function showPad(padtype, targetElem, callback, event){
 }
 
 
-// called back when floating selection pad item is clicked. places selected 
-// key, type etc value in appropriate page div
-// targetElem: the page element which is to be filled with values from clicked pad item
-// padItemValue & padItemText: the element value and innerHTML respectively from clicked pad item
+// called for floating selection pad item clicked. 
+// sets selected text in the origin elem or elem specified in attr 'padTarget'
+// places the value from clicked pad item in hidden field specified in 'padHiddenTarget'
 
 function padItemSelected(originElem, padItemValue, padItemText){
 	// put the selected text in the target
@@ -735,7 +734,8 @@ function sortByResourceType(a, b){
 }
 
 function sortBySetAsString(a, b){
-	return (a.getSetAsString() > b.getSetAsString()) ? 1 : -1;
+	//alert(a.getSetAsString(false) +","+ b.getSetAsString(false))
+	return (a.getSetAsString(false) > b.getSetAsString(false)) ? 1 : -1;
 }
 
 function sortByEntryDate(a, b){

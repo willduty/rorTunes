@@ -197,10 +197,9 @@ function shuffleArray(v){
 function showAllSets(){
 	gViewMode = PAGE_VIEW_ALL;
 	clearContentArea();
-	//try{
+	
 	var copyArr = getSortedArrayCopy(setsArr, SORT_TYPE_SETS_ALPHA);
-	//}catch(e){alert('2:'+e)}	
-	alert(copyArr.length)
+	
 	function func(){
 		alert('todo');
 	}
@@ -214,20 +213,21 @@ function showAllSets(){
 	grid.addColumn("Entry Date", 100);
 	
 	for(var i in copyArr){
-		try{
 			var set = copyArr[i];
 			grid.addItem(GRID_OPTIONS_SINGLE_ROW_CALLBACK, 
 							set.getSetAsString(false), 
 							set.getTypeAsString(), 
 							set.entryDate,
 							showSetEditDlg, 
-							set.id);
-		}catch(e){alert(e)}
+							set.id);	
+							
 	}	
+	try{
 	grid.show();
 	grid.sortByColumn(1, SORT_DESC);
 	$("#setCount").html(grid.getRowCount());
-	
+	//alert(grid.box.innerHTML)
+	}catch(e){alert(e)}
 	
 }
 
@@ -396,10 +396,10 @@ var newSetList = null;
 
 var auto; 
 		
-// onload stuff
-window.onload = fillPage;
+// onload stuff/
 
-function fillPage(){	
+window.onload = function(){
+
 	gViewMode  = PAGE_VIEW_BYGROUPS;
 	
 	setUpToolSwitches();
@@ -452,8 +452,6 @@ function fillPage(){
 	scrollContentArea();
 	
 }
-
-
 </script>
 
 <link rel=StyleSheet href="css/style.css" type="text/css" media=screen>
@@ -502,7 +500,7 @@ function fillPage(){
 					
 					<!-- content -->
 					<tr>
-						<td><div id=contentarea style="height:100%; width:100%; overflow:scroll; overflow-x:hidden;"></div></td>
+						<td id=contentarea style="height:100%; width:100%;"></td>
 					</tr>
 				</table>
 				

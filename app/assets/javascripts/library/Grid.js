@@ -33,16 +33,16 @@ function Grid(container, options){
 	this.box = document.createElement("div");
 	this.box.setAttribute("tabIndex", "0");
 	this.box.id = "gridBox";
-	this.hdr = document.createElement("div");
+	this.hdrBox = document.createElement("div");
 	this.hdrCellBorder = 1;
 	this.minColWidth = 10;
 	this.rowsBox = document.createElement("div");
 	this.rowsBox.style.clear = "both";
 	
-	this.box.appendChild(this.hdr);
+	this.box.appendChild(this.hdrBox);
 	this.box.appendChild(this.rowsBox);
 	this.container.appendChild(this.box);
-	this.box.style.width = this.container.offsetWidth;
+	this.box.style.width = this.container.offsetWidth + "px";
 	
 	
 	
@@ -106,8 +106,8 @@ function Grid(container, options){
 		}
 		
 		// clear and rewrite header
-		while(this.hdr.hasChildNodes())
-			this.hdr.removeChild(this.hdr.firstChild);
+		while(this.hdrBox.hasChildNodes())
+			this.hdrBox.removeChild(this.hdrBox.firstChild);
 		this.createHeader();
 		
 		// reorder rows
@@ -255,7 +255,7 @@ function Grid(container, options){
 		}
 		
 		row.setAttribute("index", this.rowsArr.length - 1); // for reverse searching
-		row.setAttribute("id", arguments[1]); // todo need this?
+		row.setAttribute("id", (args[args.length - 1])); // todo need this?
 		
 		// todo: do only if GRID_OPTIONS_ITEMS_CALLBACK
 		CBAddEventListener(row, "click", function(e){
@@ -505,8 +505,6 @@ function Grid(container, options){
 	this.show = function(){
 	
 		this.box.style.height = CBParentElement(this.box).offsetHeight + 'px';
-		this.rowsBox.style.height = '97%';
-		
 		if(this.options & LIST_VIEW_FULL){
 			this.rowsBox.style.overflowY = "scroll";
 		}
@@ -514,19 +512,22 @@ function Grid(container, options){
 		this.clearBox();
 		
 		//create header if needed
-		if(!this.hdr.hasChildNodes()){
+		if(!this.hdrBox.hasChildNodes()){
 			var hdrRow = this.createHeader();
 		}
 
-		this.rowsBox.style.height = 
-			this.container.offsetHeight - this.hdr.offsetHeight;
+		// moz WILL NOT give the offsetHeight, use percent (inaccurate but close) instead
+		//this.rowsBox.style.height = 
+		//	this.container.offsetHeight - this.hdrBox.offsetHeight; 
+		this.rowsBox.style.height = '97%';
+		
 			
 		// for a little performance boost, calculate col widths first
 		var arrWidths = new Array();
 		for(var n in this.columnsArr)
 			arrWidths.push(this.columnsArr[n].cell.offsetWidth - this.hdrCellBorder*2);
 		
-		// var hdrWidth = this.hdr.offsetWidth;
+		// var hdrWidth = this.hdrBox.offsetWidth;
 		var hdrWidth = this.actualRowsBoxWidth();
 		
 		
@@ -540,6 +541,17 @@ function Grid(container, options){
 		}
 	}
 	
+	this.removeItem = function(id){
+		for(var i in this.rowsBox.childNodes){
+			var row = this.rowsBox.childNodes[i];
+			if(row.getAttribute("id") == id){
+				// remove row from grid and row item from internal array 
+				this.rowsBox.removeChild(row)	
+				this.rowsArr.splice(row.getAttribute("index"), 1);
+				break;
+			}
+		}
+	}
 	
 	
 	this.showFrom = function(newStartIdx, selIdx){
@@ -547,7 +559,7 @@ function Grid(container, options){
 		if(this.options & LIST_VIEW_FULL){
 			// todo: why does the hdr div affect offsetTop of elem in rowsBox?
 			this.rowsBox.scrollTop = 
-				this.rowsArr[newStartIdx].elem.offsetTop - this.hdr.offsetHeight;
+				this.rowsArr[newStartIdx].elem.offsetTop - this.hdrBox.offsetHeight;
 		}
 		else{
 			var visibleCount = this.rowsBox.childNodes.length
@@ -594,7 +606,7 @@ function Grid(container, options){
 	this.createHeader = function(){
 		var row = this.makeRow();
 		CBDisableSelect(row);
-		this.hdr.appendChild(row);
+		this.hdrBox.appendChild(row);
 		var rowsBoxWidth = this.actualRowsBoxWidth();
 		
 		var hdrWidth = 0;
@@ -678,8 +690,8 @@ function Grid(container, options){
 	
 	
 	this.clearHeader = function(){
-		while(this.hdr.hasChildNodes())
-			this.hdr.removeChild(this.hdr.firstChild);
+		while(this.hdrBox.hasChildNodes())
+			this.hdrBox.removeChild(this.hdrBox.firstChild);
 	}
 	
 	// header funcs

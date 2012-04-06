@@ -52,7 +52,7 @@ sets.each do |s|
 	flagged = s.flagged.nil? ? 0 : s.flagged
 	
 %>
-	setsArr[<%= s.id %>] = new objSet(<%= s.id %>, new Array(<%= s.tuneIds %>), 
+	setsArr[<%= s.id %>] = new objSet(<%= s.id %>, [<%= s.tuneIds %>], 
 			'tune/tune/tune', <%= flagged %>, <%= s.status %>, '<%= s.entryDate %>');		
 <%
 end

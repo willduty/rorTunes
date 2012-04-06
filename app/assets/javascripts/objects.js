@@ -131,20 +131,29 @@ function objSet(nId, arrTunesArr, setString, flagged, status, entryDate){
 		return this.tunesArr.join(",");
 	}
 	
+
 	this.getSetAsString = function(colorCode){
 		if(typeof(colorCode) == 'undefined') colorCode = true;
-		
 		if(!this.tunesArr.length)
 			return '[empty set]';
 		
 		var arr = new Array();
+		var color, title;
 		for(var i=0; i<this.tunesArr.length; i++){
-			var color = getColorCode(tunesArr[this.tunesArr[i]].typeId);
-			arr.push(colorCode?('<tune style="color:'+color+'">' + tunesArr[this.tunesArr[i]].title + '</tune>') 
-				: tunesArr[this.tunesArr[i]].title)
+			try{
+				color = getColorCode(tunesArr[this.tunesArr[i]].typeId);
+			}catch(e){color = '';}
+			try{
+				title =  tunesArr[this.tunesArr[i]].title;
+			}catch(e){
+			
+			title = '[no title]';}
+			
+			arr.push(colorCode?('<tune style="color:'+color+'">' + title + '</tune>') : title )
 		}
 		return arr.join("/");
 	}
+	
 	
 	this.hasTune = function(tuneId){
 		for(var i in this.tunesArr){
