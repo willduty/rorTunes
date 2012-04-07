@@ -1,69 +1,3 @@
-<?php
-
-include("functions.php");
-$flash = new sessionFlash();
-
-if(isset($_POST["username"])){
-	
-	$username = $_POST["username"];
-	$pwd = $_POST["password"];
-
-	$db = getConnection();
-	$hdr = "";
-	$status = NULL;
-
-	
-	if(FALSE == $db){
-		$flash->setFlash('could not connect.');
-	}
-	else{	
-		
-		$rs = mysql_query("SELECT * FROM tunes.user WHERE username='$username' AND password='$pwd';");
-		if($row = mysql_fetch_array($rs)){
-		
-			$status = $row["status"];
-			
-			// check user status
-			switch($status){
-				case USER_STATUS_NOT_ACTIVATED:
-					$flash->setFlash('Your registration was submitted successfully but not activated. To complete registration you should have or will soon receive an email with a link to click for activation.');
-					break;
-				case USER_STATUS_OK:
-					$_SESSION["userName"] = $username;
-					$_SESSION["email"] = $row["email"];
-					$_SESSION["passwordLength"] = strlen($pwd);
-					$_SESSION["userId"] = $row["id"];
-					$_SESSION["userType"] = $row["userType"];
-					$_SESSION["createDate"] = $row['createDate'];
-					break;
-				case USER_STATUS_CANCELLED:
-					$flash->setFlash('Your registration has been cancelled.');
-					break;
-				default:
-					$flash->setFlash('login failed.');
-			}
-		}
-		else 
-			$flash->setFlash('login failed.');
-	
-		mysql_free_result($rs);
-
-		if($status == USER_STATUS_OK){
-			// set/get last active date
-			$userId = $_SESSION["userId"];
-			mysql_query("UPDATE tunes.user SET lastLogin=now() WHERE id=$userId;");
-			$rs = mysql_query("SELECT * FROM tunes.user WHERE id=$userId;");
-			$row = mysql_fetch_array($rs);
-			$_SESSION["lastLogin"] = $row['lastLogin'];
-			mysql_free_result($rs);
-			Header("Location:home.php");
-		}
-	}
-
-	mysql_close($db);
-}
-
-?>
 
 <html>
 
@@ -78,7 +12,7 @@ if(isset($_POST["username"])){
 	<table class=maintable width=600 border=0 cellpadding=0 cellspacing=0>
 		<tr>
 			<td colspan=4 class=headerbar>
-				<?php include("navbar.php"); ?>
+				
 			</td>
 		</tr>
 		
@@ -97,9 +31,6 @@ if(isset($_POST["username"])){
 		<tr>
 			<td class=info valign=top height=100%>
 				
-				<?php
-					echo $flash->getFlash();
-				?>
 				<div class=bubbleSection>
 				
 				<form action="login.php" method=POST>
@@ -120,3 +51,5 @@ if(isset($_POST["username"])){
 </body>
 
 </html>
+
+

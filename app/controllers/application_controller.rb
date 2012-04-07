@@ -7,5 +7,8 @@ class ApplicationController < ActionController::Base
   def userId
   	@@userId
   end
+  def userId=(value)
+  	@@userId=value
+  end
   
 end

@@ -5,8 +5,8 @@ delete "tune/delete/:id", :to => "tune#delete"
 match "tune/:id", :to=>'tune#show'
 
 get "resource/index"
-get "resource/add"
-get "resource/delete"
+post "resource/add"
+delete "resource/delete"
 
 get "set/index"
 post "tune_set/add"
@@ -15,18 +15,22 @@ delete "tune_set/delete/:id", :to => "tune_set#delete"
 get "tune_set/index"
   
 get "group/index"
-get "group/add"
-get "group/delete"
+post "group/add"
+delete "group/delete"
 
 get "user/index"
 get "user/add"
 get "user/delete"
 
 get 'session/login'
+post 'session/create'
+delete 'session/logout'
+
+
 
 match 'user/index/:id' => 'user#index'
 
-root :to => 'tune#index'
+root :to => 'session#login'
 
 
   # The priority is based upon order of creation:

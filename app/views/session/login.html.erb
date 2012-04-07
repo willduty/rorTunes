@@ -13,6 +13,7 @@
 		<tr>
 			<td colspan=4 >
 				<!--old navbar-->
+				
 			</td>
 		</tr>
 		
@@ -32,14 +33,17 @@
 			<td class=info valign=top height=100%>
 				
 				<div class=bubbleSection>
+				<% if flash[:error] %>
+					<div class=flash>! <%= flash[:error] %></div><br>
+				<% end %>
+				<%= form_for 'session', :url=>{:action=>:create} do |s| %>
 				
-				<form action="login.php" method=POST>
 					<h3 class=hdr>Please Login</h3>
-					<label class="info black">username:</label><input type=text name=username></input><br>
-					<label class="info black">password:</label><input type=password name=password></input><br>
-					<label>&nbsp;</label><input type=submit class=infohdr value='Login...'></input><br>
+					<%= s.label :username, :class=>'info black' %><%= s.text_field :username, :size=>nil %>
+					<%= s.label :password, :class=>'info black' %><%= s.text_field :password, :size=>nil %>
+					<label>&nbsp;</label><%= s.submit 'Login...', :class=>:infohdr %>
 					
-				</form>
+				<% end %>
 				</div>
 
 				<div class="info black">
