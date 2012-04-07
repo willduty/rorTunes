@@ -363,6 +363,7 @@ function showPad(padtype, targetElem, callback, event){
 			break;
 	}
 	pad.show(event);
+	return pad;
 }
 
 

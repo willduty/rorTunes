@@ -72,9 +72,15 @@ function filterClicked(elem, event){
 	var padType = elem.getAttribute("padType");
 	
 	if(!innerElem.innerHTML.length){
-		try{
-			showPad(padType, innerElem, filterSelectedCallback, event)
-		}catch(e){alert(e.message)}
+		var pad = showPad(padType, innerElem, filterSelectedCallback, event)
+		pad.oncancel = function(){
+			if(innerElem.innerHTML == ''){
+				var btnObj = gBtnMgr.getButtonObjFromElement(elem);
+				btnObj.switchOff();
+				
+			}
+		}
+	
 	}
 	else{
 		innerElem.innerHTML = "";

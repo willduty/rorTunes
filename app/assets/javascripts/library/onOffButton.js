@@ -40,6 +40,8 @@ function ButtonManager(){
 }
 
 
+ButtonManager.prototype.buttons = [];
+
 
 // get all buttons: elems on page with name="onOffButton" 
 ButtonManager.prototype.getAllPageButtons = function(){
@@ -90,6 +92,7 @@ ButtonManager.prototype.setUpButtons = function(arrOnBtns){
 		
 		// create the button obj
 		var btn = new onOffButton(buttons[i], "onOffBtnOn", "onOffBtnOff");
+		this.buttons.push(btn);
 		
 		// organize all grouped buttons into assoc array arrGroups where 
 		// the key is a button group name and the value is the array of button objects	
@@ -135,6 +138,16 @@ ButtonManager.prototype.getSelectedButtonFromGroup = function(groupName){
 
 
 
+ButtonManager.prototype.getButtonObjFromElement = function(elem){
+	for(var i in this.buttons)
+		if(this.buttons[i].elem == elem)
+			return this.buttons[i];
+}
+
+
+
+
+
 function onOffButton(elem, onClass, offClass){ // todo get rid of class params and put in style sheet
 
 	var _this = this;
@@ -175,6 +188,7 @@ function onOffButton(elem, onClass, offClass){ // todo get rid of class params a
 		
 		// otherwise, switch to opposite button state
 		onOff = (onOff == "off") ? "on" : "off";
+		
 		this.elem.setAttribute("onOff", onOff);
 		this.elem.className = (onOff == "on") ? onClass  : offClass;
 		
@@ -186,7 +200,6 @@ function onOffButton(elem, onClass, offClass){ // todo get rid of class params a
 				}
 			}
 		}
-		
 		// callback function if there is one
 		if(this.callback)
 			this.callback(this.elem, event);
@@ -198,9 +211,11 @@ function onOffButton(elem, onClass, offClass){ // todo get rid of class params a
 		this.elem.className = this.offClass;
 	}
 	
+	
 	// when creating a group add array of all buttons
 	this.addInterdependentButtonArray = function(arr){
 		this.interdependentArr = arr;
 	}
 }
+
 

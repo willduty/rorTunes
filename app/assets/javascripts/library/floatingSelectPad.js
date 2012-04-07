@@ -43,7 +43,6 @@ function floatingSelectPad(fnItemSelectedCallback, callbackParam){
 	
 	
 	// remove the floating pad if the user clicks anywhere else
-	// document.addEventListener("mouseup", function(event){
 	CBAddEventListener(document, "mouseup", function(e){	
 		e = e ? e : window.event;
 		var srcElem = e.srcElement ? e.srcElement : e.target;
@@ -53,7 +52,6 @@ function floatingSelectPad(fnItemSelectedCallback, callbackParam){
 		}
 	}, false);
 	
-	// document.addEventListener("keyup", function(event){
 	CBAddEventListener(document, "keyup", function(e){
 		e = e ? e : window.event;
 		if(e.keyCode == 27){
@@ -64,8 +62,15 @@ function floatingSelectPad(fnItemSelectedCallback, callbackParam){
 	
 	// close pad 
 	this.close = function(){
-		try{document.body.removeChild(_this.table);}
-		catch(e){}	
+		try{
+			_this.oncancel()
+		}catch(e){}
+	
+		try{
+			document.body.removeChild(_this.table);
+		}catch(e){}	
+			
+		
 	}
 	
 	this.show = function(e){
@@ -122,6 +127,9 @@ function floatingSelectPad(fnItemSelectedCallback, callbackParam){
 			_this.close(e);
 		}
 	};
+	
+	
+	
 }
 
 
