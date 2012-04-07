@@ -11,7 +11,11 @@ var favoritesArr = new Array();
 var gTunesObj = new objTunes();
 
 <% 
-user = User.find_by_id(1)
+
+inst = ApplicationController.new
+userId = inst.userId
+
+user = User.find_by_id(userId)
 
 tunes = user.tunes.find(:all, :include => [:keys, :tune_types])
 tunes.each do |t| 

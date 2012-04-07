@@ -15,7 +15,7 @@ class TuneController < ApplicationController
 =end  
   	@newTune = Tune.create(params[:tune])
   	@newTune.save 
-  	@newItem = Item.create(:itemable_type => 'Tune', :user_id => 1, :itemable_id => @newTune.id) 
+  	@newItem = Item.create(:itemable_type => 'Tune', :user_id => self.userId, :itemable_id => @newTune.id) 
   	redirect_to :action=>'index'
   end
 
