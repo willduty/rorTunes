@@ -272,6 +272,7 @@ function Grid(container, options){
 		
 		for(var i=1; i<arguments.length;){
 			if(options & GRID_OPTIONS_SINGLE_ROW_CALLBACK){
+				
 				if(i >= arguments.length-2)
 					break;
 				var item = makeCell(arguments[i], null, null);
@@ -282,6 +283,7 @@ function Grid(container, options){
 				row.appendChild(item);
 			}
 			else{
+				
 				var item = makeCell(arguments[i], arguments[i+1], arguments[i+2]);
 				i+=3;
 				colIdx = (i/3) - 1;
@@ -299,6 +301,7 @@ function Grid(container, options){
 		function makeCell(text, id, callback){
 			var item = document.createElement("li");
 			CBDisableSelect(item);
+			//alert(text)
 			item.innerHTML = text;
 			item.id = id;
 			item.className = "gridCell";

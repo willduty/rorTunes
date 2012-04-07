@@ -149,7 +149,7 @@ function objSet(nId, arrTunesArr, setString, flagged, status, entryDate){
 			
 			title = '[no title]';}
 			
-			arr.push(colorCode?('<tune style="color:'+color+'">' + title + '</tune>') : title )
+			arr.push(colorCode?('<span style="color:'+color+'">' + title + '</span>') : title )
 		}
 		return arr.join("/");
 	}

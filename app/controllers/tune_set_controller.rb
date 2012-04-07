@@ -5,6 +5,10 @@ class TuneSetController < ApplicationController
   end
 
   def add
+  	@newTuneSet = TuneSet.create(params[:tune_set])
+  	 @newTuneSet.save
+  	@newItem = Item.create(:itemable_id=>@newTuneSet.id, :itemable_type=>'TuneSet', :user_id=>1)
+  	redirect_to :action=>:index
   end
 
   def delete

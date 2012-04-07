@@ -19,7 +19,7 @@
 	
 .toolLine {background:gray; 
 	height:1px; 
-	margin:0;}
+	margin:0px;}
 .toolHdr {color:white; 
 	font:bold 13px helvetica; 
 	background:black; }
@@ -74,10 +74,8 @@
 
 .separator {line-height: 1px; }
 
-.selectPad {
-	position:absolute; 
+.selectPad {position:absolute; 
 	background:orange; 
-	color: #933003;
 	border:1px solid black;}
 .selectPadItem {background:#dd8545; 
 	border:1px outset; 
@@ -100,8 +98,8 @@
 .gridRowHdrItem {
 	display:inline; 
 	float:left;
-	margin:0;
-	padding:0;
+	margin:0px;
+	padding:0px;
 	background-color:orange;
 	border-style:outset;
 }
@@ -109,8 +107,8 @@
 .gridRow{
 	list-style:none;
 	clear:both;
-	margin:0;
-	padding:0;
+	margin:0px;
+	padding:0px;
 	border-width:1px;
 	border-bottom-color:lightgray;
 	border-bottom-style:solid;		
@@ -133,15 +131,15 @@
 ul.expandableSectionHdr {
 	list-style:none;
 	clear:both;
-	margin:0;
-	padding:0;
+	margin:0px;
+	padding:0px;
 	border:none;
 }
 	
 ul.expandableSectionHdr  li{
 	display:inline; 
 	float:left;
-	padding:1;
+	padding:1px;
 	width:100;
 	overflow:hidden;
 	white-space:nowrap;
@@ -153,7 +151,8 @@ ul.expandableSectionHdr [name=expandIcon]{
 	height: 1em;
 	background:#eee;
 	cursor: pointer;
-	padding: 2 0 2 7;
+	padding: 2px 0px 2px 7px;
+	margin: 1px;
 }
 ul.expandableSectionHdr  li:last-child{
 	width: 90%;
@@ -162,7 +161,7 @@ ul.expandableSectionHdr  li:last-child{
 
 div.expandableSectionBody {
 	width: 90%;
-	margin: 2 0 15 15;
+	margin: 2px 0px 15px 15px;
 }
 
 .setDeveloper{
@@ -175,8 +174,8 @@ div.expandableSectionBody {
 .setDeveloperTune{
 	font:normal 12px helvetica; 
 	cursor:pointer;
-	margin:0;
-	padding:2;
+	margin:0px;
+	padding:2px;
 	}
 
 .setDeveloperTune:hover{

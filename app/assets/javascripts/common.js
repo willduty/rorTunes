@@ -1048,15 +1048,19 @@ function saveNewSet(obj){
 	
 	}catch(e){alert(e.message)}
 	
-	
 	// save the set
-	if(obj.groupId == 0)
-		doAction("saveNewSet", 
-				"tuneIds", tuneIds);
-	else
+	if(obj.groupId){
+		var groupId = obj.groupId;
+		alert('todo, save to group')
+		return;
 		doAction("saveNewSet",  
 				"tuneIds", tuneIds, 
-				"groupId", obj.groupId);
+				"groupId", groupId);
+	}else{
+		$('<form method=post action=add ><input name=tune_set[tuneIds] value=\''+tuneIds+'\'></form>').appendTo(document.body).submit();
+		
+	}
+		
 }
 
 

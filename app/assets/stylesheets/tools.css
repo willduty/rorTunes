@@ -85,6 +85,10 @@
 .selectPadItem:hover {background-color:white;}
 
 
+.listBox{
+	background:white;
+}
+
 .listItem {
 	padding: 1px 0px 1px 0px;
 	color:#750; 

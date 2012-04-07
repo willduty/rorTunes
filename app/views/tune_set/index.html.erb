@@ -73,22 +73,32 @@ function newTuneCallback(){
 }
 
 
-
+var gNewSetList = null;
 // callback from objAutoSuggest when the user selects a suggestion. 
 function suggestionClickedCallback(str, id, tuneSelectionBox){
-	
-	// clear entry box
 	tuneSelectionBox.value = "";
-	tuneSelectionBox.setAttribute("tuneId", id)
-
-	var item = newSetList.addItem(str, id, null);
-	item.oncontextmenu = function(){
+	tuneSelectionBox.setAttribute("tuneId", id);
+	
+	var newsetbox = document.getElementById("manualSetResultBox");
+	if(!gNewSetList){
+		gNewSetList = new objList(newsetbox, LIST_VIEW_SCROLLBOX);
+		gNewSetList.useMinimumNeededWidth = true;
+		gNewSetList.width = 200;
+		
+		$('#saveSetBtn').click(function(){
+			saveNewSet({setElem:gNewSetList})
+		})
+	}
+	
+	
+	var item = gNewSetList.addItem(str, id, null);
+	item.oncontextmenu = function(e){
 		var cm = new ContextMenu();
 		cm.addItem("Remove", removeTuneFromNewSet, item);
-		cm.show();
+		cm.show(e);
 		return false;
 	}
-	newSetList.show();
+	gNewSetList.show();
 }
 
 
@@ -205,8 +215,7 @@ function showAllSets(){
 		alert('todo');
 	}
 	
-	var ca =  document.getElementById('contentarea');
-	var grid = new Grid(ca, LIST_VIEW_FULL);
+	var grid = new Grid(document.getElementById('contentarea'), LIST_VIEW_FULL);
 	
 	grid.returnKeyCallback = func;
 	grid.addColumn("Set", 400);
@@ -395,7 +404,6 @@ function showSaveToGroupMenu(){
 
 
 
-var newSetList = null;
 
 var auto; 
 		
@@ -447,10 +455,6 @@ window.onload = function(){
 	}
 	
 	// add the newly selected tune to the new set 
-	newsetbox = document.getElementById("manualSetResultBox");
-	newSetList = new objList(newsetbox, LIST_VIEW_SCROLLBOX);
-	newSetList.useMinimumNeededWidth = true;
-	newSetList.width = 200;
 	
 	scrollContentArea();
 	
@@ -548,9 +552,9 @@ window.onload = function(){
 								</tr>
 								<tr height=100%>
 									<td valign=top>
-										<span class="info white pointer" onclick="saveNewSetFromList(); return false;">save set</span> | 
+										<span class="info white pointer" id=saveSetBtn>save set</span> | 
 										<span class="info white pointer" onclick="showSaveToGroupMenu(); return false;">save set to group</span> | 
-										<span class="info cancel pointer" name=toolCancel onclick="newSetList.clearList();">cancel</span>
+										<span class="info cancel pointer" name=toolCancel>cancel</span>
 									</td>
 									<td colspan=2></td>
 								</tr>

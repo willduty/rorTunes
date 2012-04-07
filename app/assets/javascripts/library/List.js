@@ -20,6 +20,7 @@ function objList(container, options){
 	
 	this.returnKeyCallback;
 	this.box = document.createElement("div");
+	this.box.className = "listBox";
 	this.container.appendChild(this.box);
 	this.itemsArr = new Array();
 	this.selectedItem = null;
