@@ -11,19 +11,14 @@ class TunesController < ApplicationController
   end
 
   def add
-=begin  
-=end  
   	@newTune = Tune.create(params[:tune])
   	@newTune.save 
-  	@newItem = Item.create(:itemable_type => 'Tune', :user_id => self.userId, :itemable_id => @newTune.id) 
+  	@newItem = Item.create(:itemable_type => 'Tune', :user_id => session[:user_cookie], :itemable_id => @newTune.id) 
   	redirect_to '/tunes'
   end
 
   def delete
-  	@tune = Tune.find_by_id(params[:id])
-  	@item = Item.find_by_itemable_id(params[:id])
-  	@tune.destroy
-  	@item.destroy
+
   	redirect_to '/tunes'
   end
 end

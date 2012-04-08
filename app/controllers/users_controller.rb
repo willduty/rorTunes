@@ -1,21 +1,13 @@
 class UsersController < ApplicationController
   def index
   
-	userid = 1;
+	userId = session[:user_cookie];
 	unless params[:id].nil?
-		userid = params[:id];
+		userId = params[:id];
 	end
-  	@user = User.find(userid)
+  	@user = User.find(userId)
 	@title = @user.email
 	#@tunes = User.tunes
-  end
-
-  def login
-  end
-
-  def logout
-	#session destroy
-	#redirect to login
   end
 
   def add
@@ -23,4 +15,5 @@ class UsersController < ApplicationController
 
   def delete 
   end
+  
 end

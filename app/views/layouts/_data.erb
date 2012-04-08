@@ -12,10 +12,12 @@ var gTunesObj = new objTunes();
 
 <% 
 
-inst = ApplicationController.new
-userId = inst.userId
+user = User.find_by_id(session[:user_cookie])
 
-user = User.find_by_id(userId)
+if user.nil?
+	return 'location = \'/\''	 
+end
+
 
 tunes = user.tunes.find(:all, :include => [:keys, :tune_types])
 tunes.each do |t| 

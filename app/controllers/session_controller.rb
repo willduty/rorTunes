@@ -12,21 +12,22 @@ class SessionController < ApplicationController
   end
   
   def create
-  	@user = User.find_by_password(params[:session][:password])
+  	@user = User.authenticate(params[:session][:username], params[:session][:password])
   	if @user.nil?
   		# set flash here
   		flash[:error] = 'bogus or errant login'
   		redirect_to :action=>'login'
   	else
   		#set up session here
-  		self.userId = @user.id
+  		session[:user_cookie] = @user.id
   		redirect_to '/home'
   	end
   end
 
+
   def logout
 	#session destroy here
-	
+	#session[:user_cookie]
 	#redirect to login
 	redirect_to '/'
   end
