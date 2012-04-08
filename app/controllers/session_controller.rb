@@ -26,9 +26,8 @@ class SessionController < ApplicationController
 
 
   def logout
-	#session destroy here
-	#session[:user_cookie]
-	#redirect to login
+	# destroy session and redirect to login
+	session[:user_cookie] = nil
 	redirect_to '/'
   end
 

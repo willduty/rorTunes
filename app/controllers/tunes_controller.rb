@@ -18,7 +18,10 @@ class TunesController < ApplicationController
   end
 
   def delete
-
+  	@tune = Tune.find_by_id(params[:id])
+  	@item = Item.find_by_itemable_id(params[:id])
+  	@tune.destroy
+  	@item.destroy
   	redirect_to '/tunes'
   end
 end

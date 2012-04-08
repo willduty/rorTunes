@@ -660,8 +660,9 @@ function deleteTune(tuneId){
 		"\" will be deleted. This cannot be undone.")){
 		return;
 	}
-	
-	$("<form method=post action='/tunes/delete/"+tuneId+"'><input type=hidden name=_method value='delete'></form>")
+		
+	$("<form method=post action='/tunes/delete/"+tuneId+"'><input type=hidden name=_method value='delete' />"+
+		"<input type=hidden name=authenticity_token value='"+$('[name=csrf-token]').attr('content') + "' /></form>")
 		.appendTo(document.body).submit();
 }
 	
@@ -1059,8 +1060,12 @@ function saveNewSet(obj){
 				"tuneIds", tuneIds, 
 				"groupId", groupId);
 	}else{
-		$("<form method=post action='tune_sets/add'><input name=tune_set[tuneIds] value='"+tuneIds+"'></form>")
+	
+			
+		$("<form method=post action='/tune_sets/add'><input name=tune_set[tuneIds] value='"+tuneIds+"' />"+
+			"<input type=hidden name=authenticity_token value='"+$('[name=csrf-token]').attr('content') + "' /></form>")
 			.appendTo(document.body).submit();
+	
 		
 	}
 		
@@ -1629,9 +1634,10 @@ function showSetEditDlg(id, event){
 function deleteSet(id){
 	if(confirm("Are you sure you want to delete set "+id+"? This cannot be undone."))	
 	
-	$('<form method=post action=/tune_sets/delete/'+id+'><input type=hidden name=_method value=\'delete\'></form>')
+			
+	$("<form method=post action='/tune_sets/delete/"+id+"'><input type=hidden name=_method value='delete' />"+
+		"<input type=hidden name=authenticity_token value='"+$('[name=csrf-token]').attr('content') + "' /></form>")
 		.appendTo(document.body).submit();
-	
 	
 }
 
