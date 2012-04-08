@@ -1,4 +1,4 @@
-class TuneSetController < ApplicationController
+class TuneSetsController < ApplicationController
   def index
 	@title = 'Sets'
 	@sets = TuneSet.all
@@ -8,7 +8,7 @@ class TuneSetController < ApplicationController
   	@newTuneSet = TuneSet.create(params[:tune_set])
   	@newTuneSet.save
   	@newItem = Item.create(:itemable_id=>@newTuneSet.id, :itemable_type=>'TuneSet', :user_id=>self.userId)
-  	redirect_to :action=>:index
+  	redirect_to "tune_sets"
   end
 
   def delete
@@ -16,6 +16,6 @@ class TuneSetController < ApplicationController
   	@item = Item.find_by_itemable_id(@set.id, :conditions => {:itemable_type => 'TuneSet'})
   	@set.destroy
   	@item.destroy
-  	redirect_to :action => :index
+  	redirect_to "/tune_sets"
   end
 end

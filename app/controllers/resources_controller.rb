@@ -1,4 +1,4 @@
-class ResourceController < ApplicationController
+class ResourcesController < ApplicationController
   def index
 	@title = 'Resources'
 	@resources = Resource.all

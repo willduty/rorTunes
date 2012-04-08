@@ -661,7 +661,8 @@ function deleteTune(tuneId){
 		return;
 	}
 	
-	$('<form method=post action=delete/'+tuneId+'><input type=hidden name=_method value=\'delete\'></form>').appendTo(document.body).submit();
+	$("<form method=post action='/tunes/delete/"+tuneId+"'><input type=hidden name=_method value='delete'></form>")
+		.appendTo(document.body).submit();
 }
 	
 
@@ -1058,7 +1059,8 @@ function saveNewSet(obj){
 				"tuneIds", tuneIds, 
 				"groupId", groupId);
 	}else{
-		$('<form method=post action=add ><input name=tune_set[tuneIds] value=\''+tuneIds+'\'></form>').appendTo(document.body).submit();
+		$("<form method=post action='tune_sets/add'><input name=tune_set[tuneIds] value='"+tuneIds+"'></form>")
+			.appendTo(document.body).submit();
 		
 	}
 		
@@ -1337,7 +1339,7 @@ function showResource(res){
 }
 
 function goToTunePage(id){
-	location = "/tune/" + id;
+	location = "/tunes/" + id;
 }
 
 function editResourceTitle(resObj){
@@ -1627,7 +1629,8 @@ function showSetEditDlg(id, event){
 function deleteSet(id){
 	if(confirm("Are you sure you want to delete set "+id+"? This cannot be undone."))	
 	
-	$('<form method=post action=/tune_set/delete/'+id+'><input type=hidden name=_method value=\'delete\'></form>').appendTo(document.body).submit();
+	$('<form method=post action=/tune_sets/delete/'+id+'><input type=hidden name=_method value=\'delete\'></form>')
+		.appendTo(document.body).submit();
 	
 	
 }

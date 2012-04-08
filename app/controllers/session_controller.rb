@@ -20,7 +20,7 @@ class SessionController < ApplicationController
   	else
   		#set up session here
   		self.userId = @user.id
-  		redirect_to '/tune/index'
+  		redirect_to '/home'
   	end
   end
 

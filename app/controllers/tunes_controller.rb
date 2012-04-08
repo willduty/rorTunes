@@ -1,4 +1,4 @@
-class TuneController < ApplicationController
+class TunesController < ApplicationController
   def index
 	@title = 'Tunes'
 	@tunes = Tune.find(:all, :include => [:keys, :tune_types])
@@ -16,7 +16,7 @@ class TuneController < ApplicationController
   	@newTune = Tune.create(params[:tune])
   	@newTune.save 
   	@newItem = Item.create(:itemable_type => 'Tune', :user_id => self.userId, :itemable_id => @newTune.id) 
-  	redirect_to :action=>'index'
+  	redirect_to '/tunes'
   end
 
   def delete
@@ -24,7 +24,6 @@ class TuneController < ApplicationController
   	@item = Item.find_by_itemable_id(params[:id])
   	@tune.destroy
   	@item.destroy
-  	redirect_to :action=>'index'
-  	
+  	redirect_to '/tunes'
   end
 end

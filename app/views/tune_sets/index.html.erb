@@ -411,9 +411,11 @@ var auto;
 
 window.onload = function(){
 
+try{
 	gViewMode  = PAGE_VIEW_BYGROUPS;
 	
 	setUpToolSwitches();
+	setNavbarSelected();
 	showSearchResults();
 	
 	// get "on" buttons
@@ -457,7 +459,7 @@ window.onload = function(){
 	// add the newly selected tune to the new set 
 	
 	scrollContentArea();
-	
+}catch(e){alert(e)}	
 }
 </script>
 

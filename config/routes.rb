@@ -1,26 +1,30 @@
 RorTunes::Application.routes.draw do
-get "tune/index"
-post "tune/add"
-delete "tune/delete/:id", :to => "tune#delete"
-match "tune/:id", :to=>'tune#show'
 
-get "resource/index"
-post "resource/add"
-delete "resource/delete"
+get "tunes/index"
+post "tunes/add"
+delete "tunes/delete/:id", :to => "tunes#delete"
+match "tunes/:id", :to=>'tunes#show'
+match "tunes", :to =>"tunes#index"
 
-get "set/index"
-post "tune_set/add"
-delete "tune_set/delete/:id", :to => "tune_set#delete"
+get "resources/index"
+post "resources/add"
+delete "resources/delete"
+match "resources", :to=>"resources#index"
 
-get "tune_set/index"
-  
-get "group/index"
-post "group/add"
-delete "group/delete"
+get "tune_sets/index"
+post "tune_sets/add"
+delete "tune_sets/delete/:id", :to => "tune_sets#delete"
+match "tune_sets", :to=>"tune_sets#index"
 
-get "user/index"
-get "user/add"
-get "user/delete"
+get "groups/index"
+post "groups/add"
+delete "groups/delete"
+match "groups", :to=>"groups#index"
+
+get "users/index"
+get "users/add"
+get "users/delete"
+match "home", :to=>"users#index"
 
 get 'session/login'
 post 'session/create'

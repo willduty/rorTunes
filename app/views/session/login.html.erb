@@ -40,7 +40,7 @@
 				
 					<h3 class=hdr>Please Login</h3>
 					<%= s.label :username, :class=>'info black' %><%= s.text_field :username, :size=>nil %>
-					<%= s.label :password, :class=>'info black' %><%= s.text_field :password, :size=>nil %>
+					<%= s.label :password, :class=>'info black' %><%= s.text_field :password, :size=>nil, :type=>:password %>
 					<label>&nbsp;</label><%= s.submit 'Login...', :class=>:infohdr %>
 					
 				<% end %>
