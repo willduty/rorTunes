@@ -47,8 +47,9 @@ end
 
 keys = Key.all
 keys.each do |k|
+	
 	%>
-	keysArr["<%= k.id %>"] = new objKey(<%= k.id %>, "<%= k.title %>", 1);
+	keysArr["<%= k.id %>"] = new objKey(<%= k.id %>, "<%= k.title %>", <%= k.isCommon %>);
 	<%	
 end
 
