@@ -9,6 +9,9 @@ gem 'mysql2'
 
 gem 'json'
 
+gem "httparty"
+
+
 
 group :production do
   # gems specifically for Heroku go here

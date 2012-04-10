@@ -1,3 +1,4 @@
+
 <script type="text/javascript">
 
 
@@ -61,7 +62,7 @@ function addToNewSetCallback(paramStr){
 	var arr = paramStr.split(",");
 	var tuneId = arr[0];
 	switchOnToolByButton("newSetBtn");
-	var bl = document.getElementById("setlist");
+	var bl = document.getElementById("newSetList");
 	var op = new Option(tunesArr[tuneId].title, tuneId);
 	bl.options[bl.options.length] = op;
 }
@@ -319,36 +320,19 @@ function getFilters(){
 
 
 function addToSet(){
-	var bl = document.getElementById("setlist");
+	var bl = document.getElementById("newSetList");
 	var op = new Option(gTuneList.selectedItem.innerHTML, gTuneList.selectedItem.id);
 	bl.options[bl.options.length] = op;
 	
 }
 
 
-function saveNewSetToGroup(){
-	var event = window.event;
+function saveNewSetToGroup(e){
 	var ctx = new ContextMenu();
 	for(var i in groupsArr){
-		ctx.addItem(groupsArr[i].title, saveNewSet, groupsArr[i].id);
+		ctx.addItem(groupsArr[i].title, saveNewSet, {groupId:groupsArr[i].id, setElem:document.getElementById('newSetList')});
 	}
-	ctx.show(event);
-}
-
-function saveNewSet(groupId){
-	var sl = document.getElementById("setlist");
-	var arr = new Array();
-	for(var i=0; i<sl.options.length; i++){
-		arr.push(sl.options[i].value);
-	}
-	
-	if(typeof(groupId) == 'undefined')
-		doAction("saveNewSet",  
-				"tuneIds", arr.join(","));
-	else
-		doAction("saveNewSet",  
-				"tuneIds", arr.join(","), 
-				"groupId", groupId);
+	ctx.show(e);
 }
 
 
@@ -419,15 +403,12 @@ function submitMultiple(){
 	}
 
 	json = "{\"tunes\":["+jsonArr.join(',')+"]}"
-	doRorLink('/tunes/add', 'post', {name:'tunes', value:json});
-	
-	return;
-	
 	
 	// todo show summary before submitting
 	
-	doAction("submitTunes",
-			"xml", escape(xml));
+	doRorLink('/tunes/add', 'post', {name:'tunes', value:json});
+
+	
 	}catch(e){"exception caught: "+alert(e.message)}
 }
 
@@ -461,6 +442,9 @@ try{
 		
 		return true;	
 	});
+	
+	$("#saveNewSetToGroupBtn").click(function(e){saveNewSetToGroup(e)})
+	
 	
 	// has to be called before showing the list
 	gBtnMgr = new ButtonManager();
@@ -661,14 +645,14 @@ try{
 										<tr>
 											<td><button onclick="addToSet(); return false;">=></button></td>
 											<td>
-												<select multiple size=5 id=setlist clearOnCancel></select><br>
-												<span class="info white pointer" onclick="clearList('setlist'); return false;">clear</span>
+												<select multiple size=5 id=newSetList clearOnCancel></select><br>
+												<span class="info white pointer" onclick="clearList('newSetList'); return false;">clear</span>
 											</td>
 										</tr>
 									</table>
 									<br>
-									<span class="info white pointer" onclick="saveNewSet(); return false;">save set</span> | 
-									<span class="info white pointer" onclick="saveNewSetToGroup(); return false;">save set to group</span> | 
+									<span class="info white pointer" onclick="saveNewSet({groupId:0, setElem:document.getElementById('newSetList')}); return false;">save set</span> | 
+									<span class="info white pointer" id=saveNewSetToGroupBtn>save set to group</span> | 
 									<span class="info cancel pointer" id=btn2 name=toolCancel>cancel</span>
 								</td>	
 							</tr>

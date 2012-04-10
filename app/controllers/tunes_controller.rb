@@ -1,9 +1,12 @@
 class TunesController < ApplicationController
+
   def index
 	@title = 'Tunes'
 	@tunes = Tune.find(:all, :include => [:keys, :tune_types])
 	@keys = Key.all
 	@newTune = Tune.new
+	
+	@google_html = HTTParty.get("http://google.com")
   end
 
   def show
@@ -15,13 +18,11 @@ class TunesController < ApplicationController
   end
 
   def add
-  	@arr = Array.new
   	@params = params
   	if params[:tunes]
   		json = JSON.parse params[:tunes] 
   		json["tunes"].each do |tune|
   			create_tune tune
-  			@arr.push tune
   		end	
   	else
   		create_tune params[:tune]		

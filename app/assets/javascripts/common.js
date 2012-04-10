@@ -678,7 +678,7 @@ function doRorLink(url, method, fields){
 	
 	// additional data fields
 	for(var i=2; i<arguments.length; i++){
-		var val = arguments[i].value.replace(/\"/g, "&quot;");
+		var val = arguments[i].value.toString().replace(/\"/g, "&quot;");
 		form.append("<input type=hidden name='"+arguments[i].name+"' value=\""+val+"\"></input>")
 	}
 	
@@ -1033,11 +1033,11 @@ function groupTunesIntoSet(containerElem){
 			array of tune ids,
 			array of tune item elements
 			object of type objList
+			selection list with option values => tune ids
 */
 
 function saveNewSet(obj){
 	try{
-	
 	var setElem =  obj.setElem;
 	var tuneIds = '';
 	
@@ -1064,12 +1064,22 @@ function saveNewSet(obj){
 				}catch(e){alert('error in saveNewSet: ' + e.message); return;}	
 			}
 			break;
+		case HTMLSelectElement:
+			var arr = [];
+			for(var i in setElem.options){
+				arr.push(setElem[i].value);
+			}
+			tuneIds = arr.join(",");
+			break;
 		default:
 			alert("unparseable obj type: "+setElem.constructor)
 			return;
 	}
 	
+	
+	
 	}catch(e){alert(e.message)}
+	
 	
 	// save the set
 	if(obj.groupId){

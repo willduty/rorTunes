@@ -717,7 +717,7 @@ function Grid(container, options){
 			
 		// restore all col hdrs to inactive
 		for(var n in _this.columnsArr)
-			_this.columnsArr[n].cell.className = "info gridRowHdrItem";
+			_this.columnsArr[n].cell.className = "gridRowHdrItem";
 		
 		
 		// set the sort direction
@@ -727,7 +727,7 @@ function Grid(container, options){
 			_this.columnsArr[_this.sortIdx].sortDirection = (direction == SORT_DESC) ? 1 : -1;
 			
 		// set style to active for selected col hdr
-		hdr.className = "info black gridRowHdrItem";
+		hdr.className = "black gridRowHdrItem";
 		hdr.style.whiteSpace = "nowrap";
 		// hdr.innerHTML += (_this.columnsArr[_this.sortIdx].sortDirection > 0) ? downIcon : upIcon;
 			
