@@ -9,7 +9,7 @@ function menuItem(div, parent, sub){
 // main object, "parentMenu" parameter used internally for submenus
 function ContextMenu(parentMenu){
 
-	this.parentMenu = (typeof(parentMenu) == 'undefined') ? null : parentMenu;
+	this.parentMenu = (typeof(parentMenu) == 'undefined' || !(parentMenu instanceof ContextMenu)) ? null : parentMenu;
 
 	this.itemsArr = new Array();	
 	var box = document.createElement("div");

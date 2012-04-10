@@ -661,9 +661,23 @@ function deleteTune(tuneId){
 		return;
 	}
 		
-	$("<form method=post action='/tunes/delete/"+tuneId+"'><input type=hidden name=_method value='delete' />"+
+	doRorLink('/tunes/delete/'+tuneId, 'delete')
+}
+
+
+// mimic rails framework 'data-method' type link submission
+function doRorLink(url, method, fields){
+
+	// create form with "indicated" method 
+	var form = $("<form method=post action='"+url+"'><input type=hidden name=_method value='"+method+"' />"+
 		"<input type=hidden name=authenticity_token value='"+$('[name=csrf-token]').attr('content') + "' /></form>")
-		.appendTo(document.body).submit();
+	
+	// additional data fields
+	for(var i=2; i<arguments.length; i++){
+		form.append("<input type=hidden name='"+arguments[i].name+"' value='"+arguments[i].value+"'></input>")
+	}
+	// go
+	form.appendTo(document.body).submit();
 }
 	
 
@@ -1053,20 +1067,10 @@ function saveNewSet(obj){
 	
 	// save the set
 	if(obj.groupId){
-		var groupId = obj.groupId;
-		alert('todo, save to group')
-		return;
-		doAction("saveNewSet",  
-				"tuneIds", tuneIds, 
-				"groupId", groupId);
+		doRorLink('/tune_sets/add', 'post', {name:'tune_set[tuneIds]', value:tuneIds}, 
+							{name:'group_id', value:obj.groupId});
 	}else{
-	
-			
-		$("<form method=post action='/tune_sets/add'><input name=tune_set[tuneIds] value='"+tuneIds+"' />"+
-			"<input type=hidden name=authenticity_token value='"+$('[name=csrf-token]').attr('content') + "' /></form>")
-			.appendTo(document.body).submit();
-	
-		
+		doRorLink('/tune_sets/add', 'post', {name:'tune_set[tuneIds]', value:tuneIds});
 	}
 		
 }
@@ -1634,11 +1638,7 @@ function showSetEditDlg(id, event){
 function deleteSet(id){
 	if(confirm("Are you sure you want to delete set "+id+"? This cannot be undone."))	
 	
-			
-	$("<form method=post action='/tune_sets/delete/"+id+"'><input type=hidden name=_method value='delete' />"+
-		"<input type=hidden name=authenticity_token value='"+$('[name=csrf-token]').attr('content') + "' /></form>")
-		.appendTo(document.body).submit();
-	
+	doRorLink('/tune_sets/delete/'+id, 'delete');
 }
 
 

@@ -251,6 +251,7 @@ function objReorder(id){
 		this.addItemButton = document.createElement("div");
 		this.addItemButton.className = "toolBtn white grayBkgd";
 		this.addItemButton.innerHTML = "&nbsp;Add Item...";
+	
 		var callback = this.addItemCallback; // for scope use below
 		
 		// add button which when clicked shows input box with autosuggest
@@ -264,19 +265,21 @@ function objReorder(id){
 			
 			// add the text input elem
 			var input = document.createElement("input");
-			input.setAttribute("type", "text")
+			input.setAttribute("type", "text");
+			input.style.width = "10em";
 			this.appendChild(input);
 			if(input.offsetWidth > this.offsetWidth){
 				var elem = input;
 				for(var i=0; i<4; i++){ // todo find a better way for this resize
 					if(CBParentElement(elem).offsetWidth < elem.offsetWidth){
-						CBParentElement(elem).style.width = elem.offsetWidth;
+						CBParentElement(elem).style.width = elem.offsetWidth + "px";
 						if(i == 3)
-							CBParentElement(elem).style.width = elem.offsetWidth + 20;
+							CBParentElement(elem).style.width = elem.offsetWidth + 20  + "px";
 					}
 					elem = CBParentElement(elem);
 				}
 			}
+			
 			
 			// so the user click on the input box doesn't route to the button (which is the parent)
 			input.onclick = function(e){CBStopEventPropagation(e);}
@@ -287,6 +290,12 @@ function objReorder(id){
 				var auto = new objAutoSuggest(this, autoSuggestCallback, callback);
 			}
 			
+			input.onblur = function(){
+				CBParentElement(input).removeChild(this)
+			}
+			
+			input.focus();
+			
 		}
 	}
 	
@@ -296,8 +305,8 @@ function objReorder(id){
 		_this.addItem(suggestionName, suggestionId);
 		_this.assemble();
 		
-		// restore add item button to normal (take out input box)
-		_this.addItemButton.removeChild(_this.addItemButton.lastChild);
+		ensureElemInView(_this.box);
+	
 	}
 	
 	

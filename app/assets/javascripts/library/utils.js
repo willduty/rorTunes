@@ -100,7 +100,7 @@ function getPageFitCoords(elem, x, y){
 }
 
 
-// adjust for scrolling and for window size so menu stays in window
+// keep elem in window
 function ensureElemInView(elem){	
 	var x = getXCoord(elem);
 	var y = getYCoord(elem);
@@ -108,8 +108,31 @@ function ensureElemInView(elem){
 	if(elem.offsetHeight + y > screenH ){
 		y -= (elem.offsetHeight + y) - screenH + 5;
 	}
-	elem.style.top = y;
+	elem.style.top = y + "px";
 }
+
+
+// check if two elements overlap
+function elementsOverlap(elem1, elem2){
+	var pos1 = new objPos(elem1);
+	var pos2 = new objPos(elem2);
+	return (pos1.right > pos2.left && pos1.left < pos2.right && pos1.bottom > pos2.top && pos1.top < pos2.bottom);
+}
+
+
+// move elem out of way of scootFromElem
+function scootElem(elem, scootFromElem){	
+	
+	if(elementsOverlap(elem, scootFromElem)){	
+		var scootPos = new objPos(scootFromElem);
+				
+		// scoot where?
+		
+		elem.style.left = scootPos.right + 'px';
+	}
+}
+
+
 
 
 function getMouseX(event){
@@ -187,6 +210,8 @@ function CBGetElementsByName(name, node, arr){
 	}
 }
 
+
+// jquery does all this but here before jquery
 function CBGetElementsByAttr(attr, attrVal, node, arr){
 	if(node == null)
 		node = window.document;

@@ -10,7 +10,6 @@
 var PAGE_VIEW_ALL = 1;
 var PAGE_VIEW_BYGROUPS = 2;
 
-var gViewMode;
 var gTunesObj = new objTunes();
 
 
@@ -46,7 +45,7 @@ function scrollContentArea(){
 
 function suggestionPressedCallback(str, id, tuneSelectionBox){
 	if(id){
-		return suggestionClickedCallback(str, id, tuneSelectionBox);
+		return suggestionClicked(str, id, tuneSelectionBox);
 	}
 	else {
 		
@@ -72,33 +71,37 @@ function newTuneCallback(){
 	alert("")
 }
 
+var gWidgetMgr = new WidgetManager();
 
-var gNewSetList = null;
 // callback from objAutoSuggest when the user selects a suggestion. 
-function suggestionClickedCallback(str, id, tuneSelectionBox){
+function suggestionClicked(str, id, tuneSelectionBox){
 	tuneSelectionBox.value = "";
 	tuneSelectionBox.setAttribute("tuneId", id);
 	
 	var newsetbox = document.getElementById("manualSetResultBox");
-	if(!gNewSetList){
-		gNewSetList = new objList(newsetbox, LIST_VIEW_SCROLLBOX);
-		gNewSetList.useMinimumNeededWidth = true;
-		gNewSetList.width = 200;
+	
+	newSetList = gWidgetMgr.widgetFromElem(newsetbox, objList);
+	
+	if(!newSetList){
+		newSetList = new objList(newsetbox, LIST_VIEW_SCROLLBOX);
+		gWidgetMgr.newWidget(newsetbox, newSetList);
+		newSetList.useMinimumNeededWidth = true;
+		newSetList.width = 200;
 		
 		$('#saveSetBtn').click(function(){
-			saveNewSet({setElem:gNewSetList})
+			saveNewSet({setElem:newSetList})
 		})
 	}
 	
 	
-	var item = gNewSetList.addItem(str, id, null);
+	var item = newSetList.addItem(str, id, null);
 	item.oncontextmenu = function(e){
 		var cm = new ContextMenu();
 		cm.addItem("Remove", removeTuneFromNewSet, item);
 		cm.show(e);
 		return false;
 	}
-	gNewSetList.show();
+	newSetList.show();
 }
 
 
@@ -109,7 +112,7 @@ function removeTuneFromNewSet(item){
 
 
 
-function randomSuggestionClickedCallback(str, id){
+function randomSuggestionClicked(str, id){
 	var elem = document.getElementById("randomSetRequiredTune")
 	elem.value = str;
 	elem.setAttribute("tuneId", id);
@@ -206,7 +209,7 @@ function shuffleArray(v){
 
 function showAllSets(){
 
-	gViewMode = PAGE_VIEW_ALL;
+
 	clearContentArea();
 	
 	var copyArr = getSortedArrayCopy(setsArr, SORT_TYPE_SETS_ALPHA);
@@ -249,7 +252,7 @@ function showAllSets(){
 
 function showSetsByGroup(){
 
-	gViewMode = PAGE_VIEW_BYGROUPS;
+
 	clearContentArea();
 	var setsCount = 0;
 	var msl = getContentArea();
@@ -316,7 +319,7 @@ function showSetsByGroup(){
 
 
 
-function searchSuggestionClickedCallback(str, id){
+function searchSuggestionClicked(str, id){
 
 	// clear the entry box
 	var elem = document.getElementById("setSearchEntryBox")
@@ -386,37 +389,32 @@ function appendSet(setObj, groupId, targetElem, className){
 
 
 
-function saveNewSetFromList(){
-	saveNewSet({setElem:newSetList, groupId:0})
-}
-
-
-function showSaveToGroupMenu(){
-	var event = window.event;
-	var ctx = new ContextMenu();
+function showSaveToGroupMenu(event){
+try{
+	newSetList = gWidgetMgr.widgetFromElem(document.getElementById("manualSetResultBox"), objList)
+	var ctx = new ContextMenu(event);
 	for(var i in groupsArr){
 		var ss = {setElem: newSetList, groupId: groupsArr[i].id};
 		ctx.addItem(groupsArr[i].title, saveNewSet, ss);
 	}
 	ctx.show(event);
+}catch(e){alert(e)}
 }
 
 
 
-
-
-var auto; 
 		
 // onload stuff/
 
 window.onload = function(){
 
-try{
-	gViewMode  = PAGE_VIEW_BYGROUPS;
+	try{
 	
 	setUpToolSwitches();
 	setNavbarSelected();
 	showSearchResults();
+	
+	$('#saveSetToGroupBtn').click(function(e){showSaveToGroupMenu(e); return false;})
 	
 	// get "on" buttons
 	var arrParams = getAllRequestParams();
@@ -427,39 +425,24 @@ try{
 		}
 	}
 	
-	
-	
 	// has to be called before showing the list
 	var btnMgr = new ButtonManager();
 	btnMgr.setUpButtons(arrOnBtns);
 	
 	// set up autosuggest
-	var setEntryBox = document.getElementById("manualSetEntryBox");
-	auto = new objAutoSuggest(setEntryBox, autoSuggestCallback);
+	var box = document.getElementById("manualSetEntryBox");
+	gWidgetMgr.newWidget(box, new objAutoSuggest(box, autoSuggestCallback, suggestionClicked));
 	
-	// set up handlers and callbacks for input boxes that will use autosuggest
-	setEntryBox.onfocus = function(){
-		auto.setElement(this);
-		auto.suggestionClickedCallback = suggestionClickedCallback;
-		auto.suggestionPressedCallback = suggestionPressedCallback;
-	}
+	box = document.getElementById("setSearchEntryBox");
+	gWidgetMgr.newWidget(box, new objAutoSuggest(box, autoSuggestCallback, searchSuggestionClicked));
 	
-	document.getElementById("setSearchEntryBox").onfocus = function(){
-		auto.setElement(this);
-		auto.suggestionClickedCallback = searchSuggestionClickedCallback;
-		auto.suggestionPressedCallback = searchSuggestionClickedCallback;
-	}
-	document.getElementById("randomSetRequiredTune").onfocus = function(){
-		// var auto = new objAutoSuggest(this, autoSuggestCallback, randomSuggestionClickedCallback);
-		auto.setElement(this);
-		auto.suggestionClickedCallback = randomSuggestionClickedCallback;
-		auto.suggestionPressedCallback = randomSuggestionClickedCallback;
-	}
+	box = document.getElementById("randomSetRequiredTune");
+	gWidgetMgr.newWidget(box, new objAutoSuggest(box, autoSuggestCallback, randomSuggestionClicked));
 	
 	// add the newly selected tune to the new set 
-	
 	scrollContentArea();
-}catch(e){alert(e)}	
+	
+	}catch(e){alert(e)}	
 }
 </script>
 
@@ -555,7 +538,7 @@ try{
 								<tr height=100%>
 									<td valign=top>
 										<span class="info white pointer" id=saveSetBtn>save set</span> | 
-										<span class="info white pointer" onclick="showSaveToGroupMenu(); return false;">save set to group</span> | 
+										<span class="info white pointer" id=saveSetToGroupBtn>save set to group</span> | 
 										<span class="info cancel pointer" name=toolCancel>cancel</span>
 									</td>
 									<td colspan=2></td>
