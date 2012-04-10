@@ -2,6 +2,7 @@ RorTunes::Application.routes.draw do
 
 get "tunes/index"
 post "tunes/add"
+post "tunes/add_multiple"
 delete "tunes/delete/:id", :to => "tunes#delete"
 match "tunes/:id", :to=>'tunes#show'
 match "tunes", :to =>"tunes#index"

@@ -178,7 +178,7 @@ function showGrid(){
 	// clear out tunelist before we (re)populate
 	gTuneList = new Grid(contentArea, LIST_VIEW_FULL); // LIST_VIEW_SCROLLBOX
 
-	gTuneList.returnKeyCallback = gotoTunePage;
+	gTuneList.returnKeyCallback = goToTunePage;
 	gTuneList.addColumn("Title", 200);
 	gTuneList.addColumn("Type", 80);
 	gTuneList.addColumn("Key", 60);
@@ -249,7 +249,7 @@ function showGrid(){
 										tune.parts, 
 										tune.entryDate, 
 										tune.lastUpdate, 
-										gridCallbackGotoTunePage,
+										goToTunePage,
 										tune.id);
 		
 		addTuneElemCtxMenu(tuneElem, tune);
@@ -318,64 +318,6 @@ function getFilters(){
 
 
 
-function gridCallbackGotoTunePage(id){
-	gotoTunePage(id);
-}
-
-function gridCallbackSetKey(item){
-	showPad("key", item, padItemSelected);
-}
-function gridCallbackSetType(item){
-	showPad("type", item, padItemSelected);
-}
-function gridCallbackSetParts(item){
-	showPad("parts", item, padItemSelected);
-}
-
-
-function submitNewTune(){
-	
-	$('form[name=newTuneForm]')
-	alert(4);
-
-
-	var title = document.getElementById("newTunetitle").value;
-	var typeid = document.getElementById("newTuneType").value;
-	var keyid = document.getElementById("newTuneKey").value;
-	var parts = document.getElementById("newTuneParts").value;
-	
-	// if the "save as todo" button is on set STATUS_INACTIVE bit. else STATUS_ACTIVE
-	var status = 0;
-	status |= ((document.getElementById("saveAsTodo").attributes['onOff'].value == "on") ?
-		STATUS_INACTIVE : STATUS_ACTIVE);
-	
-	title = title.replace(/^\s\s*/, '').replace(/\s\s*$/, '');
-	if(title == "")
-		alert("invalid title");
-	
-	else{
-		if(!parts) 
-			parts = 2;
-		
-		if(!typeid) typeid = 0;
-		if(!keyid) keyid = 0;
-		
-		if(!typeid || !keyid)
-			if(!confirm("the type and/or key are not selected.\r\n"+
-				"save anyways?"))
-				return;
-
-		doAction("submitNewTune",  
-				"title", escape(title), 
-				"typeId", typeid,
-				"keyId", keyid, 
-				"parts", parts, 
-				"status", status);
-	}
-}
-
-
-
 function addToSet(){
 	var bl = document.getElementById("setlist");
 	var op = new Option(gTuneList.selectedItem.innerHTML, gTuneList.selectedItem.id);
@@ -425,20 +367,14 @@ function updateCount(){
 }
 
 
-function gotoTunePage(id){
-	location = id;
-}
-
 function submitMultiple(){
-
 	try{
 	
 	var arr = $('#addMultipleBox').val().split("\n");	
 	var arrInvalid = [];
 
-	// make xml 
-	var xmlRoot = document.createElement("tunes");
-	
+	// make json 
+	var jsonArr = [];
 	//  split text by lines and make tune node for each
 	for(var i=0; i< arr.length; i++){	
 		var parts = arr[i].split("|");
@@ -451,31 +387,23 @@ function submitMultiple(){
 			i--;
 		}
 		else{
+			var json = [];
 			// tune node
-			var tuneNode = document.createElement("tune");
-			xmlRoot.appendChild(tuneNode);
-			var titleNode = document.createElement("title");
-			var typeNode = document.createElement("type");
-			var keyNode = document.createElement("key");
-			var partsNode = document.createElement("parts");
-			var statusNode = document.createElement("status");
-			tuneNode.appendChild(titleNode);
-			tuneNode.appendChild(typeNode);
-			tuneNode.appendChild(keyNode);	
-			tuneNode.appendChild(partsNode);	
-			tuneNode.appendChild(statusNode);
-			titleNode.innerHTML = title;
+			//json.push("\"title\":\""+title.replace(/\"/g, '\\\"')+"\"")
+			json.push(json_format_pair("title", title));
 			var type, key;
-			if(type = typeIdFromName(parts[1]))
-				typeNode.innerHTML = type;
-			if(key = keyIdFromName(parts[2]))
-				keyNode.innerHTML = key;
-			partsNode.innerHTML = 2;
-			statusNode.innerHTML = STATUS_ACTIVE;
+			type = typeIdFromName(parts[1])
+				json.push(json_format_pair("tune_type_ids", type ? type : 1));	
+			key = keyIdFromName(parts[2])
+				json.push(json_format_pair("key_ids", key ? key : 1));
+			json.push(json_format_pair("parts", parts[3] ? parts[3] : 2));
+			json.push(json_format_pair("status", STATUS_ACTIVE));
+			
+			jsonArr.push("{"+json.join(',')+"}")
 		}
 	}
 	
-	var xml = "<\?xml version=\"1.0\" encoding=\"ISO-8859-1\"\?>" + xmlRoot.outerHTML;
+	
 		
 	if(arrInvalid.length){
 		if(arr.length){
@@ -490,6 +418,11 @@ function submitMultiple(){
 		}
 	}
 
+	json = "{\"tunes\":["+jsonArr.join(',')+"]}"
+	doRorLink('/tunes/add', 'post', {name:'tunes', value:json});
+	
+	return;
+	
 	
 	// todo show summary before submitting
 	
@@ -499,17 +432,35 @@ function submitMultiple(){
 }
 
 
+// todo don't replace already escaped dbl quotes
+function json_format_pair(name, value){
+	return "\"" +name+ "\" : \"" +value.toString().replace(/\"/g, '\\\"')+ "\"";
+}
+
 
 
 var gTuneList, gBtnMgr;
 
 
+var invalidTitleMsg = 'Invalid Title. Title must: \n   have length,\n   be non white space, '+
+				'\n   not include characters other than alphanumeric or \' \" ! & ? - _';
 window.onload = function (){
 try{
 	sizeContentArea();
 	setUpPadSwitches();
 	setUpToolSwitches(); 
 	setNavbarSelected();
+	
+	$('#new_tune').submit(function(e){
+		
+		var title = $(this).find('[name=tune\\\[title\\\]]').val();
+		if(!validateTuneTitle(title)){
+			alert(invalidTitleMsg);
+			return false;
+		}
+		
+		return true;	
+	});
 	
 	// has to be called before showing the list
 	gBtnMgr = new ButtonManager();
@@ -661,7 +612,8 @@ try{
 									</table>
 									<br>
 									<%= nt.submit %>
-									<span class="info white pointer" onclick="submitNewTune(); return false;">submit</span> | 
+									<%= nt.button 'cancel' %>
+									 
 									<span class="info cancel pointer" id=btn1 name=toolCancel>cancel</span>
 									<% end %>
 								</td>

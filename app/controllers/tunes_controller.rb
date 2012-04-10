@@ -10,11 +10,30 @@ class TunesController < ApplicationController
   	@tune = Tune.find_by_id(params[:id])
   end
 
+  def add_multiple
+  
+  end
+
   def add
-  	@newTune = Tune.create(params[:tune])
+  	@arr = Array.new
+  	@params = params
+  	if params[:tunes]
+  		json = JSON.parse params[:tunes] 
+  		json["tunes"].each do |tune|
+  			create_tune tune
+  			@arr.push tune
+  		end	
+  	else
+  		create_tune params[:tune]		
+  	end 
+  	redirect_to '/tunes'
+  end
+  
+  
+  def create_tune(tune)
+  	@newTune = Tune.create(tune)
   	@newTune.save 
   	@newItem = Item.create(:itemable_type => 'Tune', :user_id => session[:user_cookie], :itemable_id => @newTune.id) 
-  	redirect_to '/tunes'
   end
 
   def delete

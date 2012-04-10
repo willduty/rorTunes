@@ -132,6 +132,10 @@ function validateTuneTitle(str){
 		return null;
 	// todo, check for invalid chars
 		
+	regex = /[^A-Za-z0-9\'\"\?\!\&\s_]/g
+	if(regex.exec(str) != null)
+		return null;
+			
 	return str;
 }
 
@@ -674,8 +678,10 @@ function doRorLink(url, method, fields){
 	
 	// additional data fields
 	for(var i=2; i<arguments.length; i++){
-		form.append("<input type=hidden name='"+arguments[i].name+"' value='"+arguments[i].value+"'></input>")
+		var val = arguments[i].value.replace(/\"/g, "&quot;");
+		form.append("<input type=hidden name='"+arguments[i].name+"' value=\""+val+"\"></input>")
 	}
+	
 	// go
 	form.appendTo(document.body).submit();
 }
