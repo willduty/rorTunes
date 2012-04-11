@@ -73,8 +73,8 @@ resources.each do |r|
 
 %>
 
-resourcesArr[<%= r.id %>] = new objResource(<%= r.id %>, <%= r.resourceType %>, "<%= r.title %>",
-					"<%= r.url %>", "<%= r.localFile %>",
+resourcesArr[<%= r.id %>] = new objResource(<%= r.id %>, <%= r.resource_type %>, "<%= r.title %>",
+					"<%= r.url %>", "<%= r.local_file %>",
 					 "<%= r.comments %>", "<%= r.entryDate %>", "<%= r.priority %>");					 	
 <%
 end

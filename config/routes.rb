@@ -23,9 +23,10 @@ delete "groups/delete"
 match "groups", :to=>"groups#index"
 
 get "users/index"
-get "users/add"
-get "users/delete"
+post "users/add"
+delete "users/delete"
 match "home", :to=>"users#index"
+match "register", :to=>"users#new"
 
 get 'session/login'
 post 'session/create'

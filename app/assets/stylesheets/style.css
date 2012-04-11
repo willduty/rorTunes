@@ -44,7 +44,7 @@ option {color:#333;
 .toolBtnOff:hover {color:orange;}
 
 .plainText {color:black; text-decoration:none; font:normal 12px arial; }
-.item {color:#640; text-decoration:none; font:normal 12px arial; }
+.item {color:#640; text-decoration:none; font:normal 12px arial; margin:0px; padding: 0px 2px 0px 2px; spacing:0px;}
 .item:hover {color:#310; cursor:pointer;}
 
 .itemTunePage {color:white; text-decoration:none; font:normal 12px arial; }

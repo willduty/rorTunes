@@ -182,20 +182,6 @@ window.onload = function(){
 
 
 
-tunes: 
-<%= @user.tunes.length %>
-<br>
-
-sets: 
-<%= @user.tune_sets.length %>
-<br>
-resources: 
-<%= @user.resources.length %>
-<br>
-groups: 
-<%= @user.groups.length %>
-<br>
-
 				
 				<!-- content table -->
 				<table cellspacing=20>
@@ -211,7 +197,7 @@ groups:
 							<br>
 							
 							<div class=infohdr>Latest</div>
-							<div class="item ltltgrayBkgd bubbleSection" style="width:500;"  id=latestBox style="margin-left:10px">
+							<div class="item ltltgrayBkgd bubbleSection" style="width:500;" id=latestBox style="margin-left:10px">
 								<div><a href="tunes.php" id=tunesSectionHdr class="info copper">Tunes:</a></div>
 								<div class="indentedbox" id=latestTunesBox></div>
 								<div><a href="resources.php" id=resourcesSectionHdr class="info copper">Resources:</a></div>

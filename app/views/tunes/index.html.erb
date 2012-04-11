@@ -139,7 +139,7 @@ function showTunesList(){
 	for(var i in tunesArrAlpha){
 		var tuneElem = createItemElement(tunesArrAlpha[i], ITEM_TYPE_TUNE, null, false, 'span');
 		colorCodeTune(tuneElem, tunesArrAlpha[i])
-		// tuneElem.onmouseover = function(){};
+		
 		$(tuneElem).hover(function(){$(this).addClass('itemselected')}, function(){$(this).removeClass('itemselected')})
 		
 		function newSpacer(){
@@ -252,7 +252,6 @@ function showGrid(){
 										tune.lastUpdate, 
 										goToTunePage,
 										tune.id);
-		
 		addTuneElemCtxMenu(tuneElem, tune);
 		
 		// if tune is being show under a group
@@ -357,9 +356,10 @@ function submitMultiple(){
 	var arr = $('#addMultipleBox').val().split("\n");	
 	var arrInvalid = [];
 
-	// make json 
+
 	var jsonArr = [];
-	//  split text by lines and make tune node for each
+
+	//  split text by lines and json each 
 	for(var i=0; i< arr.length; i++){	
 		var parts = arr[i].split("|");
 		var title = validateTuneTitle(parts[0]);
@@ -373,7 +373,6 @@ function submitMultiple(){
 		else{
 			var json = [];
 			// tune node
-			//json.push("\"title\":\""+title.replace(/\"/g, '\\\"')+"\"")
 			json.push(json_format_pair("title", title));
 			var type, key;
 			type = typeIdFromName(parts[1])

@@ -10,7 +10,15 @@ class UsersController < ApplicationController
 	#@tunes = User.tunes
   end
 
+
+  def new
+  	@new_user = User.new
+  	@new_user.email = 'bogus@bogus.com'
+  end
+
+
   def add
+	@params = params[:user]
   end
 
   def delete 

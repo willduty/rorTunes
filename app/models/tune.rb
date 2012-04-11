@@ -1,6 +1,8 @@
 class Tune < ActiveRecord::Base
 	has_and_belongs_to_many :keys
 	has_and_belongs_to_many :tune_types
+	has_and_belongs_to_many :resources
+	
 	belongs_to :user
 	
 	accepts_nested_attributes_for :keys, :tune_types

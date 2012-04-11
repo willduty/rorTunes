@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+
+<html>
+
+<head>
+
+<script type="text/javascript">
+window.onload = function(){
+}
+</script>
+
+<link rel=StyleSheet href="css/style.css" type="text/css" media=screen>
+ 
+</head>
+
+<body>
+	<title>My Tunes Page</title>
+
+	<table  id=maintable width=600 border=0 cellpadding=0 cellspacing=0 align=center>
+		
+		<tr>
+			<!-- header -->
+			<td>
+				<table class="contentHeader toolheader" width=100%>
+					<tr>
+						<td width=100% height=18>Register</td>
+					</tr>
+				</table>	
+			</td>
+		</tr>
+		<tr>
+			<td valign=top height=100%>
+				
+				
+				
+				<!-- content table -->
+				<div class=section>
+				
+				<?php
+				if($registrationComplete){
+				?>
+				
+									
+					<span class='plainText' style='font-size:14px;'>Thank you for registering. You should recieve a confirmation email soon. To activate your account click the link provided there and you should be able to log in.</span>
+				
+				
+				
+				<?php
+				
+				}else{
+				
+				?>
+				
+				
+				
+				
+				
+								
+				<span class='plainText' style='font-size:14px;'>Hello and thank you for using Tunespage for your Irish Music needs. To register simply fill out and submit this form and a validation email will be sent to you from which you can activate your account.</span>
+				<%= form_for :user, {:url=>{:action=>'add'}, :html=>{:class=>'info'}} do|form| %>
+					<br>
+					<%= form.label :email %><%= form.text_field :email, :size=>nil %><br>
+					<%= form.label :password %><%= form.password_field :password, :size=>nil  %><br>
+					<%= form.label 'Reeenter Password' %><%= form.password_field :password2, :size=>nil  %><br>
+					<label>&nbsp;</label><%= form.submit :value=>'register' %>
+					<%= submit_tag 'CANCEL', :onclick=>'location=\'/\'; return false;' %>
+				<% end %>
+				
+				
+				
+				
+				</div>
+			</td>
+		</tr>
+		
+	</table>		
+</body>
+</html>
+
+
+
+
+
+
+

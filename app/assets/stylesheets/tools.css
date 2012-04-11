@@ -111,6 +111,7 @@
 }
 			
 .gridRow{
+	color:#750; 
 	list-style:none;
 	clear:both;
 	margin:0px;
@@ -118,6 +119,21 @@
 	border-width:1px;
 	border-bottom-color:lightgray;
 	border-bottom-style:solid;		
+	font: normal 12px helvetica;
+}
+
+
+.gridRowSelected{
+	list-style:none;
+	clear:both;
+	margin:0px;
+	padding:0px;
+	border-width:1px;
+	border-bottom-color:lightgray;
+	border-bottom-style:solid;	
+	background:red; 
+	color:black; 
+	font: normal 12px helvetica;
 }
 
 .gridRow:hover{

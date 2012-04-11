@@ -9,13 +9,11 @@ class TunesController < ApplicationController
 	@google_html = HTTParty.get("http://google.com")
   end
 
+
   def show
   	@tune = Tune.find_by_id(params[:id])
   end
-
-  def add_multiple
   
-  end
 
   def add
   	@params = params

@@ -210,6 +210,7 @@ function Grid(container, options){
 					_this.scrollByPage(DIRECTION_DOWN);
 					return false;
 				case KEY_HOME:
+					alert(9)
 					CBStopEventPropagation(event);
 					_this.showFrom(0, 0);
 					return false; 
@@ -307,9 +308,7 @@ function Grid(container, options){
 			item.className = "gridCell";
 			
 			CBAddEventListener(item, "contextmenu", function(e){
-				// ie
-				e = e ? e : window.event;
-				_this.selectItem(CBParentElement(e.srcElement));},
+				_this.selectItem(CBParentElement(CBEventSrcElement(e)));},
 				false);
 				
 			item.ondblclick = function(){
@@ -339,11 +338,12 @@ function Grid(container, options){
 		}
 			
 		if(_this.selectedItem){
-			this.selectedItem.className = "listItem gridRow";
+			this.selectedItem.className = "gridRow";
 		}
 		this.selectedItem = item;
 		
-		item.className = "listItemSelected gridRow";	
+		item.className = "gridRowSelected";
+		
 	}
 	
 	
@@ -440,6 +440,7 @@ function Grid(container, options){
 			this.selectItem(this.rowsBox.firstChild);	
 			return;
 		}
+		
 		// we are at the end. just select last item
 		if(newSelIdx > lastArrIdx)
 			newSelIdx = lastArrIdx;
@@ -558,7 +559,7 @@ function Grid(container, options){
 	
 	
 	this.showFrom = function(newStartIdx, selIdx){
-	
+	alert('showFrom')
 		if(this.options & LIST_VIEW_FULL){
 			// todo: why does the hdr div affect offsetTop of elem in rowsBox?
 			this.rowsBox.scrollTop = 

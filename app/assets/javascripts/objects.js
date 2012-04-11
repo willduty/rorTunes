@@ -75,7 +75,7 @@ function objGroups(){
 
 
 // tune 
-function objTune(nId, strTitle, nTypeId, nKeyId, status, nParts, strComments, entryDate, lastUpdate)
+function objTune(nId, strTitle, nTypeId, nKeyId, status, nParts, strComments, entryDate, lastUpdate, resources)
 {
 	this.id = nId;
 	this.title = strTitle;
@@ -89,6 +89,8 @@ function objTune(nId, strTitle, nTypeId, nKeyId, status, nParts, strComments, en
 	this.selectedAttr;
 	this.itemType = ITEM_TYPE_TUNE;
 	this.otherTitles = new Array();
+	this.resources = resources;
+	
 }
 
 objTune.prototype.getLabel = function(){

@@ -321,8 +321,9 @@ function CBParentElement(elem){
 	return elem.parentElement ? elem.parentElement : elem.parentNode;
 }
 
-function CBEventSrcElement(event){
-	return event.srcElement ? event.srcElement : event.target;
+function CBEventSrcElement(e){
+	e = e ? e : window.event;
+	return e.srcElement ? e.srcElement : e.target;
 }
 
 function CBDisableSelect(elem){
