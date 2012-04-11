@@ -5,7 +5,7 @@ body {background-color:#bbc3cd; margin: 0px 0px 0px 10px; }
 #maintable {height:95%; background-color:white; width:1000px; padding:0px; margin:0px; border-spacing:0px; margin-left:auto; margin-right:auto;}
 #contentarea {height:100%;}
 
-a  {text-decoration:none;}
+a {text-decoration:none;}
 a.navbarlink {color: #aaa; 
 			font:bold 13px helvetica; 
 			text-decoration:none; }

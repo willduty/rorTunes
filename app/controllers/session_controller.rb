@@ -12,16 +12,23 @@ class SessionController < ApplicationController
   end
   
   def create
-  	@user = User.authenticate(params[:session][:username], params[:session][:password])
+  	@user = User.authenticate(params[:session][:email], params[:session][:password])
   	if @user.nil?
-  		# set flash here
   		flash[:error] = 'bogus or errant login'
-  		redirect_to :action=>'login'
   	else
-  		#set up session here
-  		session[:user_cookie] = @user.id
-  		redirect_to '/home'
+  		@user_group = UserGroup.find_by_id(@user.user_group_id)
+  		if @user_group.title == 'user_unconfirmed' 
+	  		flash[:error] = 'You have created an account but not confirmed it. 
+	  			Check for an email from users@mytunespage.com and see the reply instructions.'
+	  	else
+	  		#set up session
+	  		session[:user_cookie] = @user.id
+	  		redirect_to '/home'
+	  		return
+	  	end
   	end
+  	redirect_to :action=>'login'
+  	
   end
 
 

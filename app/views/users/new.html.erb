@@ -32,42 +32,41 @@ window.onload = function(){
 			<td valign=top height=100%>
 				
 				
-				
 				<!-- content table -->
 				<div class=section>
 				
-				<?php
-				if($registrationComplete){
-				?>
+				<br>
+				<!-- email: |<%= @email %>|<br> -->
 				
-									
+				<% if flash[:error] %>
+					<div class=flash>! <%= flash[:error] %></div><br>
+				<% end %>
+			
+				<br>
+					
+				<% if @new_user.id.nil? %>
+
+					<span class='plainText' style='font-size:14px;'>Hello and thank you for using Tunespage for your Irish Music needs. To register simply fill out and submit this form and a validation email will be sent to you from which you can activate your account.</span>
+					<%= form_for :user, {:url=>{:action=>'add'}, :html=>{:class=>'info'}} do|form| %>
+						<br>
+						<%= form.label :email %><%= form.text_field :email, :size=>nil %><br>
+						<%= form.label :password %><%= form.password_field :password, :size=>nil  %><br>
+						<%= form.label 'Reeenter Password' %><%= form.password_field :password2, :size=>nil  %><br>
+						<br>
+						<label>&nbsp;</label><%= form.submit :value=>'register' %>
+						<%= submit_tag 'cancel', :onclick=>'location=\'/\'; return false;' %>
+					<% end %>
+				
+
+				<% else %>
+					
+				
 					<span class='plainText' style='font-size:14px;'>Thank you for registering. You should recieve a confirmation email soon. To activate your account click the link provided there and you should be able to log in.</span>
 				
 				
 				
-				<?php
-				
-				}else{
-				
-				?>
-				
-				
-				
-				
-				
-								
-				<span class='plainText' style='font-size:14px;'>Hello and thank you for using Tunespage for your Irish Music needs. To register simply fill out and submit this form and a validation email will be sent to you from which you can activate your account.</span>
-				<%= form_for :user, {:url=>{:action=>'add'}, :html=>{:class=>'info'}} do|form| %>
-					<br>
-					<%= form.label :email %><%= form.text_field :email, :size=>nil %><br>
-					<%= form.label :password %><%= form.password_field :password, :size=>nil  %><br>
-					<%= form.label 'Reeenter Password' %><%= form.password_field :password2, :size=>nil  %><br>
-					<label>&nbsp;</label><%= form.submit :value=>'register' %>
-					<%= submit_tag 'CANCEL', :onclick=>'location=\'/\'; return false;' %>
 				<% end %>
-				
-				
-				
+					
 				
 				</div>
 			</td>

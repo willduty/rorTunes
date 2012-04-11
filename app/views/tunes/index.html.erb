@@ -495,18 +495,18 @@ try{
 						<!-- buttons -->
 						<td bgcolor=aaaaaa height=25 style="padding-top:2px;padding-bottom:4px;">	
 							&nbsp;&nbsp;<span class="info gray">View: </span> 
-							<span onOff="on" name=onOffButton id=viewGrid btnGroup=view callback="showTunes"><span>grid</span></span>
-							<span onOff="off" name=onOffButton id=viewList btnGroup=view callback="showTunes"><span>list</span></span>
+							<span onOff="on" name=onOffButton id=viewGrid btnGroup=view callback="showTunes" class=onOffBtnOff><span>grid</span></span>
+							<span onOff="off" name=onOffButton id=viewList btnGroup=view callback="showTunes" class=onOffBtnOff><span>list</span></span>
 							
 							&nbsp;&nbsp;<span class="info gray">Filter by:</span> 
 							
-							<span onOff='off' name=onOffButton id=filterActivity callback=filterClicked padType=activity innerElem=filterActivitySlot>
+							<span onOff='off' name=onOffButton id=filterActivity callback=filterClicked padType=activity innerElem=filterActivitySlot class=onOffBtnOff>
 								<span>tune activity &nbsp;</span><span id=filterActivitySlot></span></span>
-							<span onOff='off' name=onOffButton id=filterKey callback=filterClicked padType=key innerElem=filterKeySlot>
+							<span onOff='off' name=onOffButton id=filterKey callback=filterClicked padType=key innerElem=filterKeySlot class=onOffBtnOff>
 								<span>key &nbsp;</span><span id=filterKeySlot></span></span>
-							<span onOff='off' name=onOffButton id=filterType callback=filterClicked padType=type innerElem=filterTypeSlot>
+							<span onOff='off' name=onOffButton id=filterType callback=filterClicked padType=type innerElem=filterTypeSlot class=onOffBtnOff>
 								<span>type &nbsp;</span><span id=filterTypeSlot></span></span> 
-							<span onOff='off' name=onOffButton id=filterGroup callback=filterClicked padType=group innerElem=filterGroupSlot>
+							<span onOff='off' name=onOffButton id=filterGroup callback=filterClicked padType=group innerElem=filterGroupSlot class=onOffBtnOff>
 								<span>group&nbsp;</span><span id=filterGroupSlot></span></span>
 						
 						</td>
@@ -589,7 +589,7 @@ try{
 										</tr>
 										<tr>
 											<td>
-												<br><span onOff="off" name=onOffButton id=saveAsTodo>save as to-do tune</span><br>
+												<br><span onOff="off" name=onOffButton id=saveAsTodo class=onOffBtnOff>save as to-do tune</span><br>
 											</td>
 										</tr>
 									</table>
