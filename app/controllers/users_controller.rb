@@ -25,6 +25,7 @@ class UsersController < ApplicationController
 	@new_user = User.create(params[:user])
 		
 	if @new_user.valid?
+		UserMailer.confirm_email(@new_user).deliver
 	  	redirect_to '/thankyou'
   	else
   		flash[:error] = @new_user.errors[:email]
