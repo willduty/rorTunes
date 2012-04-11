@@ -6,4 +6,4 @@ RorTunes::Application.initialize!
 
 
 
-config.action_mailer.delivery_method = :smtp
+
