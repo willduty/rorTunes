@@ -13,12 +13,6 @@ class SessionController < ApplicationController
   
   def create
   	@user = User.authenticate(params[:session][:email], params[:session][:password])
-  	
-  	@user= User.all
-  		flash[:error] = @user.inspect
-  	redirect_to :action=>'login'
-  	return
-  	
   	if @user.nil?
   		flash[:error] = 'bogus or errant login'
   	else
