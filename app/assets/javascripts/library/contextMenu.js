@@ -199,11 +199,12 @@ function ContextMenu(parentMenu){
 	}, true);	
 	
 	// escape key
-	document.onkeyup = function(event){
-		if(window.event.keyCode == 27){
+	CBAddEventListener(document.body, "keyup" , function(e){
+		e = e ? e : window.event;
+		if(e.keyCode == 27){
 			_this.closeAll();
 		}	
-	}
+	}, false);
 	
 }
 

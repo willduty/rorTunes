@@ -3,13 +3,14 @@ RorTunes::Application.routes.draw do
 get "tunes/index"
 post "tunes/add"
 post "tunes/add_multiple"
+put "tunes/update/:id", :to => "tunes#update"
 delete "tunes/delete/:id", :to => "tunes#delete"
 match "tunes/:id", :to=>'tunes#show'
 match "tunes", :to =>"tunes#index"
 
 get "resources/index"
 post "resources/add"
-delete "resources/delete"
+delete "resources/delete/:id", :to=>'resources#delete' 
 match "resources", :to=>"resources#index"
 
 get "tune_sets/index"
@@ -19,8 +20,13 @@ match "tune_sets", :to=>"tune_sets#index"
 
 get "groups/index"
 post "groups/add"
+put "groups/update/:id", :to=>"groups#update"
 delete "groups/delete"
 match "groups", :to=>"groups#index"
+
+post "group_items/add"
+delete "group_items/delete/:id", :to =>"group_items#delete"
+
 
 get "users/index"
 post "users/add"

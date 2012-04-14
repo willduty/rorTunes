@@ -563,11 +563,12 @@ function createItemElement(itemObj, itemType, groupId, useLabel, tag){
 	
 		case ITEM_TYPE_TUNE:
 			elem.innerHTML += itemObj.title;
-			if(typeof(addTuneElemCtxMenu) != 'undefined')
-				addTuneElemCtxMenu(elem, itemObj);
+			if(typeof(addTuneContextMenu) != 'undefined')
+				addTuneContextMenu(elem, itemObj);
 			break;
 			
 		case ITEM_TYPE_SET:
+			
 			// set up the element text and value
 			elem.innerHTML += itemObj.getSetAsString() + 
 				(itemObj.flagged ? "<b style='color:red'> * </b>" : "");
@@ -653,10 +654,9 @@ function createItemElement(itemObj, itemType, groupId, useLabel, tag){
 }
 
 
-function deleteResource(itemId){
-	if(confirm("Are you sure? This cannot be undone."))	
-		doAction("deleteResource", 
-				"itemId", itemId);
+function deleteResource(id){
+	if(confirm("Are you sure? This cannot be undone..."))	
+		doRorLink('/resources/delete/' + id, 'delete', {name:"id", value:id});
 }
 
 function deleteTune(tuneId){
@@ -681,13 +681,13 @@ function doRorLink(url, method, fields){
 		var val = arguments[i].value.toString().replace(/\"/g, "&quot;");
 		form.append("<input type=hidden name='"+arguments[i].name+"' value=\""+val+"\"></input>")
 	}
-	
+		
 	// go
 	form.appendTo(document.body).submit();
 }
 	
 
-function addTuneElemCtxMenu(elem, tuneObj){
+function addTuneContextMenu(elem, tuneObj){
 	// add custom context menu
 	elem.oncontextmenu = function(event){
 
@@ -706,7 +706,8 @@ function addTuneElemCtxMenu(elem, tuneObj){
 			for(var i in groupsArr) 
 				if (groupsArr[i].id == elem.attributes['groupId'].value){
 					ctxMenu.addItem("Remove from Group", 
-						removeFromGroupCallback, tuneObj.id +","+ITEM_TYPE_TUNE+","+groupsArr[i].id);
+						removeItemFromGroup,
+						{itemId:tuneObj.id , itemType:ITEM_TYPE_TUNE, groupId:groupsArr[i].id});
 					break;
 				}
 		}
@@ -717,7 +718,7 @@ function addTuneElemCtxMenu(elem, tuneObj){
 					groups.addItem(groupsArr[j].title);
 				else
 					groups.addItem(groupsArr[j].title, addItemToGroup,
-						{itemId:tuneObj.id, itemType: ITEM_TYPE_TUNE, groupId: groupsArr[j].id});
+						{itemId:tuneObj.id, itemType: ITEM_TYPE_TUNE, groupId: groupsArr[j].id, redirect:'/tunes'});
 			}
 			groups.addSeparator();
 			groups.addItem("Add To New Group...", addItemToGroup, {itemId:tuneObj.id, itemType: ITEM_TYPE_TUNE});
@@ -1265,8 +1266,8 @@ function addResourceContextMenu(elem, objResource){
 		
 		if(groupId = elem.getAttribute("groupId")){
 			ctxMenu.addItem("Remove From Group", 
-				removeFromGroupCallback, 
-				objResource.id +","+ITEM_TYPE_RESOURCE+","+groupId);
+				removeItemFromGroup, 
+				{itemId:objResource.id , itemType:ITEM_TYPE_RESOURCE, groupId:groupId});
 		}
 		ctxMenu.addSeparator();
 		
@@ -1469,6 +1470,7 @@ function validateTitleStr(str, itemType){
 
 // create context menu for set item
 function makeSetContextMenu(event){
+
 	event = event ? event : window.event;
 	
 	var srcElem = CBEventSrcElement(event);
@@ -1514,7 +1516,7 @@ function makeSetContextMenu(event){
 		else
 			groups.addItem(groupsArr[i].title, 
 						addItemToGroup, 
-						{itemId: setId, itemType: ITEM_TYPE_SET, groupId:groupsArr[i].id});
+						{itemId: setId, itemType: ITEM_TYPE_SET, groupId:groupsArr[i].id, redirect:'/tune_sets'});
 						
 	}
 	groups.addSeparator();
@@ -1523,24 +1525,27 @@ function makeSetContextMenu(event){
 					{itemId: setId, itemType: ITEM_TYPE_SET});
 
 	// if set is being show in a group add some extra menu options...
-	if(srcElem.getAttribute("groupId"))
+	
+	if(groupId = srcElem.getAttribute("groupId"))
 	{
-		if(groupId = CBEventSrcElement(event).getAttribute('groupId')){
-			var move = ctxMenu.addSubMenu("Move to Group");
-			//var currGroupId = attr.value;
-			for(var i in groupsArr){
-				if(groupsArr[i].id != groupId) // don't show group it's already in
-					move.addItem(groupsArr[i].title, 
-								addItemToGroup, 
-								{itemId: setId, itemType: ITEM_TYPE_SET, groupId:groupsArr[i].id, removeFromGroupId: groupId});
-				else
-					move.addItem(groupsArr[i].title); // inactive
-			}
-			
-			ctxMenu.addItem("Remove From Group", 
-							removeFromGroupCallback, 
-							setId +","+ITEM_TYPE_SET+","+groupId);
+		var move = ctxMenu.addSubMenu("Move to Group");
+		//var currGroupId = attr.value;
+		for(var i in groupsArr){
+			if(groupsArr[i].id != groupId) // don't show group it's already in
+				move.addItem(groupsArr[i].title, 
+							addItemToGroup, 
+							{itemId: setId, itemType: ITEM_TYPE_SET, 
+								groupId:groupsArr[i].id, 
+								removeFromGroupId: groupId,
+								redirect:'/tune_sets'});
+			else
+				move.addItem(groupsArr[i].title); // inactive
 		}
+		
+		ctxMenu.addItem("Remove From Group", 
+				removeItemFromGroup, 
+				{itemId:setId , itemType:ITEM_TYPE_SET, groupId:groupId});
+	
 	}
 	
 	ctxMenu.addItem("Favorite Item", favoriteItem, setsArr[setId]);
@@ -1559,20 +1564,36 @@ function ctxFlagCallback(setId){
 }
 
 
+function itemableTypeFromItemType(itemType){
+	switch(parseInt(itemType)){
+		case ITEM_TYPE_TUNE: return 'Tune';
+		case ITEM_TYPE_SET: return 'TuneSet';
+		case ITEM_TYPE_RESOURCE: return 'Resource';
+		case ITEM_TYPE_GROUP: return 'Group';
+		case ITEM_TYPE_FAVORITE: return 'Favorite';
+		
+	}
+
+}
 
 function addItemToGroup(obj){
 
 	var itemId = obj.itemId; // id of the item (tune, set, etc)
 	var itemType = obj.itemType;
 	var groupId = parseInt(obj.groupId); // id of group we're adding the set to (if 0 means it's a group to be created
+	var redirect = obj.redirect;
 	var removeFromGroupId = parseInt(obj.removeFromGroupId); // means we're moving a set (if not 0)
 	
 	// add to existing group
 	if(!isNaN(groupId) && isNaN(removeFromGroupId)){
-		doAction("addItemToGroup",  
-				"itemId", itemId, 
-				"itemType", itemType,
-				"groupId", groupId);
+	
+		doRorLink('group_items/add', 
+			'post', 
+			{name:'group_item[itemable_id]', value:itemId}, 
+			{name:'group_item[itemable_type]', value:itemableTypeFromItemType(itemType)},
+			{name:'group_item[group_id]', value:groupId},
+			{name:'redirect', value:redirect}
+			);
 	}
 	
 	
@@ -1610,16 +1631,16 @@ function addItemToGroup(obj){
 	}
 }
 
-
-function removeFromGroupCallback(paramStr){
-	var arr = paramStr.split(",");
-	var itemId = arr[0];
-	var itemType = arr[1];
-	var groupId = arr[2]
-	doAction("removeItemFromGroup",  
-			"itemId", itemId, 
-			"itemType", itemType,
-			"groupId", groupId);
+//obj {itemId: , itemType:, groupId:}
+function removeItemFromGroup(obj){
+	var redirect = typeof obj.redirect != 'undefined' ? obj.redirect  : '/groups'
+	doRorLink('group_items/delete/'+obj.groupId, 'delete', 
+			{name:'group_item[group_id]', value:obj.groupId}, 
+			{name:'group_item[itemable_id]', value:obj.itemId},
+			{name:'group_item[itemable_type]', value:itemableTypeFromItemType(obj.itemType)}, 
+			{name:'redirect', value:redirect}
+			);
+			
 }
 
 
@@ -1702,7 +1723,7 @@ function makeGroupElement(group){
 			if(types[j] == ITEM_TYPE_TUNE){
 				var count = items.length;
 				
-				if(count > 10){
+				if(count >= 9){
 					// calculate how many columns can be made for tunes display
 					var sectionWidth = es.getSection().offsetWidth;
 					var table = itemsInMultiCol(items, types[j], group.id);

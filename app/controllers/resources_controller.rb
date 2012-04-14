@@ -8,5 +8,10 @@ class ResourcesController < ApplicationController
   end
 
   def delete
+  	res = Resource.find_by_id(params[:id])
+  	item = Item.find_by_itemable_id_and_itemable_type(params[:id], 'Resource')
+  	res.delete
+  	item.delete
+  	redirect_to '/resources'
   end
 end

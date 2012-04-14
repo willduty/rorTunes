@@ -72,14 +72,16 @@ function fieldUpdate(elem, newValue, newText){
 function saveTuneChanges(){
 	var comments = document.getElementById("tunecomments").innerHTML;
 	comments = comments.replace(/<br>/g, "\n");
-	doAction("updateTune", 
-			"tuneId", gTune.id,
-			"title", escape(document.getElementById("tunetitle").innerHTML),
-			"comments", escape(comments),
-			"keyId", document.getElementById("tuneKey").value,
-			"typeId", document.getElementById("tuneType").value,
-			"parts", document.getElementById("tuneParts").value,
-			"status", document.getElementById("tuneStatus").value);
+	
+	doRorLink('/tunes/update/' + gTune.id, 'put',
+		{name:"tune[id]", value:gTune.id},
+		{name:"tune[title]", value:$("#tunetitle").html()},
+		{name:"tune[comments]", value:comments},
+		{name:"tune[key_ids]", value: $("#tuneKey").val()},
+		{name:"tune[tune_type_ids]", value: $("#tuneType").val()},
+		{name:"tune[parts]", value: $("#tuneParts").val()},
+		{name:"tune[status]", value: $("#tuneStatus").val()}
+	);
 }
 
 

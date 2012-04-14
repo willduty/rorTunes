@@ -3,12 +3,11 @@ var gTune = new objTune(<%= @tune.id %>,  "<%= @tune.title %>", <%= @tune.tune_t
 				<%= @tune.keys.first.id %>, <%= @tune.status %>, <%= @tune.parts %>,
 				"<%= @tune.comments.nil? ? '' : @tune.comments.gsub("\n", '<br/>') %>", 
 				"<%= @tune.entryDate %>", "<%= @tune.lastUpdate %>",
+				
 				[
 				<% @tune.resources.each do |r| 
-				
 					priority = r.priority.nil? ? 0 : r.priority
 				%>
-				
 				
 					new objResource(<%= r.id %>, <%= r.resource_type %>, "<%= r.title %>",  
 					"<%= r.url %>", "<%= r.local_file %>", "<%= r.comments %>", "<%= r.entryDate %>", <%= priority %>, <%= r.status %>),
@@ -16,6 +15,7 @@ var gTune = new objTune(<%= @tune.id %>,  "<%= @tune.title %>", <%= @tune.tune_t
 				
 				<% end %>
 				]
+				
 				);
 
 
