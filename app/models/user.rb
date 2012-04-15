@@ -15,6 +15,7 @@ class User < ActiveRecord::Base
 	has_many :tune_sets, :through => :items, :source => :itemable, :source_type => 'TuneSet'
 	has_many :resources, :through => :items, :source => :itemable, :source_type => 'Resource'
 	has_many :groups, :through => :items, :source => :itemable, :source_type => 'Group'
+	has_many :favorites, :through => :items, :source => :itemable, :source_type => 'Favorite'
 	
 	attr_accessible :email, :password
 

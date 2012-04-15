@@ -135,6 +135,7 @@ function objSet(nId, arrTunesArr, setString, flagged, status, entryDate){
 	
 
 	this.getSetAsString = function(colorCode){
+		
 		if(typeof(colorCode) == 'undefined') colorCode = true;
 		if(!this.tunesArr.length)
 			return '[empty set]';

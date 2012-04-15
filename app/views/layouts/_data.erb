@@ -100,7 +100,6 @@ resourcesArr[<%= r.id %>] = new objResource(<%= r.id %>, <%= r.resource_type %>,
 <%
 end
 
-
 groups = user.groups
 groups.each do |g|
 
@@ -113,8 +112,16 @@ groups.each do |g|
 <%
 end
 
+favorites = user.favorites
+favorites.each do |f|
 
+	item = Item.find_by_id(f.item_id)
 
+	%>
+		favoritesArr[<%= f.id %>] = new objFavorite(<%= f.id %>, <%= item.itemable_id %>, 
+			<%= item_type_from_itemable_type(item.itemable_type) %>);
+	<%
+end
 
 
 =begin

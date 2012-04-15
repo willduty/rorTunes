@@ -16,7 +16,6 @@ class TunesController < ApplicationController
   
 
   def add
-  	@params = params
   	if params[:tunes]
   		json = JSON.parse params[:tunes] 
   		json["tunes"].each do |tune|
@@ -30,25 +29,26 @@ class TunesController < ApplicationController
   
   
   def create_tune(tune)
-  	@newTune = Tune.create(tune)
-  	@newTune.save 
-  	@newItem = Item.create(:itemable_type => 'Tune', :user_id => session[:user_cookie], :itemable_id => @newTune.id) 
+  	newTune = Tune.create(tune)
+  	newTune.save 
+  	Item.create(:itemable_type => 'Tune', :user_id => session[:user_cookie], :itemable_id => newTune.id) 
   end
+
 
   def update
   	id =params[:tune][:id]
-  	@tune = Tune.find_by_id(id)
-  	@tune.update_attributes(params[:tune])
-  	@tune.save
+  	tune = Tune.find_by_id(id)
+  	tune.update_attributes(params[:tune])
+  	tune.save
   	redirect_to '/tunes/' + id
   end
 
 
   def delete
-  	@tune = Tune.find_by_id(params[:id])
-  	@item = Item.find_by_itemable_id_and_itemable_type(params[:id], 'Tune')
-  	@tune.destroy
-  	@item.destroy
+  	tune = Tune.find_by_id(params[:id])
+  	item = Item.find_by_itemable_id_and_itemable_type(params[:id], 'Tune')
+  	tune.destroy
+  	item.destroy
   	redirect_to '/tunes'
   end
 end

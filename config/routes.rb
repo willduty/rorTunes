@@ -38,6 +38,8 @@ get 'session/login'
 post 'session/create'
 delete 'session/logout'
 
+post 'favorites/add'
+delete 'favorites/delete/:id', :to=>'favorites#delete'
 
 
 match 'user/index/:id' => 'user#index'

@@ -638,6 +638,11 @@ function createItemElement(itemObj, itemType, groupId, useLabel, tag){
 					elem = createItemElement(favoritedItem, itemObj.itemType, null, true);
 					elem.onclick = function(){goToTunePage(favoritedItem.id)};
 					break;	
+				case ITEM_TYPE_SET:
+					elem = createItemElement(favoritedItem, itemObj.itemType, null, true);
+					elem.onclick = function(){alert('todo, show set sheetmusic')}
+					//elem.onclick = function(){location = '/tune_sets'};
+					break;	
 				default:
 					elem.innerHTML = favoritedItem.getLabel(true, true) + favoritedItem.title;
 			}
@@ -1154,15 +1159,18 @@ function unArchiveGroup(id){
 }
 
 function favoriteItem(itemObj){
-	doAction("favoriteItem",
-			"itemId", itemObj.id,
-			"itemType", itemObj.itemType);
+
+	doRorLink('favorites/add',
+		'post',
+		{name:'favorite[itemable_id]', value:itemObj.id},
+		{name:'favorite[itemable_type]', value:itemableTypeFromItemType(itemObj.itemType)},
+		{name:'redirect', value:'/home'})
 }
 
 function removeFavorite(favObjId){
 	var favObj = favoritesArr[favObjId];
-	doAction("deleteFavorite",
-			"favoriteId", favObj.id);
+	doRorLink('/favorites/delete/' + favObjId, 'delete', {name:'redirect', value:'/home'});
+	
 }
 
 
