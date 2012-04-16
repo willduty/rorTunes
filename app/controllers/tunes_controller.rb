@@ -36,10 +36,15 @@ class TunesController < ApplicationController
 
 
   def update
-  	id =params[:tune][:id]
-  	tune = Tune.find_by_id(id)
-  	tune.update_attributes(params[:tune])
-  	tune.save
+  	id = params[:id]
+  	if(params[:tune][:other_title])
+  		params[:tune][:other_title][:tune_id] = id # just in case
+  		other_title = OtherTitle.create(params[:tune][:other_title])
+  	else	
+  		tune = Tune.find_by_id(id)
+  		tune.update_attributes(params[:tune])
+  		tune.save
+  	end
   	redirect_to '/tunes/' + id
   end
 
@@ -51,4 +56,20 @@ class TunesController < ApplicationController
   	item.destroy
   	redirect_to '/tunes'
   end
+  
+  
+  def delete_other_title
+  	ot = OtherTitle.find_by_tune_id_and_title(params[:id], params[:title])
+  	ot.destroy
+  	redirect_to params[:redirect]
+  end
+  
+  def dissassociate_resource
+  	join = ResourceTune.find_by_tune_id_and_resource_id(params)
+  	join.destroy
+  	redirect_to params[:redirect]
+  end
+  
+  
+  
 end

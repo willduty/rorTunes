@@ -15,6 +15,14 @@ var STATUS_INACTIVE = 2;
 var STATUS_FLAGGED = 4;
 var STATUS_COLLAPSED = 8;
 
+// status bits
+var STATUS_BIT_FLAGGED = 1
+var STATUS_BIT_ACTIVE = 2
+var STATUS_BIT_ARCHIVED = 4
+var STATUS_BIT_LOCKED = 8
+
+
+
 
 var ITEM_TYPE_TUNE = 1;
 var ITEM_TYPE_SET = 2;
@@ -154,7 +162,7 @@ function objSet(nId, arrTunesArr, setString, flagged, status, entryDate){
 			
 			arr.push(colorCode?('<span style="color:'+color+'">' + title + '</span>') : title )
 		}
-		return arr.join("/");
+		return arr.join("/") + ((this.status & 1 ) ? "<b style='color:red'> * </b>" : "");
 	}
 	
 	
@@ -243,11 +251,11 @@ function objGroup(nId, strTitle, status, priority, entryDate){
 				
 				
 				}catch(e){
-					// alert(
-						// "group:"+this.title + "\r\n" +
-						// "groupId:"+this.id + "\r\n" +
-						// "setid:" + this.itemsArr[j].id
-							// )
+					 alert(
+						 "group:"+this.title + "\r\n" +
+						 "groupId:"+this.id + "\r\n" +
+						 "setid:" + this.itemsArr[j].id
+							 )
 					
 				}
 			}
@@ -259,8 +267,12 @@ function objGroup(nId, strTitle, status, priority, entryDate){
 	this.getItemsByType = function(type){
 		
 		var arr = new Array();
+		
+		this.itemsArr = getSortedArrayCopy(this.itemsArr, SORT_TYPE_PRIORITY); 
+		
 		for(var i in this.itemsArr){
 			var item = this.itemsArr[i];
+			
 			var objArr;
 			if(item.type == type){
 				switch(item.type){
@@ -279,7 +291,10 @@ function objGroup(nId, strTitle, status, priority, entryDate){
 				}
 			}
 		}
-		return arr.length ? arr : null;
+		
+		return arr.length ? arr : null;	
+		
+		
 	}
 	
 	// checks if group has any items of a  

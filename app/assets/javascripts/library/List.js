@@ -276,7 +276,7 @@ function objList(container, options){
 				this.itemsArr[i].className = this.listItemClass;
 
 				if(this.width != -1)
-					this.box.style.width = this.width;
+					this.box.style.width = this.width + 'px';
 				
 				if(this.useMinimumNeededWidth){
 					if(!this.box.hasChildNodes() && this.width == -1)
@@ -284,7 +284,7 @@ function objList(container, options){
 						
 					var w = getDimensionsBeforeShowing(this.itemsArr[i]).w;
 					if(w > parseInt(this.box.style.width))
-						this.box.style.width = w;
+						this.box.style.width = w + 'px';
 				}
 				
 				this.box.appendChild(this.itemsArr[i]);

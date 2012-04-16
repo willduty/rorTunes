@@ -7,41 +7,6 @@
 
 <%= render 'layouts/data' %>
 
-
-// page using doAction() must implement getReturnPageParams()
-function getReturnPageParams(){
-
-	var arr = new Array();
-	var btnMgr = new ButtonManager();
-	var buttons = btnMgr.getAllPageButtons()
-	for(var i=0; i<buttons.length; i++){
-		if(buttons[i].getAttribute("onOff") == "on"){
-			arr.push("onBtn=" + buttons[i].id);
-		}
-	}
-	
-	// get expanded groups
-	var arrSections = new Array();
-	for(var i in gGroupSections){
-		if(gGroupSections[i].getState() == ES_STATE_OPEN){
-			arrSections.push(gGroupSections[i].id);
-		}
-			
-	}
-	if(arrSections.length)	
-		arr.push("expandedSections=" + arrSections.join(","));
-		
-		
-	// page scroll
-	try{
-		arr.push("contentScroll=" + getContentArea().scrollTop);
-	}catch(e){}
-	
-		
-	return arr;
-} 
-
-
 function getContentArea(){
 	return document.getElementById("contentarea");
 }
@@ -175,18 +140,6 @@ function tunesFromGroupByType(group){
 
 
 
-function newGroup(){
-	var title = document.getElementById("newGroupNameBox").value;
-	if(!(title = validateTitleStr(title))){
-		alert("invalid title");
-		return false;
-	}
-	
-	doAction("saveNewGroup", 
-		"newGroupName", title);
-}
-
-
 
 
 // from http://jsfromhell.com/array/shuffle
@@ -308,8 +261,10 @@ function reorderGroups(event){
 }
 
 function groupsReorderCallback(ro){
-	doAction("updateGroupsPriority", 
-			"groupIds", ro.getCurrentOrder());
+	
+	doRorLink('groups/update', 'put', 
+		{name:'group_ids', value:ro.getCurrentOrder()},
+		{name:'redirect', value:'/groups'});
 }
 
 
@@ -391,8 +346,6 @@ window.onload = function(){
 							<span id=groupsPanel onclick="expandAll();" class="info ltltgray pointer">open all</span> | 
 							<span id=groupsPanel onclick="collapseAll();" class="info ltltgray pointer">collapse all</span>
 							
-							<!-- <span id=groupsPanel onclick="createNewGroup();" class="info ltgray pointer">new group...</span> -->	
-		
 						</td>
 					</tr>
 					

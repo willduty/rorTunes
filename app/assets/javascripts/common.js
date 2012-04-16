@@ -4,58 +4,6 @@
 var bullet = "&#8226;";
 
 
-// common functions for tunesPHP
-
-
-
-
-
-// called by any page performing a write to the db
-// sets up url to go to actions.php page. 
-// "action" the action name 
-// "retPage" the page to return to (usually the current one)
-// subsequent params must be in pairs and be key/value pairs
-
-// any page using this function must implement getReturnPageParams()
-//  which returns an array of strings of form "key=value"
-// 	or an empty array if there are no return params
-//  which will be appended to the retPage after action page is done
-
-function doAction(action){
-	var paramsArr = new Array();
-	
-	// action
-	var pair = "action=" + action;
-	paramsArr.push(pair);
-	
-	// return page params
-	try{
-		var arr = getReturnPageParams();
-	}
-	catch(e){
-		alert("ErrMsg: "+ e.message)
-		return;
-	}
-	
-	var retPage = (typeof(gRetPage) != 'undefined' ? gRetPage : getCurrentPage());
-	paramsArr.push("retPage=" + escape(retPage + "?" + arr.join("&")));
-	
-	// arguments
-	for(i=1; ; i++){
-		if(i>=arguments.length)
-			break;
-		var key = arguments[i];
-		var value = arguments[i+1];
-		paramsArr.push(key +"="+ value);
-		i++;
-	}
-	var loc = "/tune/add?" + paramsArr.join("&");
-
-	alert(loc);
-	//location = loc;
-}
-
-
 // gets the filename (no path) of the current page
 function getCurrentPage(){
 	var loc = location.toString().split("?")[0];
@@ -117,12 +65,6 @@ function keyIdFromName(name){
 
 
 
-
-function getPageSettings(){
-	alert(getCurrentPage())
-}
-
-
 function validateTuneTitle(str){
 	str = str.replace(/^\s+|\s+$/g,"");
 	if(str.length == 0)
@@ -130,35 +72,15 @@ function validateTuneTitle(str){
 
 	if(str.length > 255)
 		return null;
-	// todo, check for invalid chars
 		
-	regex = /[^A-Za-z0-9\'\"\?\!\&\s_]/g
+	// check for invalid chars	
+	regex = /[^A-Za-z0-9\-\'\"\?\!\&\s\(\)\._]/g
 	if(regex.exec(str) != null)
 		return null;
 			
 	return str;
 }
 
-
-
-
-// TOOL LAYOUT FUNCTIONS
-
-// tool html setup
-// for each tool button/tool combination:
-// tool button elements must have attributes: 
-//		name=toolButton 
-//		tool=[id of tool element] 
-// element containing tool (div, table, etc) must have attributes: 
-//		id=[whatever] 
-//		clearOnCancel  (if desired)
-//		name=toolContainer 
-//		style="display:none;"
-// cancel button must have 
-//		name=toolCancel
-
-
-// todo rename these "toolControls" so as to distinguish from onOffButtons
 
 
 
@@ -457,11 +379,11 @@ function selectItem(elem){
 	
 
 function createTitleDiv(title, id, tag){
-	var groupTitleDiv = document.createElement(tag ? tag : "div");
-	groupTitleDiv.className = "info pointer black";
-	groupTitleDiv.innerHTML = title;
-	groupTitleDiv.value = id;
-	return groupTitleDiv;
+	var elem = document.createElement(tag ? tag : "div");
+	elem.className = "info pointer copper";
+	elem.innerHTML = title;
+	elem.value = id;
+	return elem;
 }
 
 
@@ -570,8 +492,7 @@ function createItemElement(itemObj, itemType, groupId, useLabel, tag){
 		case ITEM_TYPE_SET:
 			
 			// set up the element text and value
-			elem.innerHTML += itemObj.getSetAsString() + 
-				(itemObj.flagged ? "<b style='color:red'> * </b>" : "");
+			elem.innerHTML += itemObj.getSetAsString();
 			
 			// if functions are available attach handlers
 			if(typeof(makeSetContextMenu) != 'undefined')
@@ -676,7 +597,7 @@ function deleteTune(tuneId){
 
 // mimic rails framework 'data-method' type link submission
 function doRorLink(url, method, fields){
-
+//try{
 	// create form with "indicated" method 
 	var form = $("<form method=post action='"+url+"'><input type=hidden name=_method value='"+method+"' />"+
 		"<input type=hidden name=authenticity_token value='"+$('[name=csrf-token]').attr('content') + "' /></form>")
@@ -689,6 +610,7 @@ function doRorLink(url, method, fields){
 		
 	// go
 	form.appendTo(document.body).submit();
+//}catch(e){console.log(fields)}
 }
 	
 
@@ -703,8 +625,8 @@ function addTuneContextMenu(elem, tuneObj){
 		ctxMenu.addSeparator();
 		
 		// todo (optional) keys and types
-		if(typeof(addToNewSetCallback) != 'undefined')
-			ctxMenu.addItem("Add to New Set...", addToNewSetCallback, tuneObj.id + "");
+		if(typeof(addToNewSet) != 'undefined')
+			ctxMenu.addItem("Add to New Set...", addToNewSet, tuneObj.id + "");
 		
 		// if this is a group, show "remove from group" menu option
 		if(elem.getAttribute('groupId') != null){
@@ -726,7 +648,7 @@ function addTuneContextMenu(elem, tuneObj){
 						{itemId:tuneObj.id, itemType: ITEM_TYPE_TUNE, groupId: groupsArr[j].id, redirect:'/tunes'});
 			}
 			groups.addSeparator();
-			groups.addItem("Add To New Group...", addItemToGroup, {itemId:tuneObj.id, itemType: ITEM_TYPE_TUNE});
+			groups.addItem("Add To New Group...", addItemToGroup, {itemId:tuneObj.id, itemType: ITEM_TYPE_TUNE, redirect:'/tunes'});
 		}
 		
 		ctxMenu.addItem("Favorite Item", favoriteItem, tuneObj);
@@ -827,104 +749,6 @@ function sizeContentArea(contentArea){
 }
 
 
-function saveNewSetsCallback(){
-	alert(setsTemp)
-}
-
-function showOrganizeTunesDialog(groupId){
-	var arr = tunesFromGroupByType(groupsArr[groupId]);
-	if(!arr.length){
-		alert("there are no tunes in this set");
-		return;
-	}
-	
-	var fl = new FloatingContainer(saveNewSetsCallback, null, setsTemp);
-	var setsDisplay = document.createElement("div");
-	var setsTemp = tunesIntoSets(arr)
-	fillSetDisplay(setsDisplay, setsTemp);
-	
-	var bottomBar = document.createElement("div");
-	bottomBar.style.backgroundColor = "335555";
-	var rescrambleBtn = document.createElement("span");
-	rescrambleBtn.innerHTML = "re-scramble";
-	rescrambleBtn.className = "toolBtn";
-	
-	rescrambleBtn.onclick = function(){
-		// refill display with new random sets
-		var setsTemp = tunesIntoSets(arr);
-		fillSetDisplay(setsDisplay, setsTemp);
-		setsDisplay.appendChild(bottomBar);
-	}
-	
-	var thisGroupBtn = document.createElement("span");
-	thisGroupBtn.innerHTML = "save to group \"" + groupsArr[groupId].title + "\"";
-	thisGroupBtn.className = "toolBtn";
-	thisGroupBtn.onclick = function(){
-		var arrTemp = new Array();
-		for(var i in setsTemp){
-			arrTemp.push(setsTemp[i].getTuneIdsAsString());
-		}
-		var tuneIds = escape(arrTemp.join("&"));
-		doAction("saveNewSets", 
-				"tuneIds", tuneIds,
-				"groupId", groupId);
-	}
-	
-	var newGroupBtn = document.createElement("span");
-	newGroupBtn.innerHTML = "save as new group";
-	newGroupBtn.className = "toolBtn";
-	newGroupBtn.onclick = function(){
-		alert(setsTemp.length)
-	}
-	
-	bottomBar.appendChild(rescrambleBtn);
-	bottomBar.appendChild(thisGroupBtn);
-	bottomBar.appendChild(newGroupBtn);
-	
-	setsDisplay.appendChild(bottomBar);
-	
-	
-	fl.addContentElement(setsDisplay);
-	fl.setTitle("New Sets");
-	fl.show(event, 150, 100);
-
-	
-	// local utility func
-	function fillSetDisplay(setsDisplay, setsTemp){
-		while(setsDisplay.childNodes.length)
-			setsDisplay.removeChild(setsDisplay.firstChild);
-			
-		for(var i in setsTemp){
-			var div = document.createElement("div");
-			div.className = "item";
-			div.innerHTML = setsTemp[i].getSetAsString();
-			setsDisplay.appendChild(div);
-		}
-	}	
-}
-
-
-// takes an assoc arr of tuneTypeId=>tunesArray
-function tunesIntoSets(tunesArr){
-	var setsDisplayStr = "";
-	var setsTemp = new Array();
-	for(var i in tunesArr){
-		var tunesOfTypeI = shuffleArray(tunesArr[i]);
-		for(var j=0; j<tunesOfTypeI.length; j++){
-			var newSet = new Array();
-			for(var k=0; k<3; k++, j++){
-				newSet.push(tunesOfTypeI[j].id);
-				if(j >= tunesOfTypeI.length - 1)
-					break;
-			}
-			var set = new objSet(0, newSet, "", false, STATUS_ACTIVE);
-			setsTemp.push(set);	
-		}
-	}
-	return setsTemp;
-}
-
-
 
 
 // GROUP CONTEXT MENU AND CALLBACKS
@@ -944,11 +768,12 @@ function addGroupContextMenu(elem){
 		
 		ctxMenu.addItem("Rename Group...", renameGroup, groupId);
 		ctxMenu.addItem("Copy Group...", copyGroup, groupId);
-		if(elem.getAttribute("status") & STATUS_INACTIVE)
-			ctxMenu.addItem("Unarchive Group", unArchiveGroup, groupId);
-		else
-			ctxMenu.addItem("Archive Group", archiveGroup, groupId);
-		ctxMenu.addItem("Unflag All", unflagGroupItems, groupId);
+		
+		var label = (elem.getAttribute("status") & STATUS_BIT_ARCHIVED) ? "Unarchive Group" : "Archive Group";
+		ctxMenu.addItem(label, flagUnflag, 
+				{itemId:groupId, itemType:ITEM_TYPE_GROUP, bit:STATUS_BIT_ARCHIVED});
+		
+		ctxMenu.addItem("Unflag All", unflagGroupItems, {groupId:groupId, itemType:ITEM_TYPE_SET});
 		ctxMenu.addItem("Favorite Item", favoriteItem, groupsArr[groupId]);
 		ctxMenu.addSeparator();
 		
@@ -1004,13 +829,13 @@ function addGroupSubHdrContextMenu(elem){
 function removeFromGroupByType(obj){
 	var count = groupsArr[obj.groupId].getItemsByType(obj.itemType).length;
 	// if more than a few items prompt user
-	if(count > 5)
+	if(count > 3)
 		if(!confirm("This will remove "+count+" "+getTypeLabel(obj.itemType).toLowerCase() +" from this group. proceed?"))
 			return
 	
-	doAction("removeItemsFromGroupByType",
-			"itemType", obj.itemType,
-			"groupId", obj.groupId);
+	doRorLink("group_items/delete/" + obj.groupId + '/' + itemableTypeFromItemType(obj.itemType),
+			'delete',
+			{name:'redirect', value:'/groups'});
 }
 
 function groupTunesIntoSet(containerElem){
@@ -1100,19 +925,13 @@ function saveNewSet(obj){
 
 
 
-
-
-
-
-function ctxReorderGroupByType(id, event){
-	// create a reorder widget and add each set
-	alert("todo");
-	return false;
-}
-
 function groupSetsReorderCallback(ro){
-	doAction("updateGroupItemsPriority", 
-			"setIds", ro.getCurrentOrder());
+	
+	doRorLink('group_items/update', 
+		'put', 
+		{name:'reorder_ids', value:ro.getCurrentOrder()}, 
+		{name:'redirect', value:'/tune_sets'});
+
 }
 
 
@@ -1126,9 +945,12 @@ function renameGroup(groupId){
 	if(newName == null)
 		return;
 		
-	doAction("renameGroup",  
-			"groupId", groupId, 
-			"groupName", newName);
+	doRorLink('groups/update/' + groupId, 
+			'put', 
+			{name:'group[title]', value:newName}, 
+			{name:'group[id]', value:groupId}, 
+			{name:'redirect', value:'/groups'});
+		
 }
 
 
@@ -1145,18 +967,6 @@ function copyGroup(id){
 			"statusBit", STATUS_ACTIVE);	
 }
 
-
-function archiveGroup(id){
-	doAction("updateGroupStatus", 
-			"groupId", id,
-			"statusBit", STATUS_INACTIVE);	
-}
-
-function unArchiveGroup(id){
-	doAction("updateGroupStatus", 
-			"groupId", id,
-			"statusBit", STATUS_ACTIVE);	
-}
 
 function favoriteItem(itemObj){
 
@@ -1191,22 +1001,28 @@ function ctxEmailGroup(groupId){
 
 function removeGroup(groupId){
 if(confirm("Are you sure? This cannot be undone."))	
-	doAction("deleteGroup", 
-			"groupId", groupId);
+	doRorLink('groups/delete/'+groupId,
+		'delete',
+		{name:'redirect', value:'/groups'}
+	);
 }
 
 
-function unflagGroupItems(groupId){
+function unflagGroupItems(obj){
 	
 	var arr = new Array();
-	var groupItems = groupsArr[groupId].itemsArr;
+	var groupItems = groupsArr[obj.groupId].itemsArr;
 	for(var i in groupItems){
-		if(groupItems[i].type == ITEM_TYPE_SET)
+		if(groupItems[i].type == obj.itemType)
 			arr.push(groupItems[i].id)
 	}
 	var str = arr.join(",");
-	doAction("unflagGroup", 
-			"setIds", str);
+	
+	doRorLink('/groups/unflag_items/'+obj.groupId+'/'+itemableTypeFromItemType(obj.itemType), 
+		'put', 
+		{name:"setIds", value:str},
+		{name:'redirect', value:'/groups'}
+		);
 }
 
 
@@ -1379,9 +1195,11 @@ function goToTunePage(id){
 function editResourceTitle(resObj){
 	var newTitle = prompt("Edit Resource Title", resObj.title);
 	if(newTitle){
-		doAction("updateResource",
-			"resourceId", resObj.id,
-			"title", escape(newTitle));
+		doRorLink('/resources/update/' + resObj.id, 'put', 
+			{name:'resource[id]', value:resObj.id}, 
+			{name:'resource[title]', value:newTitle}, 
+			{name:'redirect', value:'/resources'}
+		)
 	}
 }
 
@@ -1451,16 +1269,18 @@ function ctxEmailSheetmusicCallback(resourceId){
 
 
 
-
-
-function createNewGroup(){
-	
-	var newGroupName = prompt("New Group Name...");
-	if(newGroupName == null)
+function newGroup(){
+	var title = document.getElementById("newGroupNameBox").value;
+	if(!(title = validateTitleStr(title))){
+		alert("invalid title");
 		return false;
-	doAction("addItemToGroup", 
-			"newGroupName", newGroupName);
+	}
+	
+	doRorLink('groups/add', 'post', {name:'group[title]', value:title},{name:'redirect', value:'/groups'});
+	
 }
+
+
 
 
 function trim(str){
@@ -1499,7 +1319,7 @@ function makeSetContextMenu(event){
 	ctxMenu.addItem("Show Set Sheetmusic", showSetSheetmusic, {setId:setId, event:event});
 	ctxMenu.addSeparator();
 	
-	ctxMenu.addItem("Flag/Unflag Set", ctxFlagCallback, setId);
+	ctxMenu.addItem("Flag/Unflag Set", flagUnflag, {itemId:setId, itemType:ITEM_TYPE_SET, bit:STATUS_BIT_FLAGGED});
 	ctxMenu.addItem("Edit Set", showSetEditDlg, setId);
 	ctxMenu.addSeparator();
 	
@@ -1537,7 +1357,6 @@ function makeSetContextMenu(event){
 	if(groupId = srcElem.getAttribute("groupId"))
 	{
 		var move = ctxMenu.addSubMenu("Move to Group");
-		//var currGroupId = attr.value;
 		for(var i in groupsArr){
 			if(groupsArr[i].id != groupId) // don't show group it's already in
 				move.addItem(groupsArr[i].title, 
@@ -1549,6 +1368,12 @@ function makeSetContextMenu(event){
 			else
 				move.addItem(groupsArr[i].title); // inactive
 		}
+		move.addSeparator();
+		move.addItem('Move To New Group...', addItemToGroup, 
+							{itemId: setId, itemType: ITEM_TYPE_SET,
+							removeFromGroupId: groupId,
+							redirect:'/tune_sets'});
+		
 		
 		ctxMenu.addItem("Remove From Group", 
 				removeItemFromGroup, 
@@ -1566,24 +1391,54 @@ function makeSetContextMenu(event){
 
 
 //callbacks for context menu
-function ctxFlagCallback(setId){
-	doAction("flagSet",  
-			"setId", setId);
+
+
+// obj {itemId:setId, itemType:ITEM_TYPE_GROUP, bit:STATUS_BIT_ARCHIVED});
+function flagUnflag(obj){
+	
+	var controller = itemableTypeFromItemType(obj.itemType, true)
+	
+	doRorLink(controller+'/toggle_status/' + obj.itemId + '/' + obj.bit,
+		'put',
+		{name:'status_bit', value:1},
+		{name:'redirect', value:'/tune_sets'});
+
 }
 
 
-function itemableTypeFromItemType(itemType){
+function itemableTypeFromItemType(itemType, asPathName){
+	
+	var str = '';
 	switch(parseInt(itemType)){
-		case ITEM_TYPE_TUNE: return 'Tune';
-		case ITEM_TYPE_SET: return 'TuneSet';
-		case ITEM_TYPE_RESOURCE: return 'Resource';
-		case ITEM_TYPE_GROUP: return 'Group';
-		case ITEM_TYPE_FAVORITE: return 'Favorite';
+		case ITEM_TYPE_TUNE:  str = 'Tune'; break;
+		case ITEM_TYPE_SET:  str =  'TuneSet';break;
+		case ITEM_TYPE_RESOURCE:  str =  'Resource';break;
+		case ITEM_TYPE_GROUP:  str =  'Group';break;
+		case ITEM_TYPE_FAVORITE:  str =  'Favorite';break;
+		default: return false;
+	}
+	if(asPathName){
+		for(var i=1; i<str.length; i++)
+			if(isUpperCase(str.charAt(i))){ 
+				var a = str.substring(0, i)
+				var b = str.substring(i+1, str.length)
+				str = a + "_" + str.charAt(i) + b;
+				
+				i++
+			}
+		str = str.toLowerCase() + 's';
 		
+	}	
+	return str
+	
+    	function isUpperCase(c){
+		return (c >= 'A') && (c <= 'Z');
 	}
 
 }
 
+
+// obj: {itemId, itemType, groupId, redirect, newGroupName}
 function addItemToGroup(obj){
 
 	var itemId = obj.itemId; // id of the item (tune, set, etc)
@@ -1610,20 +1465,27 @@ function addItemToGroup(obj){
 		var newGroupName = prompt("New Group Name...");
 		if(newGroupName == null)
 			return false;
-		
-		doAction("addItemToNewGroup",  
-				"itemId", itemId, 
-				"itemType", itemType,
-				"newGroupName", newGroupName);
+			
+		doRorLink("group_items/add", 
+				'post',
+				{name:'group_item[itemable_id]', value:itemId}, 
+				{name:'group_item[itemable_type]', value:itemableTypeFromItemType(itemType)},
+				{name:'group[title]', value:newGroupName},
+				{name:'redirect', value:redirect}
+				);
 	}
 	
 	// move to existing group
 	if(!isNaN(groupId) && !isNaN(removeFromGroupId)){
-		doAction("moveItemToGroup",  
-				"itemId", itemId, 
-				"itemType", itemType,
-				"addtoGroupId", groupId, 
-				"removeFromGroupId", removeFromGroupId);
+		
+		doRorLink("group_items/update", 
+			'put',
+			{name:'group_item[itemable_id]', value:itemId}, 
+			{name:'group_item[itemable_type]', value:itemableTypeFromItemType(itemType)},
+			{name:'group_item[group_id]', value:removeFromGroupId},
+			{name:'to_group_id', value:groupId},
+			{name:'redirect', value:redirect}
+			);
 	}
 	
 	// move to new group
@@ -1632,10 +1494,15 @@ function addItemToGroup(obj){
 		if(newGroupName == null)
 			return false;
 		
-		doAction("moveItemToNewGroup",  
-				"itemId", itemId, 
-				"itemType", itemType,
-				"newGroupName", newGroupName);
+		doRorLink("group_items/update", 
+			'put',
+			{name:'group_item[itemable_id]', value:itemId}, 
+			{name:'group_item[itemable_type]', value:itemableTypeFromItemType(itemType)},
+			{name:'group_item[group_id]', value:removeFromGroupId},
+			{name:'new_group_title', value:newGroupName},
+			{name:'redirect', value:redirect}
+			);
+		
 	}
 }
 
@@ -1653,9 +1520,11 @@ function removeItemFromGroup(obj){
 
 
 function setEditCallback(obj){
-	doAction("updateSet",  
-			"setId", obj.setId, 
-			"tuneIds", obj.getCurrentOrder());
+
+	doRorLink('tune_sets/update/'+ obj.setId, 
+			'put', 
+			{name:'tune_set[tuneIds]', value:obj.getCurrentOrder()},
+			{name:'redirect', value:'/tune_sets'});
 }
 
 function showSetEditDlg(id, event){
@@ -1683,13 +1552,18 @@ function showSetEditDlg(id, event){
 function deleteSet(id){
 	if(confirm("Are you sure you want to delete set "+id+"? This cannot be undone."))	
 	
-	doRorLink('/tune_sets/delete/'+id, 'delete');
+	doRorLink('/tune_sets/delete/'+id, 'delete', {name: 'redirect', value:'/sets'});
 }
 
 
 
 
 
+/* 
+	makes a group element
+ 	expandable page element with 
+ 	subsections for different item types
+*/
 
 function makeGroupElement(group){
 
@@ -1698,7 +1572,7 @@ function makeGroupElement(group){
 	var groupTitleDiv = createTitleDiv(group.title, group.id, "span");
 	groupTitleDiv.setAttribute("showOrganizeOption", "");
 	groupTitleDiv.setAttribute("status", group.status);
-	if(group.status & STATUS_INACTIVE)
+	if(group.status & STATUS_BIT_ARCHIVED)
 		groupTitleDiv.innerHTML += " <span style='color:772200;'>[archived]</span>";
 	var es = new expandableSection(groupTitleDiv, group.id, ES_STATE_COLLAPSED);
 	
@@ -1753,7 +1627,8 @@ function makeGroupElement(group){
 					arrTest[i].onclick = function(){
 						// toggle item element 'selection' when clicked
 						var cn = this.className.replace(/(?:^|\s)(item)(?=\s|$)/, 'itemselected');
-						this.className = (cn != this.className) ? cn : this.className.replace(/itemselected/, 'item');		
+						this.className = (cn != this.className) ? cn : 
+							this.className.replace(/itemselected/, 'item');		
 					}
 				}
 			}

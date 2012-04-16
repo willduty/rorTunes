@@ -11,28 +11,6 @@
 
 
 
-// page using doAction() must implement getReturnPageParams() see page "common.js"
-function getReturnPageParams(){
-	// return page string, to be escaped
-	var arr = new Array();
-	var filters = document.getElementsByName("filterButton");
-	for(var i=0; i<filters.length; i++){
-		var id = filters[i].firstChild.nextSibling.value;
-		if(id) 
-			arr.push(filters[i].id + "=" + id);
-	}
-	
-	arr.push("listFirst=" + gTuneList.getScrollPos());
-		
-	if(gTuneList.selectedItem){
-		var sel = gTuneList.selectedItem.getAttribute("index");
-		arr.push("listSel=" + sel);
-	}
-	if(gTuneList.selectedItem)
-		arr.push("tuneId=" + gTuneList.selectedItem.id);
-	
-	return arr;
-} 
 
 
 function saveCurrentView(){
@@ -58,7 +36,7 @@ function saveCurrentView(){
 
 
  
-function addToNewSetCallback(paramStr){
+function addToNewSet(paramStr){
 	var arr = paramStr.split(",");
 	var tuneId = arr[0];
 	switchOnToolByButton("newSetBtn");
@@ -422,8 +400,8 @@ function json_format_pair(name, value){
 var gTuneList, gBtnMgr;
 
 
-var invalidTitleMsg = 'Invalid Title. Title must: \n   have length,\n   be non white space, '+
-				'\n   not include characters other than alphanumeric or \' \" ! & ? - _';
+var invalidTitleMsg = 'Invalid Title. Title must have length and '+
+				'cannot include non alpha-numeric characters other than basic punctuation (\' \" ! & ? - _ etc)';
 window.onload = function (){
 try{
 	sizeContentArea();

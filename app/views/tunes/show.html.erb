@@ -6,16 +6,6 @@
 
 var tuneId = gTune.id;
 
-// page using doAction() must implement getReturnPageParams()
-function getReturnPageParams(){
-	// return page string, to be escaped
-	var arr = new Array();
-	arr.push("tuneId=" + gTune.id);
-	return arr;
-} 
-
-
-
 function ctxDisassociateCallback(param){
 	var objResource = resourcesArr[param];
 	var str = "This will not delete the resource but it will no longer appear on this tune page. ";
@@ -29,9 +19,9 @@ function ctxDisassociateCallback(param){
 		str += "There are no other tunes associated with this resource so "+
 		"it will become an orphaned item viewable on the resource page only.\r\n";
 	if(confirm(str + "\r\nProceed to remove?")){
-		doAction("disassociateResource", 
-				"tuneId", gTune.id,
-				"resourceId", param);
+	
+		doRorLink('tunes/dissassociate_resource/' + gTune.id+ "/" + param, 'put', {name:'redirect', value:'/tunes/'+gTune.id})
+	
 	}
 }
 
@@ -40,9 +30,10 @@ function ctxDisassociateCallback(param){
 function saveProperty(property, value){
 	switch(property){
 		case "otherTitles":
-			doAction("updateTune", 
-			"tuneId", gTune.id,
-			"otherTitles", value);
+		
+			doRorLink('/tunes/update/' + gTune.id, 'put',
+				{name:'tune[other_title][title]', value:value})
+		
 			return;
 	}
 }
@@ -152,15 +143,6 @@ function addTitle(elem){
 	}
 		
 	saveProperty('otherTitles', newTitle);
-	return;
-	
-	gTune.otherTitles.push(newTitle);
-	var elem;
-	if(elem = getTunePropElem('otherTitles')){
-		elem.innerHTML = gTune.otherTitles.join(", ");
-		// fieldUpdate(elem);
-		saveProperty('otherTitles', newTitle);
-	}
 
 }
 
@@ -188,7 +170,7 @@ function fillTuneProps(){
 				
 					var arr = [];
 					for(var id in gTune.otherTitles){
-						arr.push("<span class='itemTunePage' property=otherTitle itemId="+id+">"+gTune.otherTitles[id]+"</span>");
+						arr.push("<span class='itemTunePage' property=otherTitle>"+gTune.otherTitles[id]+"</span>");
 					}
 					str = arr.join(", ");
 				}
@@ -202,15 +184,20 @@ function fillTuneProps(){
 				
 				// add ctx menus to alternate titles for removal
 				$(tunePropElems[i]).find('[property=otherTitle]').each(function(){	
-					$(this).get(0).oncontextmenu = function(){
+					$(this).bind('contextmenu', function(e){
 						var ctxMenu = new ContextMenu();
-						ctxMenu.addItem("remove this title", function(id){
-							doAction("removeOtherTitle", 
-								"id", id);
-						}, $(this).attr('itemId'));
-						ctxMenu.show();
+						var _this = this;
+						ctxMenu.addItem("remove this title", function(tuneId){
+						try{
+							doRorLink('/tunes/delete_other_title/' + tuneId, 
+								'delete', 
+								{name:'title', value:_this.innerHTML},
+								{name:'redirect', value:'/tunes/'+tuneId});
+								}catch(e){alert(e)}
+						}, gTune.id);
+						ctxMenu.show(e);
 						return false;
-					}
+					})
 				});				
 				break;
 		
@@ -442,7 +429,7 @@ window.onload = function(){
 				<!-- resources -->
 				<span class=infohdr>Resources </span><span class="toolBtnOff" name=toolButton tool=newResource fullPageTool>[New Resource]</span>
 				
-				<?php include("resourceSearchTool.php"); ?>
+				<%= render 'layouts/resource_search_tool' %>
 
 				<table width=100%>
 					<tr>

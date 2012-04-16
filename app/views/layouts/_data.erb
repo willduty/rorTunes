@@ -1,6 +1,5 @@
 <%
 
-
 def item_type_from_itemable_type(itemable_type)
 	case itemable_type
 	when 'Tune' 
@@ -77,11 +76,10 @@ end
 
 sets = user.tune_sets
 sets.each do |s|
-	flagged = s.flagged.nil? ? 0 : s.flagged
-	
+	status = s.status.nil? ? 0 : s.status
 %>
 	setsArr[<%= s.id %>] = new objSet(<%= s.id %>, [<%= s.tuneIds %>], 
-			'tune/tune/tune', <%= flagged %>, <%= s.status %>, '<%= s.entryDate %>');		
+			'tune/tune/tune', <%= s.status & 1 %>, <%= status %>, '<%= s.entryDate %>');		
 <%
 end
 
@@ -123,102 +121,6 @@ favorites.each do |f|
 	<%
 end
 
-
-=begin
-
-
-
-if($get & GET_RESOURCES){
-	// echo "\r\n";
-	
-	// get array of all resources
-	// if a tuneId is specified the array will return only resources for that tune
-	if(isset($_REQUEST['tuneId']))
-		$resourceArr = getResourcesByTune($_REQUEST['tuneId']);
-	else
-		$resourceArr = getResources($_SESSION["userId"]);
-	// write javascript array
-	$arrPushStr = "";
-	foreach($resourceArr as $res){
-		$arrPushStr .= "resourcesArr[".$res->id."] = new objResource(".
-					 $res->id . ",".
-					 $res->resourceType . ",".
-					 "\"" . str_replace("\"", "\\\"", $res->title) . "\",".
-					 "\"" . $res->url . "\",".
-					 "\"" . $res->localFile . "\",".
-					 "\"" . str_replace("\"", "\\\"", $res->comments) . "\",".
-					 "\"" . $res->entryDate . "\",".
-					 "\"" . $res->priority . "\"".
-					 ");";
-				
-		if($res->arrAssocItems)
-			foreach($res->arrAssocItems as $itemId){
-				$arrPushStr .= "resourcesArr[".$res->id."].associatedItemsArr.push(new groupItem(".$itemId.", ITEM_TYPE_TUNE));";
-			}	
-	}
-	
-	
-	
-	echo $arrPushStr;
-}
-
-
-
-
-
-
-
-
-
-if($get & GET_GROUPS){
-	$groupArr = getGroups($_SESSION["userId"]);
-	foreach($groupArr as $group){
-		$title = str_replace("\"", "\\\"", $group->title);
-		echo "groupsArr[".$group->id."] = new objGroup(".$group->id.", \"".$title."\", ".$group->status.", ".$group->priority.", '".$group->entryDate."');";
-		foreach($group->itemArr as $groupItem){
-			echo "groupsArr[".$group->id."].itemsArr.push(new groupItem(".$groupItem->id.",".$groupItem->type.", ".$groupItem->priority."));";
-		}
-		echo "groupsArr[groupsArr.length - 1].itemsArr.sort(prioritySort);";
-	}
-}
-
-
-
-
-
-
-
-
-if($get & GET_SETS){
-	$setArr = getSets($_SESSION["userId"]);
-	
-	// reuse the $tunesArr from above if available
-	$tunesArr = ($tunesArr ? $tunesArr : getTunes());
-	echo "\r\n\r\n\r\n";
-	foreach($setArr as $set){
--		$idsArr = array();
-		$namesArr = array();
-		$tuneId = strtok($set->tuneIds, ",");
-		while($tuneId !== FALSE){
-			if(array_key_exists($tuneId, $tunesArr)){
-				$objTune = $tunesArr[$tuneId];
-				array_push($idsArr, "\"".$objTune->id."\"");
-				array_push($namesArr, $objTune->title);
-			}
-			else{
-				// tune in set does not exist ??
-				// todo cleanup for nonexistent tune on tune delete (actions.php)
-			}
-			$tuneId = strtok(",");
-		}
-		
-		echo "setsArr[".$set->id."] = new objSet(".$set->id.", new Array(".implode(",", $idsArr)."), 
-			\"".str_replace("\"", "\\\"", implode("/", $namesArr))."\", ".$set->flagged.", ".$set->status.", '".$set->entryDate."');";
-	}
-}
-
-
-=end
 
 
 	

@@ -4,28 +4,62 @@ class GroupsController < ApplicationController
   end
 
   def add
-
+	group = Group.create(params[:group])
+	Item.create(:itemable_id=>group.id, :itemable_type=>'Group', :user_id=>session[:user_cookie])
+	redirect_to params[:redirect]
   end
 
   def update
-	params[:itemable_type]
-	
-	if params[:update_type] == 'delete_group_item'
-	
-		# why can't i just do: GroupItem.find(params[:group_item]) ?
-		group_item = GroupItem.find_by_itemable_id( params[:group_item][:itemable_id],
-								:conditions => {'itemable_type'=>params[:group_item][:itemable_type],
-									'group_id'=>params[:group_item][:group_id]})
-		group_item.delete
-	else
-		# should be able to: load group, 
-		# add group item to group_items and have it save the group items no?
-		GroupItem.create(params[:group_item])
+  
+  	if params[:group_ids]
+  		# update the order of groups (for current user)
+  		ids = params[:group_ids].split(',').map{|s| s.to_i}
+  		ctr = 0
+  		ids.each do |id|
+  			group = Group.find_by_id(id)
+  			group.priority = ctr
+  			group.save
+  			ctr += 1
+  		end
+  	else 
+  		# just update the group itself
+		Group.update(params[:group][:id], params[:group])
 	end
-  	redirect_to params[:redirect]
+	redirect_to params[:redirect]
   end
 
   def delete
+  	id = params[:id]
+  	item = Item.find_by_itemable_id_and_itemable_type(id, 'Group')
+  	item.destroy
+  	
+  	group = Group.find_by_id(id)
+  	group.destroy
+  	
+  	redirect_to params[:redirect]
+  
+  end
+  
+  def toggle_status
+	toggle_status_bit(Group, params[:status_bit])
+	redirect_to params[:redirect]
+  end
+  
+  def unflag_items
+  	group = Group.find_by_id(params[:id])
+  	if params[:itemable_type] == 'TuneSet'
+  		group.tune_sets.each do |ts|
+  			if ts.status & 1 == 1 
+  				ts.status ^= 1
+  				ts.save
+  			end		
+  		end
+  	end
+  	redirect_to params[:redirect]
   end
   
 end
+
+
+
+

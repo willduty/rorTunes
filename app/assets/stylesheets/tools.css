@@ -162,7 +162,7 @@ ul.expandableSectionHdr  li{
 	display:inline; 
 	float:left;
 	padding:1px;
-	width:100;
+	width:100px;
 	overflow:hidden;
 	white-space:nowrap;
 	text-overflow:ellipsis;
@@ -188,7 +188,6 @@ div.expandableSectionBody {
 
 .setDeveloper{
 	width: 500px;
-	#height: 400px;
 	background: white;
 	border: 1px solid gray;
 }
@@ -207,18 +206,18 @@ div.expandableSectionBody {
 
 .setDeveloperSet{
 	background: orange;
-	border:1 solid red;
-	margin:1 0 1 0;
+	border:1px solid red;
+	margin:1px 0px 1px 0px;
 }
 
 
 .setDeveloperSetHover{
 	background: orange;
-	border:1 solid red;
+	border:1px solid red;
 }
 
 .setDeveloperSetHover:hover{
 	background:lightgray; 
-	border:1 solid blue;
+	border:1px solid blue;
 }
 

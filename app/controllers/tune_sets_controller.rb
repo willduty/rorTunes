@@ -22,4 +22,16 @@ class TuneSetsController < ApplicationController
   	end
   	redirect_to "/tune_sets"
   end
+  
+  def update
+  	TuneSet.update(params[:id], params[:tune_set])
+  	redirect_to params[:redirect]
+  end
+  
+  def toggle_status
+	toggle_status_bit(TuneSet, params[:status_bit])
+	redirect_to params[:redirect]
+  end
+  
+  
 end

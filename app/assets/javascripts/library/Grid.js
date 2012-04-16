@@ -537,10 +537,10 @@ function Grid(container, options){
 		
 		// create visible rows
 		for(var i in this.rowsArr){
-			this.rowsArr[i].elem.style.width = hdrWidth;
+			this.rowsArr[i].elem.style.width = hdrWidth + 'px';
 			this.rowsBox.appendChild(this.rowsArr[i].elem);
 			for(var n=0; n < this.rowsArr[i].cells.length; n++){
-				this.rowsArr[i].cells[n].style.width = arrWidths[n];
+				this.rowsArr[i].cells[n].style.width = arrWidths[n] + 'px';
 			}
 		}
 	}
@@ -769,8 +769,8 @@ function Grid(container, options){
 		if(_this.colResizeInProgress){
 			var hdr1obj = _this.columnsArr[_this.resizeDragIdx];
 			var hdr2obj = _this.columnsArr[Number(_this.resizeDragIdx) + 1];
-			hdr1obj.width = parseInt(hdr1obj.cell.offsetWidth - _this.hdrCellBorder*2);
-			hdr2obj.width = parseInt(hdr2obj.cell.offsetWidth - _this.hdrCellBorder*2);
+			hdr1obj.width = parseInt(hdr1obj.cell.offsetWidth - _this.hdrCellBorder*2) + 'px';
+			hdr2obj.width = parseInt(hdr2obj.cell.offsetWidth - _this.hdrCellBorder*2) + 'px';
 			_this.colResizeInProgress = false;
 			_this.resizeDragIdx = -1;
 		}
@@ -868,13 +868,13 @@ function Grid(container, options){
 				var diff = mouseX - pos1.left - hdr1obj.width + (_this.hdrCellBorder*2);
 				var newWidth1 = hdr1obj.width + diff;
 				var newWidth2 = hdr2obj.width - diff;
-				hdr1obj.cell.style.width = newWidth1;
-				hdr2obj.cell.style.width = newWidth2;
+				hdr1obj.cell.style.width = newWidth1 + 'px';
+				hdr2obj.cell.style.width = newWidth2 + 'px';
 				
 				// resize the row columns
 				for(var i in _this.rowsArr){
-					_this.rowsArr[i].cells[_this.resizeDragIdx].style.width = newWidth1;
-					_this.rowsArr[i].cells[Number(_this.resizeDragIdx) + 1].style.width = newWidth2;
+					_this.rowsArr[i].cells[_this.resizeDragIdx].style.width = newWidth1  + 'px';
+					_this.rowsArr[i].cells[Number(_this.resizeDragIdx) + 1].style.width = newWidth2 + 'px';
 				}
 			}
 			// if not set resize cursor if in range
@@ -917,7 +917,7 @@ function Grid(container, options){
 			sep.id = "gridHdrReorderSeparator"; // id to find/remove later
 			sep.style.position = "absolute";
 			sep.style.backgroundColor = "red";
-			sep.style.width = 1;
+			sep.style.width = '1px';
 			document.body.appendChild(sep);
 			return sep;
 		}

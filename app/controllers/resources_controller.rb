@@ -7,6 +7,11 @@ class ResourcesController < ApplicationController
   def add
   end
 
+  def update
+  	Resource.update(params[:resource][:id], params[:resource])
+	redirect_to params[:redirect]
+  end
+
   def delete
   	res = Resource.find_by_id(params[:id])
   	item = Item.find_by_itemable_id_and_itemable_type(params[:id], 'Resource')

@@ -1,0 +1,208 @@
+
+<script type="text/javascript">
+
+	function getToolElemFromChild(childElem){
+		while(childElem){
+			if(childElem.getAttribute("name") == "toolContainer"){
+				return childElem;
+			}
+			childElem = CBParentElement(childElem);
+		}
+	}	
+
+	function addResourceOptions(){
+			
+		try{
+			$("#tuneTitleHdr").html(gTune.title); // if a title is available, show it
+		}catch(e){}
+			
+		var searchFrameSrc = "";
+		var resourceOptionsBoxes = new Array();
+		CBGetElementsByName("resourceOptionsBox", null, resourceOptionsBoxes);
+		
+		
+		// show list of options/web sources to select from for search
+		
+		for(var r=0; r<resourceOptionsBoxes.length; r++){
+			var srcArr = new Array();
+			var tuneTitle = "";
+			if(typeof(gTune) != 'undefined')
+				 tuneTitle = gTune.title;
+			
+			
+			var tool = getToolElemFromChild(resourceOptionsBoxes[r]);
+			
+			switch(tool.id){
+				case "newResource":
+					srcArr.push(["youtube", "searchyoutube.php", "keywords=" + tuneTitle + "+irish+music"]);
+					srcArr.push(["thesession.org", "searchmp3page.php", "url=http://thesession.org"]);
+					srcArr.push(["comhaltas.ie", "searchmp3page.php", "url=http://comhaltas.ie"]);
+					srcArr.push(["doug lowder's page", "searchmp3page.php", "url=http://douglowder.com/PloughRecordings/"]);
+					srcArr.push(["flute geezers", "searchmp3page.php", "url=http://www.lafferty.ca/music/irish/flute-geezers/"]);
+					srcArr.push(["irishflute.podbean.com", "searchmp3page.php", "url=http://irishflute.podbean.com/"]);
+					srcArr.push(["tradlessons", "searchmp3page.php", "url=http://tradlessons.com/"]);
+					srcArr.push(["tradschool", "searchmp3page.php", "url=http://tradschool.com/"]);
+					break;
+					
+				case "newSheetMusic":
+					srcArr.push(["upload sheetmusic", "uploadsheetmusic.php", "keywords=" + tuneTitle + "+irish+music"]);
+					srcArr.push(["search thesession.org", "searchsessiondotorg.php", "url=http://thesession.org"]);
+					srcArr.push(["search norbeck", "searchmp3page.php", "url=http://homepage.mac.com/douglowder/PloughRecordings/"]);
+					break;
+			}
+				
+			for(var i in srcArr){
+				var searchFrameSrc;
+				var div = document.createElement("div");
+				resourceOptionsBoxes[r].appendChild(div);
+				div.className = "info pointer ltcopper";
+				div.innerHTML = "&#8226; " + srcArr[i][0];
+				var loc = srcArr[i][1] + "?tuneTitle=" + tuneTitle;
+				
+				if(typeof(tuneId) != 'undefined'){	
+					loc += "&tuneId=" + tuneId;
+				}
+				
+				for(var j=2; j < srcArr[i].length; j++){
+					loc += "&" + srcArr[i][j];
+				}
+				addClickHandler(div, loc)
+			}	
+		}
+		
+		function addClickHandler(div, loc){		
+			div.onmouseup = function(e){
+				resourceSearch(this, loc);
+			}
+		}
+	}
+
+		
+	function getToolElementByName(elem, name){
+		// there are more than one resource tool panels
+		// get the child elements corresponding to the current tool
+		var tool = getToolElemFromChild(elem);
+		var arr = new Array();
+		CBGetElementsByName(name, tool, arr);
+
+		try{
+			return arr[0];
+		}catch(e){alert(e.message); return;}
+	}
+
+
+	function resourceSearch(clickedElem, loc){
+		// there are more than one resource tool panels
+		// get the child elements corresponding to the current tool	
+		var frameBox = getToolElementByName(clickedElem, "frameBox");
+		var frame = getToolElementByName(clickedElem, "searchFrame");
+
+		// close the results page if it's open and hide the tool frame
+		if(frameBox.style.display == ""){
+			frame.src = loc;
+		}
+		
+		// show frame
+		else{
+		
+			frameBox.style.display = "";
+			$(frame).css({width: CBParentElement(frameBox).offsetWidth - 5,
+				height: CBParentElement(frameBox).offsetHeight - 25});
+			frame.src = loc;
+		}
+	}
+
+	// close the search frame but not the tool
+	function closeSearchFrame(clickedElem){
+		var frameBox = getToolElementByName(clickedElem, "frameBox");
+		frameBox.style.display = "none";
+		
+		var frame = getToolElementByName(clickedElem, "searchFrame");
+		frame.src = "";
+	}	
+
+	// close the search frame as well as the tool
+	function closeSearchTool(clickedElem){
+		closeSearchFrame(clickedElem);
+		var tool = getToolElemFromChild(clickedElem);
+		closeTool(tool.id)
+	}
+
+
+	// save resource via ajax
+	function saveResourceLink(url, title, type, source, tuneId){
+		if(typeof(title) == 'undefined')
+			title = "";	
+			
+		title = title.replace(/^\s\s*/, '').replace(/\s\s*$/, '');
+			
+		var promptCaption = "";
+		promptCaption = (title == "" ? 
+			"Could not get a title. Enter a title" : 
+			"Edit title or click to save:");
+			
+		title = prompt(promptCaption, title);
+		
+		if(title == null)
+			return;
+
+		//ajax
+		var loc = "ajax.php?action=saveResource&retPage=none"+
+				"&resourceType="+type+
+				"&title="+escape(title)+
+				"&url=" + url +
+				"&source=" + source;
+				
+				
+		if(typeof(tuneId) != 'undefined')
+			loc += "&tuneId="+tuneId;
+
+		
+		// alert(loc)
+		// return;
+			
+			
+		$.get(loc, function(respText){
+				var pairs = respText.split("&");
+				var arr = new Array();
+				for(i in pairs)
+					arr[pairs[i].split("=")[0]] = pairs[i].split("=")[1];
+				
+				var res = new objResource(arr["id"], arr["tuneId"], parseInt(arr["resourceType"]), unescape(arr["title"]).replace(/\+/g, " "), unescape(arr["url"]), 
+					arr["localFile"], arr["comments"], arr["entryDate"], arr["priority"]);
+				
+				alert("resource link saved.");
+				if(typeof(appendResource) != 'undefined'){
+					appendResource(res);
+				}
+			}
+		);
+		
+	}
+
+</script>
+
+							<div>
+								<table id=newResource class=toolContainer name=toolContainer width=100%>
+									<tr>
+										<td height=60 class=toolheader>
+											New Resource<br>
+											<div class="info white" id=tuneTitleHdr></div>
+											
+										</td>
+										<td rowspan=3 width=85%>
+											<div name=frameBox style="display:none; ">
+												<span onclick="closeSearchFrame(this)" class="info copper pointer">close</span> | 
+												<span class="info cancel pointer" name=toolCancel>full screen</span>
+												<iframe name=searchFrame></iframe><br>
+											</div>
+										</td>
+									</tr>
+									<tr>
+										<td height=60 valign=top class=infohdr name=resourceOptionsBox></td>
+									</tr>
+									<tr>
+										<td valign=top ><br><div class="info cancel pointer" name=toolCancel onclick="closeSearchTool(this)">close search</div></td>
+									</tr>
+								</table>				
+							</div>

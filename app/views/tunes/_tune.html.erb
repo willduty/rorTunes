@@ -17,5 +17,6 @@ var gTune = new objTune(<%= @tune.id %>,  "<%= @tune.title %>", <%= @tune.tune_t
 				]
 				
 				);
-
+				
+gTune.otherTitles = [<%= @tune.other_titles.map{|t| "'"+t.title+"'" }.join(',') %>]
 

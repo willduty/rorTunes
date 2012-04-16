@@ -1,8 +1,4 @@
 
-<html>
-
-<head>
-
 <script type="text/javascript">
 
 <%= render 'layouts/data' %>
@@ -11,26 +7,6 @@ var PAGE_VIEW_ALL = 1;
 var PAGE_VIEW_BYGROUPS = 2;
 
 var gTunesObj = new objTunes();
-
-
-// page using doAction() must implement getReturnPageParams()
-function getReturnPageParams(){
-	
-	var arr = new Array();
-	var btnMgr = new ButtonManager();
-	var buttons = btnMgr.getAllPageButtons()
-	for(var i=0; i<buttons.length; i++){
-		if(buttons[i].getAttribute("onOff") == "on"){
-			arr.push("onBtn=" + buttons[i].id);
-		}
-	}
-
-	try{
-		arr.push("contentScroll=" + getContentArea().scrollTop);
-	}catch(e){}
-
-	return arr;
-} 
 
 function getContentArea(){
 	return document.getElementById("contentarea");
@@ -58,7 +34,7 @@ function suggestionPressedCallback(str, id, tuneSelectionBox){
 			var fl = new FloatingContainer(newTuneCallback, null, null);
 			var iframe = document.createElement("iframe");
 			iframe.src = "newtune.php";
-			iframe.style.borderWidth = 0;
+			iframe.style.borderWidth = '0px';
 			fl.addContentElement(iframe);
 			fl.show(event);
 			
@@ -209,7 +185,6 @@ function shuffleArray(v){
 
 function showAllSets(){
 
-
 	clearContentArea();
 	
 	var copyArr = getSortedArrayCopy(setsArr, SORT_TYPE_SETS_ALPHA);
@@ -238,7 +213,9 @@ function showAllSets(){
 			row.oncontextmenu = function(e){return makeSetContextMenu(e)}
 	}	
 	try{
+	
 	grid.show();
+	
 	// grid.sortByColumn(0, SORT_DESC);
 	$("#setCount").html(grid.getRowCount());
 	//alert(grid.box.innerHTML)
@@ -252,11 +229,9 @@ function showAllSets(){
 
 function showSetsByGroup(){
 
-
 	clearContentArea();
 	var setsCount = 0;
 	var msl = getContentArea();
-	msl.style.overflow = "scroll";
 	
 	// get priority sorted copy of groupsArr
 	var sortedGroupsArr = getSortedArrayCopy(groupsArr, SORT_TYPE_PRIORITY); 
@@ -281,7 +256,7 @@ function showSetsByGroup(){
 				inGroupArr.push(sets[k].id);
 				setsCount++;
 			}catch(e){alert(k)}
-				
+			
 				var setdiv = createItemElement(sets[k], ITEM_TYPE_SET, group.id, false);
 				ro.addItem(setdiv, sets[k].id);
 			}
@@ -312,6 +287,9 @@ function showSetsByGroup(){
 			appendSet(setsArr[i], 0);
 	}	
 	$("#setCount").html(setsCount);
+	
+	msl.style.overflow = "scroll";
+	
 }
 
 
@@ -444,11 +422,6 @@ window.onload = function(){
 
 <link rel=StyleSheet href="css/style.css" type="text/css" media=screen>
  
-</head>
-
-
-<body>
-
 	<title>My Tunes Page</title>
 
 
@@ -464,13 +437,13 @@ window.onload = function(){
 	<table class=maintable id=maintable border=0 cellpadding=0 cellspacing=0 align=center>	
 		<tr>
 			<!-- LEFT COLUMN, CONTENT AREA -->			
-			<td height=100% width=650 valign=top id=mainTableLeftColumn>
+			<td height=100% width='650px' valign=top id=mainTableLeftColumn>
 				<table class=unpaddedtable height=100% border=0 cellpadding=0 cellspacing=0>
 					<tr>
 						<!-- header -->
 						<td class="contentHeader">
 							<table >
-								<tr><td width=95 class="toolheader">Sets</td>
+								<tr><td width='95px' class="toolheader">Sets</td>
 								<td class="info white">Count: <span id=setCount></span></td></tr>
 							</table>	
 						</td>
@@ -610,5 +583,3 @@ window.onload = function(){
 	
 	<?php include("emailBox.php"); ?>
 	
-</body>
-</html>
