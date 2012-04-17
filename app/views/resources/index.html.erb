@@ -32,7 +32,7 @@ function scrollContentArea(){
 // show all the resources
 function showList(){
 	clearContentArea();
-	var resArr = getSortedArrayCopy(resourcesArr, SORT_TYPE_RESOURCETYPE);
+	var resArr = getSortedArrayCopy(resourcesArr, sortByResourceType);
 	var sheetMusicArr = new Array();
 	
 	for (var i in resArr){
@@ -68,7 +68,7 @@ function showGrid(){
 	grid.addColumn("Source", 150);
 	grid.addColumn("Entry Date", 80);
 	
-	var resArr = getSortedArrayCopy(resourcesArr, SORT_TYPE_RESOURCETYPE);
+	var resArr = getSortedArrayCopy(resourcesArr, sortByResourceType);
 	var sheetMusicArr = new Array();
 	
 	for (var i in resArr){
@@ -137,7 +137,7 @@ function showByTune(){
 	contentArea.style.overflow = "scroll";
 	
 	// iterate through array of tunes/resources
-	var tunesAlpha = getSortedArrayCopy(tunesArr, SORT_TYPE_ALPHA)
+	var tunesAlpha = getSortedArrayCopy(tunesArr, sortByTitle)
 	for(var n in tunesAlpha){
 		
 		var i = tunesAlpha[n].id;

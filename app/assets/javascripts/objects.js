@@ -33,78 +33,44 @@ var ITEM_TYPE_FAVORITE = 7;
 
 
 
-
-function objTunes(){
-
-	this.tunesArr = new Array();
+function getResourceLabel(type, bold, colon){
+	if(typeof(bold) == 'undefined') bold = false;
+	if(typeof(colon) == 'undefined') colon = false;
 	
-	this.addTune = function(tuneobj){
-		this.tunesArr[tuneobj.id] = tuneobj;
+	var label = "";
+	switch(type){
+		case RESOURCE_SHEETMUSIC:
+			label = "Sheet Music";
+			break;
+		case RESOURCE_VIDEO:
+			label = "Video File";
+			break;
+		case RESOURCE_AUDIO:
+			label = "Audio File";
+			break;
+		case RESOURCE_LINK_VIDEO:
+			label = "Video Link";
+			break;
+		case RESOURCE_LINK_YOUTUBE:
+			label = "<img src='/images/img/youtubelogo.jpg'>";
+			break;
+		case RESOURCE_LINK_AUDIO_FILE:
+			label = "Audio File Link";
+			break;
+		case RESOURCE_LINK_COMHALTAS_FLV:
+			label = "<img src='/images/img/comhaltasLogo.gif' style='height:1em; width:6em'>";
+			break;
+		default:
+			label = "";
 	}
 	
-	
-	if(tunesArr){
-		// alert(tunesArr.length)
-		for(var i in tunesArr)
-			this.addTune(tunesArr[i])
-	}
-	
-	this.getTunesByType = function(type){
-		var arr = new Array();
-		for(var i in this.tunesArr){
-			if(this.tunesArr[i].typeId == type){
-				arr.push(tunesArr[i]);
-			}
-		}
-		return arr;
-	}
-}
-
-function objSets(){
-	this.setsArr = new Array();
-	this.getSet = function(setId){
-		return this.setsArr[setId];
-	}
-	this.addSet = function(setObj){
-		this.setsArr[setObj.id] = setObj;
-	}
-	this.getSetsWithTune = function(tuneId){
-		
-	}
-}
-
-function objResources(){
-}
-function objGroups(){
+	return (bold?"<b>":"") +label+ (colon?": ":"") + (bold?"</b>":"");
 }
 
 
-//////////////////////////////
 
 
-// tune 
-function objTune(nId, strTitle, nTypeId, nKeyId, status, nParts, strComments, entryDate, lastUpdate, resources)
-{
-	this.id = nId;
-	this.title = strTitle;
-	this.typeId = nTypeId;
-	this.keyId = nKeyId;
-	this.parts = nParts;
-	this.comments = strComments;
-	this.status = status;
-	this.entryDate = entryDate;
-	this.lastUpdate = lastUpdate;
-	this.selectedAttr;
-	this.itemType = ITEM_TYPE_TUNE;
-	this.otherTitles = new Array();
-	this.resources = resources;
-	
-}
-
-objTune.prototype.getLabel = function(){
-	return "<b>Tune:</b> ";
-}
-
+// objects
 
 
 
@@ -125,9 +91,47 @@ function objType(nId, strTitle, color)
 }
 
 
-// object to hold a set of tunes
-function objSet(nId, arrTunesArr, setString, flagged, status, entryDate){
 
+
+
+function Item(){
+	this.id;
+	this.itemType
+}
+
+Item.prototype = {
+	getLabel : function(bold, colon){
+		return (bold?"<b>":"")+this.label+(colon?": ":"")+(bold?"</b>":"");
+	}
+}
+
+
+// tune 
+function TuneItem(nId, strTitle, nTypeId, nKeyId, status, nParts, strComments, entryDate, lastUpdate, resources)
+{
+	this.id = nId;
+	this.title = strTitle;
+	this.typeId = nTypeId;
+	this.keyId = nKeyId;
+	this.parts = nParts;
+	this.comments = strComments;
+	this.status = status;
+	this.entryDate = entryDate;
+	this.lastUpdate = lastUpdate;
+	this.selectedAttr;
+	this.otherTitles = new Array();
+	this.resources = resources;
+	
+	this.itemType = ITEM_TYPE_TUNE;
+	this.label = "Tune"
+}
+
+TuneItem.prototype = new Item;
+TuneItem.prototype.constructor = TuneItem;
+
+
+
+function TuneSetItem(nId, arrTunesArr, setString, flagged, status, entryDate){
 	
 	this.id = nId;
 	this.tunesArr = arrTunesArr; // array of tune ids
@@ -180,7 +184,6 @@ function objSet(nId, arrTunesArr, setString, flagged, status, entryDate){
 			return tunesArr[this.tunesArr[0]].typeId;
 		}catch(e){
 			return null;
-		//	alert(e + " " + this.id)
 		}
 	}
 	
@@ -190,22 +193,22 @@ function objSet(nId, arrTunesArr, setString, flagged, status, entryDate){
 		}catch(e){return '[empty set]';}
 	}
 	
+	this.label = 'Set';
+	
 	this.getLabel = function(bold, colon){
 		if(!typesArr)
-			return (bold?"<b>":"")+"Set"+(colon?":":"")+bold?"</b>":"";
-			
+			return Item.prototype.getLabel.call(this, bold, colon); 
 		
 		// get title by tune type 
 		var title = typesArr[this.getType()].title;
-		if(title == "waltz" || title == "march")
-			title += "es";
-		else 
-			title += "s";
+		(title == "waltz" || title == "march") ? title += "es" : title += "s";
+		title = title.charAt(0).toUpperCase() + title.substring(1, title.length)
 		return "<b>"+title+":</b> ";
-	}
-	
-	
+	}	
 }
+
+TuneSetItem.prototype = new Item
+TuneSetItem.prototype.constructor = TuneSetItem
 
 
 // an item that can be grouped (a tune, a set, etc)
@@ -216,7 +219,7 @@ function groupItem(nId, nItemType, priority){
 }
 
 // a group of groupable items (sets, tunes, etc). can contain mixed items (eg tunes and sets)
-function objGroup(nId, strTitle, status, priority, entryDate){
+function GroupItem(nId, strTitle, status, priority, entryDate){
 	this.id = nId;
 	this.title = strTitle;
 	this.itemsArr = new Array();
@@ -268,7 +271,7 @@ function objGroup(nId, strTitle, status, priority, entryDate){
 		
 		var arr = new Array();
 		
-		this.itemsArr = getSortedArrayCopy(this.itemsArr, SORT_TYPE_PRIORITY); 
+		this.itemsArr = getSortedArrayCopy(this.itemsArr, sortByPriority); 
 		
 		for(var i in this.itemsArr){
 			var item = this.itemsArr[i];
@@ -308,14 +311,14 @@ function objGroup(nId, strTitle, status, priority, entryDate){
 		return false;
 	}
 	
-	this.getLabel = function(bold, colon){
-		return (bold?"<b>":"") +"Group"+ (colon?":":"") + (bold?"</b> ":"");
-	}
+	this.label = "Group"
 }
+GroupItem.prototype = new Item;
+GroupItem.prototype.constructor = GroupItem;
 
 
 // a resource (link, sheetmusic file, video, audio files etc) associated with a tune.  
-function objResource(nId, resourceType, title,  
+function ResourceItem(nId, resourceType, title,  
 					url, localFile, comments, entryDate, priority, status){
 	this.id = nId;
 	this.resourceType = resourceType;
@@ -377,47 +380,11 @@ function objResource(nId, resourceType, title,
 }
 
 
-function getResourceLabel(type, bold, colon){
-	if(typeof(bold) == 'undefined') bold = false;
-	if(typeof(colon) == 'undefined') colon = false;
-	
-	var label = "";
-	switch(type){
-		case RESOURCE_SHEETMUSIC:
-			label = "Sheet Music";
-			break;
-		case RESOURCE_VIDEO:
-			label = "Video File";
-			break;
-		case RESOURCE_AUDIO:
-			label = "Audio File";
-			break;
-		case RESOURCE_LINK_VIDEO:
-			label = "Video Link";
-			break;
-		case RESOURCE_LINK_YOUTUBE:
-			// label = "Youtube Clip"
-			label = "<img src='/images/img/youtubelogo.jpg'>";
-			break;
-		case RESOURCE_LINK_AUDIO_FILE:
-			label = "Audio File Link";
-			break;
-		case RESOURCE_LINK_COMHALTAS_FLV:
-			// label = "Video";
-			label = "<img src='/images/img/comhaltasLogo.gif' style='height:1em; width:6em'>";
-			break;
-		default:
-			label = "";
-	}
-	
-	return (bold?"<b>":"") +label+ (colon?": ":"") + (bold?"</b>":"");
-}
-
 
 //
 
 // a resource (link, sheetmusic file, video, audio files etc) associated with a tune.  
-function objFavorite(id, itemId, itemType){
+function FavoriteItem(id, itemId, itemType){
 	this.id = id;
 	this.itemId = itemId;
 	this.itemType = itemType;
@@ -425,3 +392,5 @@ function objFavorite(id, itemId, itemType){
 		return "favorite: ";
 	}
 }
+
+

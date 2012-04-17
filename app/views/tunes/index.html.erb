@@ -1,15 +1,8 @@
 
 <script type="text/javascript">
 
-
 // user settings
-
-
 <%= render 'layouts/data' %>
-
-
-
-
 
 
 
@@ -82,7 +75,7 @@ function filterSelectedCallback(targetElem, id, text){
 function getFilteredTunesList(){
 	var filters = getFilters();
 	var arr = [];
-	var tunesArrAlpha = getSortedArrayCopy(tunesArr, SORT_TYPE_ALPHA);
+	var tunesArrAlpha = getSortedArrayCopy(tunesArr, sortByTitle);
 	try{
 	for(var i in tunesArrAlpha){
 		var tune = tunesArrAlpha[i];
@@ -404,6 +397,7 @@ var invalidTitleMsg = 'Invalid Title. Title must have length and '+
 				'cannot include non alpha-numeric characters other than basic punctuation (\' \" ! & ? - _ etc)';
 window.onload = function (){
 try{
+	
 	sizeContentArea();
 	setUpPadSwitches();
 	setUpToolSwitches(); 

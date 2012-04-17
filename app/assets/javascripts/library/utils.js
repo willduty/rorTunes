@@ -181,17 +181,6 @@ function arrayCopy(arr, callback){
 }
 
 
-
-// sorting callback for object with property "title"
- function alphaSort(a, b){
-	return (a.title.toLowerCase() > b.title.toLowerCase()) ? 1 : -1;
- }
-
- function prioritySort(a, b){
-	return (a.priority > b.priority) ? 1 : -1;
- }
-
- 
 // crossbrowser recursive getElementsByName function since the 
 // regular dom one doesn't work right in IE
 function CBGetElementsByName(name, node, arr){

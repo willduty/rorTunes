@@ -28,7 +28,6 @@ var groupsArr = new Array();
 var resourcesArr = new Array();
 var favoritesArr = new Array();
 
-var gTunesObj = new objTunes();
 
 <% 
 
@@ -49,7 +48,7 @@ tunes.each do |t|
 		tuneTypeId = t.tune_types[0].id
 		
 		%>
-			tunesArr[<%= t.id %>] = new objTune(<%= t.id %>, 
+			tunesArr[<%= t.id %>] = new TuneItem(<%= t.id %>, 
 			"<%= t.title %>", <%= tuneTypeId %>, <%= keyId %>, 
 			<%= t.status %>, <%= t.parts %>, "", "<%= t.entryDate %>", "<%= t.lastUpdate %>");
 		<% rescue %>
@@ -78,7 +77,7 @@ sets = user.tune_sets
 sets.each do |s|
 	status = s.status.nil? ? 0 : s.status
 %>
-	setsArr[<%= s.id %>] = new objSet(<%= s.id %>, [<%= s.tuneIds %>], 
+	setsArr[<%= s.id %>] = new TuneSetItem(<%= s.id %>, [<%= s.tuneIds %>], 
 			'tune/tune/tune', <%= s.status & 1 %>, <%= status %>, '<%= s.entryDate %>');		
 <%
 end
@@ -92,7 +91,7 @@ resources.each do |r|
 
 %>
 
-resourcesArr[<%= r.id %>] = new objResource(<%= r.id %>, <%= r.resource_type %>, "<%= r.title %>",
+resourcesArr[<%= r.id %>] = new ResourceItem(<%= r.id %>, <%= r.resource_type %>, "<%= r.title %>",
 					"<%= r.url %>", "<%= r.local_file %>",
 					 "<%= r.comments %>", "<%= r.entryDate %>", "<%= r.priority %>");					 	
 <%
@@ -102,7 +101,7 @@ groups = user.groups
 groups.each do |g|
 
 %>
-	groupsArr[<%= g.id %>] = new objGroup(<%= g.id %>, "<%= g.title %>", <%= g.status %>, <%= g.priority %>, '<%= g.entryDate %>');	
+	groupsArr[<%= g.id %>] = new GroupItem(<%= g.id %>, "<%= g.title %>", <%= g.status %>, <%= g.priority %>, '<%= g.entryDate %>');	
 	<% g.group_items.each do |gi|%>				
 		groupsArr[<%= g.id %>].itemsArr.push(new groupItem(<%= gi.itemable_id %>, <%= item_type_from_itemable_type gi.itemable_type %>, 
 			<%= gi.priority.nil? ? 0 : gi.priority %>));
@@ -116,7 +115,7 @@ favorites.each do |f|
 	item = Item.find_by_id(f.item_id)
 
 	%>
-		favoritesArr[<%= f.id %>] = new objFavorite(<%= f.id %>, <%= item.itemable_id %>, 
+		favoritesArr[<%= f.id %>] = new FavoriteItem(<%= f.id %>, <%= item.itemable_id %>, 
 			<%= item_type_from_itemable_type(item.itemable_type) %>);
 	<%
 end

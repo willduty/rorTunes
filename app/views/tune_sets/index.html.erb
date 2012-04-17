@@ -6,7 +6,6 @@
 var PAGE_VIEW_ALL = 1;
 var PAGE_VIEW_BYGROUPS = 2;
 
-var gTunesObj = new objTunes();
 
 function getContentArea(){
 	return document.getElementById("contentarea");
@@ -114,7 +113,7 @@ function makeNewRandomSet(requiredTune){
 		for(var i in typesArr){
 			// for each tunetype weight the probability 
 			// by number of tunes of that type
-			var tunesOfTypeI = gTunesObj.getTunesByType(typesArr[i].id).length;
+			var tunesOfTypeI = getTunesByType(typesArr[i].id).length;
 			alert(tunesOfTypeI)
 			
 			var ratio =  tunesOfTypeI / tunesArr.length;
@@ -129,14 +128,14 @@ function makeNewRandomSet(requiredTune){
 	}
 	
 	// select a random tune from tunes of tuneType
-	var arr = gTunesObj.getTunesByType(tuneType);
+	var arr = getTunesByType(tuneType);
 	
 	for(var i=0; i<newSetLength; i++){
 		var idx = Math.floor(Math.random() * arr.length);
 		setArr.push(arr[idx].id);
 		arrNames.push(arr[idx].title)
 	}
-	var newSet = new objSet(null, setArr, arrNames.join("/"), false, STATUS_ACTIVE);
+	var newSet = new SetItem(null, setArr, arrNames.join("/"), false, STATUS_ACTIVE);
 
 	return newSet;
 }
@@ -187,10 +186,9 @@ function showAllSets(){
 
 	clearContentArea();
 	
-	var copyArr = getSortedArrayCopy(setsArr, SORT_TYPE_SETS_ALPHA);
+	var copyArr = getSortedArrayCopy(setsArr, sortBySetAsString);
 	
 	function func(){
-		alert('todo');
 	}
 	
 	var grid = new Grid(document.getElementById('contentarea'), LIST_VIEW_FULL);

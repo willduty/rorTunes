@@ -168,7 +168,7 @@
 				for(i in pairs)
 					arr[pairs[i].split("=")[0]] = pairs[i].split("=")[1];
 				
-				var res = new objResource(arr["id"], arr["tuneId"], parseInt(arr["resourceType"]), unescape(arr["title"]).replace(/\+/g, " "), unescape(arr["url"]), 
+				var res = new ResourceItem(arr["id"], arr["tuneId"], parseInt(arr["resourceType"]), unescape(arr["title"]).replace(/\+/g, " "), unescape(arr["url"]), 
 					arr["localFile"], arr["comments"], arr["entryDate"], arr["priority"]);
 				
 				alert("resource link saved.");

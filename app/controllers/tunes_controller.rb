@@ -6,7 +6,7 @@ class TunesController < ApplicationController
 	@keys = Key.all
 	@newTune = Tune.new
 	
-	@google_html = HTTParty.get("http://google.com")
+	@google_html = HTTParty.get("http://google.com") #testing
   end
 
 

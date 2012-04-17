@@ -364,13 +364,11 @@ function selectItem(elem){
 	// and unselect on any click
 	var _this = elem; 
 	
-	// window.addEventListener("click", function(){
 	CBAddEventListener(window, "click", function(){
 		try{_this.className = elem.getAttribute("restoreClass");}
 		catch(e){_this.className = "item";}
 		}, true);
 		
-	// window.addEventListener("contextmenu", function(){
 	CBAddEventListener(window, "contextmenu", function(){
 		try{_this.className = elem.getAttribute("restoreClass");}
 		catch(e){_this.className = "item";}
@@ -412,10 +410,6 @@ function itemsInMultiCol(items, type, groupId){
 			colArrs[col] = new Array();
 		colArrs[col].push(div);
 		
-		// if(width > widest){
-			// widest = width;
-			// colArrs[col]["widest"] = widest;
-		// }
 		c++;
 		if(c >= Math.ceil(count/3)){
 			c = 0;
@@ -462,6 +456,18 @@ function getItemByIdAndType(itemId, itemType){
 		case ITEM_TYPE_RESOURCE:
 			return resourcesArr[itemId];
 	}
+}
+
+
+
+function getTunesByType(type){
+	var arr = new Array();
+	for(var i in tunesArr){
+		if(tunesArr[i].typeId == type){
+			arr.push(tunesArr[i]);
+		}
+	}
+	return arr;
 }
 
 
@@ -615,7 +621,7 @@ function doRorLink(url, method, fields){
 	
 
 function addTuneContextMenu(elem, tuneObj){
-	// add custom context menu
+	
 	elem.oncontextmenu = function(event){
 
 		try{
@@ -664,16 +670,8 @@ function addTuneContextMenu(elem, tuneObj){
 
 
 
-
-// sort properties
-// for sorting an array of objects with a property (obj.title, obj.priority)	
-var SORT_TYPE_ALPHA = 1;
-var SORT_TYPE_PRIORITY = 2;
-var SORT_TYPE_RESOURCETYPE = 3;
-var SORT_TYPE_SETS_ALPHA = 4;
-var SORT_TYPE_ENTRY_DATE = 5;
-var SORT_TYPE_ENTRY_DATE_ASC = 6;
-
+// sort funcs for objects by-property. convention: sortBy + [object property]
+// 	omit "get". eg. sorting an obj by its getLabel() would be sortByLabel
 
 function sortByResourceType(a, b){
 	return (a.resourceType > b.resourceType) ? 1 : -1;
@@ -691,23 +689,21 @@ function sortByEntryDateAsc(a, b){
 	return (a.entryDate < b.entryDate) ? 1 : -1;
 }
 
+function sortByTitle(a, b){
+	return (a.title.toLowerCase() > b.title.toLowerCase()) ? 1 : -1;
+}
+
+function sortByPriority(a, b){
+	return (a.priority > b.priority) ? 1 : -1;
+}
+
 
 // to get sorted arrays of associative arrays which can't
-// themselves be sorted without mismatchig the keys
-function getSortedArrayCopy(arr, sortBy){
+// themselves be sorted without mismatching the keys
+function getSortedArrayCopy(arr, sortFunc){
 	var copyArr = new Array();
 	for(var i in arr)
 		copyArr.push(arr[i]);
-	
-	var sortFunc = null;
-	switch(sortBy){
-		case SORT_TYPE_ALPHA: sortFunc = alphaSort; break;
-		case SORT_TYPE_PRIORITY: sortFunc = prioritySort; break;
-		case SORT_TYPE_RESOURCETYPE: sortFunc = sortByResourceType; break;
-		case SORT_TYPE_SETS_ALPHA: sortFunc = sortBySetAsString; break;
-		case SORT_TYPE_ENTRY_DATE: sortFunc = sortByEntryDate; break;
-		case SORT_TYPE_ENTRY_DATE_ASC: sortFunc = sortByEntryDateAsc; break;
-	}
 	copyArr.sort(sortFunc);
 	return copyArr;
 }
@@ -742,10 +738,7 @@ function clearContentArea(listElemId){
 function sizeContentArea(contentArea){
 	contentArea = contentArea ? $(contentArea) : $('#maintable');
 	var Y = getWindowInnerHeight();
-	//alert(Math.floor(Y * .95) + 'px')
 	contentArea.css('height', Math.floor(Y * .95) + 'px');
-	//alert(document.getElementById('maintable').style.height)
-	//contentArea.css('height', Math.floor(Y * .82) + 'px');
 }
 
 
@@ -812,13 +805,13 @@ function addGroupSubHdrContextMenu(elem){
 		}
 		
 		
-		
 		if(type == ITEM_TYPE_SET){
 			ctxMenu.addItem("Add all tunes in sets to group", alert, null);
 		}
 		
-		ctxMenu.addItem("Remove All " + typeLabel + " From Group", removeFromGroupByType, {itemType: this.getAttribute("containsItemType"), 
-																							groupId: this.getAttribute("groupId")});
+		ctxMenu.addItem("Remove All " + typeLabel + " From Group", 
+				removeFromGroupByType, {itemType: this.getAttribute("containsItemType"),
+							groupId: this.getAttribute("groupId")});
 		ctxMenu.addSeparator();
 		ctxMenu.addItem("Cancel", null, null);
 		ctxMenu.show(event);
@@ -1585,9 +1578,9 @@ function makeGroupElement(group){
 		var items;
 		if(items = group.getItemsByType(types[j])){
 			switch(types[j]){
-				case ITEM_TYPE_TUNE: items.sort(alphaSort); break;
+				case ITEM_TYPE_TUNE: items.sort(sortByTitle); break;
 				case ITEM_TYPE_SET: items.sort(sortBySetAsString); break;
-				case ITEM_TYPE_RESOURCE: items.sort(alphaSort); break;
+				case ITEM_TYPE_RESOURCE: items.sort(sortByTitle); break;
 			}
 			
 			var typeLabel = document.createElement("div");

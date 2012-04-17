@@ -2,8 +2,6 @@
 
 <script type="text/javascript">
 
-<?php include("jsArrays.php"); ?>
-
 
 <%= render 'layouts/data' %>
 
@@ -119,7 +117,7 @@ function makeNewRandomSet(requiredTune){
 		arrNames.push(arr[idx].title)
 	}
 	
-	var newSet = new objSet(null, setArr, arrNames.join("/"), false, STATUS_ACTIVE);
+	var newSet = new SetItem(null, setArr, arrNames.join("/"), false, STATUS_ACTIVE);
 	return newSet;
 }
 
@@ -212,7 +210,7 @@ function showGroups(containerElem){
 		
 	var msl = containerElem ? containerElem : getContentArea();
 	
-	var copyArr = getSortedArrayCopy(groupsArr, SORT_TYPE_PRIORITY); 
+	var copyArr = getSortedArrayCopy(groupsArr, sortByPriority); 
 	for(var i in copyArr){
 		var group = copyArr[i];
 		var es = makeGroupElement(group);
@@ -246,7 +244,7 @@ function reorderGroups(event){
 	var ro = new objReorder(); 
 	ro.allowRemove = false; // no remove. makes save complicated, tool on main page ctx menu
 
-	var copyArr = getSortedArrayCopy(groupsArr, SORT_TYPE_PRIORITY); 
+	var copyArr = getSortedArrayCopy(groupsArr, sortByPriority); 
 	for(var i in copyArr){
 		ro.addItem(copyArr[i].title, copyArr[i].id);
 	}

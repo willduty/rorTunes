@@ -93,7 +93,7 @@ window.onload = function(){
 	var arr = [tunesArr, resourcesArr, setsArr, groupsArr];
 	var latestBox = document.getElementById("latestBox");
 	for(var i in arr){
-		var itemArr = getSortedArrayCopy(arr[i], SORT_TYPE_ENTRY_DATE_ASC);	
+		var itemArr = getSortedArrayCopy(arr[i], sortByEntryDateAsc);	
 		var ctr = 0;
 		for(var j in itemArr){
 			var boxId, hdrId, count;
