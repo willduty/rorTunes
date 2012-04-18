@@ -1,0 +1,159 @@
+
+
+<script>
+	function showClip(elem){
+		var form = $(elem).parents('form')
+		var youtube_id = youtubeIdFromElem(elem)
+		
+		$('#showBox')
+			.find('[name=embedBox]').html('<iframe width="560" height="315" src="http://www.youtube.com/embed/'+
+				youtube_id+'" frameborder="0" allowfullscreen></iframe>')
+				
+		form.find('[name=showBoxContainer]').append($('#showBox').show())
+		form.find('[name=thumbnail]').hide()
+	}
+	
+	function stopShow(elem){
+		$("#showBox")
+			.find("[name=embedBox]").first().html("")
+			.end().end()
+			.hide()
+		$(elem).parents('form').find('[name=thumbnail]').show()
+	}
+	
+	function saveResource(elem){
+		var youtube_id = youtubeIdFromElem(elem)
+		alert(youtube_id)
+	}
+	
+	function youtubeIdFromElem(elem){
+		var youtube_id = $(elem).parents('form').find('[name=youtube_id]').val().split(":")
+		return youtube_id[youtube_id.length - 1];
+	}
+	
+
+</script>
+
+<div id=showBox style='display:none;'>
+	<div name=embedBox></div>
+	<span class='info pointer' onclick='stopShow(this);'>close</span> | 
+	<span class='info pointer' onclick='saveResource(this);'>save this video link as resource</span>
+	
+</div>
+
+<%
+require "rexml/document"
+require 'rexml/xpath'
+
+# get youtube videos xml
+youtube_url = "http://gdata.youtube.com/feeds/api/videos?orderby=published&start-index=1&max-results=30&v=2&q="
+youtube_url += params[:keywords].gsub(" ", "+")
+youtube_response = HTTParty.get(youtube_url)
+
+
+# parse the xml and list video thumbnails etc
+begin
+	concat Time.now.to_s 
+	concat '<br>'.html_safe
+
+	parser = REXML::Document.new youtube_response
+
+	REXML::XPath.each( parser.root, '//entry') do |entry|
+		
+		form = form_for @resource do |f|
+			
+			
+			concat f.hidden_field :youtube_id, {:name=>'youtube_id', :type=>'hidden', :value=>entry.elements['id'].text}
+			
+			
+			concat simple_format(entry.elements['title'].text, {:class=>'info black', :name=>'title'})
+	
+			concat tag('div', :name=>'showBoxContainer')
+			REXML::XPath.each(entry, 'media:group/media:thumbnail') do |tn| 
+				if(tn.attributes['yt:name'] == 'default')
+					concat image_tag tn.attributes['url'], 
+						{:onclick=>'showClip(this)', :name=>'thumbnail'}
+				end
+			end
+	
+	
+			REXML::XPath.each(entry, 'media:group/media:description') do |desc| 
+				concat simple_format(desc.text, :class=>'info normal')
+			end
+
+		end
+		concat '<br>'.html_safe
+		concat form
+
+	end
+
+	#{results:[{title, description, date, thumbnail, categories:[]},{},{}]}
+
+
+rescue Exception => e
+	concat "ERROR: " + e.message
+
+end
+%>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

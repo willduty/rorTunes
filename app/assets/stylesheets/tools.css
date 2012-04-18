@@ -76,9 +76,9 @@
 
 .selectPad {position:absolute; 
 	background:orange; 
-	border:1px solid black;}
+	border:1px solid #444;}
 .selectPadItem {background:#dd8545; 
-	border:1px outset; 
+	border:1px outset #555; 
 	padding:2px; 
 	font: normal 12px arial ;
 	}

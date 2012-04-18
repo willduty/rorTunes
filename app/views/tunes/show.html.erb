@@ -304,7 +304,7 @@ window.onload = function(){
 	}
 	
 	setUpToolSwitches(); 
-	addResourceOptions();
+	addResourceOptions(tuneId);
 
 }
 
@@ -419,7 +419,7 @@ window.onload = function(){
 				<table>
 					<tr>
 						<td valign=top>
-							<div><span id=relateditems class=item style="width:450;"></span></div>
+							<div><span id=relateditems style="width:450;"></span></div>
 						</td>
 					</tr>
 				</table>
@@ -427,14 +427,13 @@ window.onload = function(){
 				
 
 				<!-- resources -->
-				<span class=infohdr>Resources </span><span class="toolBtnOff" name=toolButton tool=newResource fullPageTool>[New Resource]</span>
-				
+				<span class=infohdr>Resources </span><span class="toolBtnOff" name=toolButton tool=newResource fullPageTool>[New Resource]</span>		
 				<%= render 'layouts/resource_search_tool' %>
 
 				<table width=100%>
 					<tr>
 						<td valign=top >
-							<span id=resourceBox class=item></span>
+							<span id=resourceBox></span>
 						</td>
 					</tr>
 				</table>

@@ -141,13 +141,13 @@ function makeNewRandomSet(requiredTune){
 }
 
 
-var gTempSets = new Array(); // to hold newly created sets, needed?
+var gTempSets = new Array(); // to hold newly created sets
 
 function generateRandomSets(){
 	var resultbox = document.getElementById("randomSetResultBox");
 	var requiredTune = document.getElementById("randomSetRequiredTune").getAttribute("tuneId");
 	
-	var newSet = makeNewRandomSet(requiredTune); // todo need to put this in a glo
+	var newSet = makeNewRandomSet(requiredTune); 
 	gTempSets.push(newSet);
 	
 	setElem = appendSet(newSet, null, resultbox);
@@ -216,7 +216,7 @@ function showAllSets(){
 	
 	// grid.sortByColumn(0, SORT_DESC);
 	$("#setCount").html(grid.getRowCount());
-	//alert(grid.box.innerHTML)
+
 	}catch(e){alert(e)}
 	
 }
@@ -232,7 +232,7 @@ function showSetsByGroup(){
 	var msl = getContentArea();
 	
 	// get priority sorted copy of groupsArr
-	var sortedGroupsArr = getSortedArrayCopy(groupsArr, SORT_TYPE_PRIORITY); 
+	var sortedGroupsArr = getSortedArrayCopy(groupsArr, sortByPriority); 
 	
 	var inGroupArr = new Array();
 	for(var i in sortedGroupsArr){
@@ -293,6 +293,11 @@ function showSetsByGroup(){
 
 
 
+
+
+
+
+var bullet = "&#8226;";
 
 
 function searchSuggestionClicked(str, id){

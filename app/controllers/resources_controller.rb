@@ -19,4 +19,8 @@ class ResourcesController < ApplicationController
   	item.delete
   	redirect_to '/resources'
   end
+  
+  def searchyoutube
+  	@resource = Resource.new
+  end
 end

@@ -1,9 +1,6 @@
 
 
 
-var bullet = "&#8226;";
-
-
 // gets the filename (no path) of the current page
 function getCurrentPage(){
 	var loc = location.toString().split("?")[0];
@@ -547,35 +544,15 @@ function createItemElement(itemObj, itemType, groupId, useLabel, tag){
 			elem.ondblclick = function(event){
 				showResource(itemObj);
 			}
-			break;	
+			break;
 
 		case ITEM_TYPE_FAVORITE:
-	try{
+	
 			var favoritedItem = getItemByIdAndType(itemObj.itemId, itemObj.itemType);
-			
-			switch(itemObj.itemType){
-				case ITEM_TYPE_GROUP:
-					elem = makeGroupElement(favoritedItem).getSection();
-					break;
-				case ITEM_TYPE_RESOURCE:
-					elem = createItemElement(favoritedItem, itemObj.itemType, null, true);
-					elem.onclick = function(){showResource(favoritedItem)};
-					break;
-				case ITEM_TYPE_TUNE:
-					elem = createItemElement(favoritedItem, itemObj.itemType, null, true);
-					elem.onclick = function(){goToTunePage(favoritedItem.id)};
-					break;	
-				case ITEM_TYPE_SET:
-					elem = createItemElement(favoritedItem, itemObj.itemType, null, true);
-					elem.onclick = function(){alert('todo, show set sheetmusic')}
-					//elem.onclick = function(){location = '/tune_sets'};
-					break;	
-				default:
-					elem.innerHTML = favoritedItem.getLabel(true, true) + favoritedItem.title;
-			}
+			elem = createItemElement(favoritedItem, itemObj.itemType, null, true);
 			elem.setAttribute("itemId", itemObj.id);
 			elem.setAttribute("favoritedItemId", itemObj.itemId);
-	}catch(e){alert(e.message)}
+			
 			
 			break;
 			
@@ -601,9 +578,31 @@ function deleteTune(tuneId){
 }
 
 
-// mimic rails framework 'data-method' type link submission
-function doRorLink(url, method, fields){
-//try{
+
+function doRorLink(url, method){
+
+	// check for redirect
+	var b = false; arr = [arguments[0], arguments[1]];
+	for(var i=2; i<arguments.length; i++){
+		if(arguments[i].name == 'redirect')
+			b = true;
+		arr.push(arguments[i])
+	}
+	
+	// add redirect to this page as argument if not specified
+	if(!b)
+		arr.push({name:'redirect', value:'/'+getCurrentPage()})
+		
+	var form = getRorLinkForm.apply(this, arr)
+	
+	// go
+	$(form).appendTo(document.body).submit();
+	
+}
+
+
+function getRorLinkForm(url, method){
+
 	// create form with "indicated" method 
 	var form = $("<form method=post action='"+url+"'><input type=hidden name=_method value='"+method+"' />"+
 		"<input type=hidden name=authenticity_token value='"+$('[name=csrf-token]').attr('content') + "' /></form>")
@@ -614,10 +613,9 @@ function doRorLink(url, method, fields){
 		form.append("<input type=hidden name='"+arguments[i].name+"' value=\""+val+"\"></input>")
 	}
 		
-	// go
-	form.appendTo(document.body).submit();
-//}catch(e){console.log(fields)}
+	return form.get(0);
 }
+
 	
 
 function addTuneContextMenu(elem, tuneObj){
@@ -651,10 +649,10 @@ function addTuneContextMenu(elem, tuneObj){
 					groups.addItem(groupsArr[j].title);
 				else
 					groups.addItem(groupsArr[j].title, addItemToGroup,
-						{itemId:tuneObj.id, itemType: ITEM_TYPE_TUNE, groupId: groupsArr[j].id, redirect:'/tunes'});
+						{itemId:tuneObj.id, itemType: ITEM_TYPE_TUNE, groupId: groupsArr[j].id});
 			}
 			groups.addSeparator();
-			groups.addItem("Add To New Group...", addItemToGroup, {itemId:tuneObj.id, itemType: ITEM_TYPE_TUNE, redirect:'/tunes'});
+			groups.addItem("Add To New Group...", addItemToGroup, {itemId:tuneObj.id, itemType: ITEM_TYPE_TUNE});
 		}
 		
 		ctxMenu.addItem("Favorite Item", favoriteItem, tuneObj);
@@ -762,7 +760,7 @@ function addGroupContextMenu(elem){
 		ctxMenu.addItem("Rename Group...", renameGroup, groupId);
 		ctxMenu.addItem("Copy Group...", copyGroup, groupId);
 		
-		var label = (elem.getAttribute("status") & STATUS_BIT_ARCHIVED) ? "Unarchive Group" : "Archive Group";
+		var label = (groupsArr[groupId].status & STATUS_BIT_ARCHIVED) ? "Unarchive Group" : "Archive Group";
 		ctxMenu.addItem(label, flagUnflag, 
 				{itemId:groupId, itemType:ITEM_TYPE_GROUP, bit:STATUS_BIT_ARCHIVED});
 		
@@ -827,8 +825,7 @@ function removeFromGroupByType(obj){
 			return
 	
 	doRorLink("group_items/delete/" + obj.groupId + '/' + itemableTypeFromItemType(obj.itemType),
-			'delete',
-			{name:'redirect', value:'/groups'});
+			'delete');
 }
 
 function groupTunesIntoSet(containerElem){
@@ -922,8 +919,7 @@ function groupSetsReorderCallback(ro){
 	
 	doRorLink('group_items/update', 
 		'put', 
-		{name:'reorder_ids', value:ro.getCurrentOrder()}, 
-		{name:'redirect', value:'/tune_sets'});
+		{name:'reorder_ids', value:ro.getCurrentOrder()});
 
 }
 
@@ -941,8 +937,7 @@ function renameGroup(groupId){
 	doRorLink('groups/update/' + groupId, 
 			'put', 
 			{name:'group[title]', value:newName}, 
-			{name:'group[id]', value:groupId}, 
-			{name:'redirect', value:'/groups'});
+			{name:'group[id]', value:groupId});
 		
 }
 
@@ -966,13 +961,12 @@ function favoriteItem(itemObj){
 	doRorLink('favorites/add',
 		'post',
 		{name:'favorite[itemable_id]', value:itemObj.id},
-		{name:'favorite[itemable_type]', value:itemableTypeFromItemType(itemObj.itemType)},
-		{name:'redirect', value:'/home'})
+		{name:'favorite[itemable_type]', value:itemableTypeFromItemType(itemObj.itemType)})
 }
 
 function removeFavorite(favObjId){
 	var favObj = favoritesArr[favObjId];
-	doRorLink('/favorites/delete/' + favObjId, 'delete', {name:'redirect', value:'/home'});
+	doRorLink('/favorites/delete/' + favObjId, 'delete');
 	
 }
 
@@ -995,8 +989,7 @@ function ctxEmailGroup(groupId){
 function removeGroup(groupId){
 if(confirm("Are you sure? This cannot be undone."))	
 	doRorLink('groups/delete/'+groupId,
-		'delete',
-		{name:'redirect', value:'/groups'}
+		'delete'
 	);
 }
 
@@ -1013,8 +1006,7 @@ function unflagGroupItems(obj){
 	
 	doRorLink('/groups/unflag_items/'+obj.groupId+'/'+itemableTypeFromItemType(obj.itemType), 
 		'put', 
-		{name:"setIds", value:str},
-		{name:'redirect', value:'/groups'}
+		{name:"setIds", value:str}
 		);
 }
 
@@ -1190,8 +1182,7 @@ function editResourceTitle(resObj){
 	if(newTitle){
 		doRorLink('/resources/update/' + resObj.id, 'put', 
 			{name:'resource[id]', value:resObj.id}, 
-			{name:'resource[title]', value:newTitle}, 
-			{name:'redirect', value:'/resources'}
+			{name:'resource[title]', value:newTitle}
 		)
 	}
 }
@@ -1269,7 +1260,7 @@ function newGroup(){
 		return false;
 	}
 	
-	doRorLink('groups/add', 'post', {name:'group[title]', value:title},{name:'redirect', value:'/groups'});
+	doRorLink('groups/add', 'post', {name:'group[title]', value:title});
 	
 }
 
@@ -1337,7 +1328,7 @@ function makeSetContextMenu(event){
 		else
 			groups.addItem(groupsArr[i].title, 
 						addItemToGroup, 
-						{itemId: setId, itemType: ITEM_TYPE_SET, groupId:groupsArr[i].id, redirect:'/tune_sets'});
+						{itemId: setId, itemType: ITEM_TYPE_SET, groupId:groupsArr[i].id});
 						
 	}
 	groups.addSeparator();
@@ -1356,16 +1347,14 @@ function makeSetContextMenu(event){
 							addItemToGroup, 
 							{itemId: setId, itemType: ITEM_TYPE_SET, 
 								groupId:groupsArr[i].id, 
-								removeFromGroupId: groupId,
-								redirect:'/tune_sets'});
+								removeFromGroupId: groupId});
 			else
 				move.addItem(groupsArr[i].title); // inactive
 		}
 		move.addSeparator();
 		move.addItem('Move To New Group...', addItemToGroup, 
 							{itemId: setId, itemType: ITEM_TYPE_SET,
-							removeFromGroupId: groupId,
-							redirect:'/tune_sets'});
+							removeFromGroupId: groupId});
 		
 		
 		ctxMenu.addItem("Remove From Group", 
@@ -1390,11 +1379,9 @@ function makeSetContextMenu(event){
 function flagUnflag(obj){
 	
 	var controller = itemableTypeFromItemType(obj.itemType, true)
-	
 	doRorLink(controller+'/toggle_status/' + obj.itemId + '/' + obj.bit,
 		'put',
-		{name:'status_bit', value:1},
-		{name:'redirect', value:'/tune_sets'});
+		{name:'status_bit', value:1});
 
 }
 
@@ -1431,13 +1418,13 @@ function itemableTypeFromItemType(itemType, asPathName){
 }
 
 
-// obj: {itemId, itemType, groupId, redirect, newGroupName}
+// obj: {itemId, itemType, groupId, newGroupName}
 function addItemToGroup(obj){
 
 	var itemId = obj.itemId; // id of the item (tune, set, etc)
 	var itemType = obj.itemType;
 	var groupId = parseInt(obj.groupId); // id of group we're adding the set to (if 0 means it's a group to be created
-	var redirect = obj.redirect;
+	
 	var removeFromGroupId = parseInt(obj.removeFromGroupId); // means we're moving a set (if not 0)
 	
 	// add to existing group
@@ -1447,8 +1434,7 @@ function addItemToGroup(obj){
 			'post', 
 			{name:'group_item[itemable_id]', value:itemId}, 
 			{name:'group_item[itemable_type]', value:itemableTypeFromItemType(itemType)},
-			{name:'group_item[group_id]', value:groupId},
-			{name:'redirect', value:redirect}
+			{name:'group_item[group_id]', value:groupId}
 			);
 	}
 	
@@ -1463,8 +1449,7 @@ function addItemToGroup(obj){
 				'post',
 				{name:'group_item[itemable_id]', value:itemId}, 
 				{name:'group_item[itemable_type]', value:itemableTypeFromItemType(itemType)},
-				{name:'group[title]', value:newGroupName},
-				{name:'redirect', value:redirect}
+				{name:'group[title]', value:newGroupName}
 				);
 	}
 	
@@ -1476,8 +1461,7 @@ function addItemToGroup(obj){
 			{name:'group_item[itemable_id]', value:itemId}, 
 			{name:'group_item[itemable_type]', value:itemableTypeFromItemType(itemType)},
 			{name:'group_item[group_id]', value:removeFromGroupId},
-			{name:'to_group_id', value:groupId},
-			{name:'redirect', value:redirect}
+			{name:'to_group_id', value:groupId}
 			);
 	}
 	
@@ -1492,8 +1476,7 @@ function addItemToGroup(obj){
 			{name:'group_item[itemable_id]', value:itemId}, 
 			{name:'group_item[itemable_type]', value:itemableTypeFromItemType(itemType)},
 			{name:'group_item[group_id]', value:removeFromGroupId},
-			{name:'new_group_title', value:newGroupName},
-			{name:'redirect', value:redirect}
+			{name:'new_group_title', value:newGroupName}
 			);
 		
 	}
@@ -1501,12 +1484,10 @@ function addItemToGroup(obj){
 
 //obj {itemId: , itemType:, groupId:}
 function removeItemFromGroup(obj){
-	var redirect = typeof obj.redirect != 'undefined' ? obj.redirect  : '/groups'
 	doRorLink('group_items/delete/'+obj.groupId, 'delete', 
 			{name:'group_item[group_id]', value:obj.groupId}, 
 			{name:'group_item[itemable_id]', value:obj.itemId},
-			{name:'group_item[itemable_type]', value:itemableTypeFromItemType(obj.itemType)}, 
-			{name:'redirect', value:redirect}
+			{name:'group_item[itemable_type]', value:itemableTypeFromItemType(obj.itemType)}
 			);
 			
 }
@@ -1516,8 +1497,8 @@ function setEditCallback(obj){
 
 	doRorLink('tune_sets/update/'+ obj.setId, 
 			'put', 
-			{name:'tune_set[tuneIds]', value:obj.getCurrentOrder()},
-			{name:'redirect', value:'/tune_sets'});
+			{name:'tune_set[tuneIds]', value:obj.getCurrentOrder()}
+			);
 }
 
 function showSetEditDlg(id, event){
@@ -1545,7 +1526,7 @@ function showSetEditDlg(id, event){
 function deleteSet(id){
 	if(confirm("Are you sure you want to delete set "+id+"? This cannot be undone."))	
 	
-	doRorLink('/tune_sets/delete/'+id, 'delete', {name: 'redirect', value:'/sets'});
+	doRorLink('/tune_sets/delete/'+id, 'delete');
 }
 
 
