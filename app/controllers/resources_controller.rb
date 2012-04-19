@@ -5,6 +5,12 @@ class ResourcesController < ApplicationController
   end
 
   def add
+  	resource = Resource.new(params[:resource])
+  	if resource.save
+  		resource.tunes << Tune.find_by_id(params[:tune_id])
+  		Item.create(:itemable_id=>resource.id, :itemable_type=>'Resource', :user_id=>session[:user_cookie])
+  	end
+  	render :json => resource
   end
 
   def update
@@ -20,7 +26,7 @@ class ResourcesController < ApplicationController
   	redirect_to '/resources'
   end
   
-  def searchyoutube
+  def search_youtube
   	@resource = Resource.new
   end
 end

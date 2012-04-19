@@ -1,6 +1,7 @@
 
 <script type="text/javascript">
 
+
 	function addResourceOptions(tuneId){
 			
 		try{
@@ -24,7 +25,7 @@
 			
 			switch(tool.id){
 				case "newResource":
-					srcArr.push(["youtube", "/resources/searchyoutube", "keywords=" + tuneTitle + "+irish+music"]);
+					srcArr.push(["youtube", "/resources/search_youtube", "keywords=" + tuneTitle + "+irish+music"]);
 					srcArr.push(["thesession.org", "searchmp3page.php", "url=http://thesession.org"]);
 					srcArr.push(["comhaltas.ie", "searchmp3page.php", "url=http://comhaltas.ie"]);
 					srcArr.push(["doug lowder's page", "searchmp3page.php", "url=http://douglowder.com/PloughRecordings/"]);
@@ -52,7 +53,7 @@
 				var loc = {action:srcArr[i][1], params:[]}
 				
 				if(tuneId){
-					loc.params.push({name:"tuneId", value:tuneId});
+					loc.params.push({name:"tune_id", value:tuneId});
 				}
 				
 				for(var j=2; j < srcArr[i].length; j++){
@@ -79,10 +80,9 @@
 		var data = $(getRorLinkForm.apply(this, arr)).serialize();
 		
 		// get search results via ajax
-		$.post('/resources/searchyoutube', 
+		$.post(options.action, 
 			data,
 			function(resp){
-			
 			
 				var frameBox = getToolElementByName(clickedElem, "frameBox");
 				var frame = getToolElementByName(clickedElem, "searchFrame");
@@ -132,51 +132,6 @@
 	}
 
 
-	// save resource via ajax
-	function saveResourceLink(url, title, type, source, tuneId){
-		if(typeof(title) == 'undefined')
-			title = "";	
-			
-		title = title.replace(/^\s\s*/, '').replace(/\s\s*$/, '');
-			
-		var promptCaption = "";
-		promptCaption = (title == "" ? 
-			"Could not get a title. Enter a title" : 
-			"Edit title or click to save:");
-			
-		title = prompt(promptCaption, title);
-		
-		if(title == null)
-			return;
-
-		//ajax
-		var loc = "ajax.php?action=saveResource&retPage=none"+
-				"&resourceType="+type+
-				"&title="+escape(title)+
-				"&url=" + url +
-				"&source=" + source;
-				
-				
-		if(typeof(tuneId) != 'undefined')
-			loc += "&tuneId="+tuneId;
-			
-		$.get(loc, function(respText){
-				var pairs = respText.split("&");
-				var arr = new Array();
-				for(i in pairs)
-					arr[pairs[i].split("=")[0]] = pairs[i].split("=")[1];
-				
-				var res = new ResourceItem(arr["id"], arr["tuneId"], parseInt(arr["resourceType"]), unescape(arr["title"]).replace(/\+/g, " "), unescape(arr["url"]), 
-					arr["localFile"], arr["comments"], arr["entryDate"], arr["priority"]);
-				
-				alert("resource link saved.");
-				if(typeof(appendResource) != 'undefined'){
-					appendResource(res);
-				}
-			}
-		);
-		
-	}
 
 </script>
 
@@ -204,3 +159,7 @@
 		</tr>
 	</table>				
 </div>
+
+
+
+

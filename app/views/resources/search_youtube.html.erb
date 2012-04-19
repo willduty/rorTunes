@@ -2,6 +2,7 @@
 
 <script>
 	function showClip(elem){
+		stopShow();
 		var form = $(elem).parents('form')
 		var youtube_id = youtubeIdFromElem(elem)
 		
@@ -13,17 +14,20 @@
 		form.find('[name=thumbnail]').hide()
 	}
 	
-	function stopShow(elem){
+	function stopShow(){ // stop running clip and restore thumbnail 
 		$("#showBox")
 			.find("[name=embedBox]").first().html("")
 			.end().end()
 			.hide()
-		$(elem).parents('form').find('[name=thumbnail]').show()
+			.parents('form').find('[name=thumbnail]').show();
 	}
 	
 	function saveResource(elem){
 		var youtube_id = youtubeIdFromElem(elem)
-		alert(youtube_id)
+		var ser_form = $(elem).parents('form').serialize();
+		$.post('/resources/add', ser_form, function(resp){
+			alert( (!isNaN(resp.id)) ? 'resource saved' : 'save failed');
+		})
 	}
 	
 	function youtubeIdFromElem(elem){
@@ -62,9 +66,12 @@ begin
 		
 		form = form_for @resource do |f|
 			
-			
-			concat f.hidden_field :youtube_id, {:name=>'youtube_id', :type=>'hidden', :value=>entry.elements['id'].text}
-			
+			youtube_id = entry.elements['id'].text.split(':').last
+			concat f.hidden_field :youtube_id, {:name=>'youtube_id', :value=>youtube_id}
+			concat f.hidden_field :tune_id, {:name=>'tune_id', :value=>params[:tune_id]}
+			concat f.hidden_field :title, {:value=>entry.elements['title'].text}
+			concat f.hidden_field :url, {:value=>'http://www.youtube.com/embed/' + youtube_id}
+			concat f.hidden_field :resource_type, {:value=>11} # todo get this value into config as RESOURCE_TYPE_YOUTUBE
 			
 			concat simple_format(entry.elements['title'].text, {:class=>'info black', :name=>'title'})
 	
@@ -72,7 +79,7 @@ begin
 			REXML::XPath.each(entry, 'media:group/media:thumbnail') do |tn| 
 				if(tn.attributes['yt:name'] == 'default')
 					concat image_tag tn.attributes['url'], 
-						{:onclick=>'showClip(this)', :name=>'thumbnail'}
+						{:onclick=>'showClip(this)', :name=>'thumbnail', :class=>'pointer'}
 				end
 			end
 	
