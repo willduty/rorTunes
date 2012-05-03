@@ -34,6 +34,21 @@ class UsersController < ApplicationController
   	end
   end
 
+  def change_password
+  	user = User.find_by_id(session[:user_cookie])
+  	if(params[:old_password] != user.password)
+  		flash[:error] = 'The current password you entered is invalid'
+  		redirect_to params[:redirect]
+  	else
+	  	user.password = params[:new_password] 
+	  	if user.save 
+	  		flash[:notice] = 'new password saved'
+	  	end 
+	  	redirect_to params[:redirect]
+  	end
+  	
+  end
+
   def delete 
   end
   

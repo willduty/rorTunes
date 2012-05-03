@@ -787,17 +787,24 @@ function addGroupSubHdrContextMenu(elem){
 			var _this = this;
 			ctxMenu.addItem("Develop sets from these tunes...", function(tunesDiv){
 				function setDevCallback(setsArr, groupId){
-					doAction("saveNewSets", 
-						"tuneIds", setsArr.join(escape("&")),
-						"groupId", groupId);
+				
+					var arr = ['/tune_sets/add_new_sets_to_group', 'post']
+					for(var i in setsArr)	
+						arr.push({name:"set[][tuneIds]", value:setsArr[i]})
+					
+					arr.push({name:"group[id]", value:groupId})
+					doRorLink.apply(this, arr )
+					
 				}
+				
+				// launch setDeveloper tool
 				var developer = new setDeveloper(setDevCallback, _this.getAttribute("groupId"));
 				$(tunesDiv).find('div[itemId][itemType='+ITEM_TYPE_TUNE+']').each(function(){
 					developer.addTune(tunesArr[$(this).attr("itemId")])
 					})
 				developer.show();
+				
 			}, CBParentElement(this));
-			
 		}
 		
 		
@@ -814,6 +821,7 @@ function addGroupSubHdrContextMenu(elem){
 		return false;
 	}
 }
+
 
 function removeFromGroupByType(obj){
 	var count = groupsArr[obj.groupId].getItemsByType(obj.itemType).length;

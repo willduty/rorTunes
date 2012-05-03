@@ -22,6 +22,8 @@ class SessionController < ApplicationController
 	  			Check for an email from users@mytunespage.com and see the reply instructions.'
 	  	else
 	  		#set up session
+	  		@user.lastLogin = Date.today 
+	  		@user.save
 	  		session[:user_cookie] = @user.id
 	  		redirect_to '/home'
 	  		return

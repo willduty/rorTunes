@@ -23,6 +23,7 @@ get "tune_sets/index"
 post "tune_sets/add"
 put 'tune_sets/toggle_status/:id/:status_bit', :to=>'tune_sets#toggle_status'
 put 'tune_sets/update/:id', :to=>'tune_sets#update'
+post 'tune_sets/add_new_sets_to_group'
 delete "tune_sets/delete/:id", :to => "tune_sets#delete"
 match "tune_sets", :to=>"tune_sets#index"
 
@@ -42,6 +43,7 @@ delete "group_items/delete/:group_id/:type", :to =>"group_items#delete"
 
 get "users/index"
 post "users/add"
+put "users/change_password"
 delete "users/delete"
 match "home", :to=>"users#index"
 match "register", :to=>"users#new"

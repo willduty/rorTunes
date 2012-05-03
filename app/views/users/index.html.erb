@@ -7,6 +7,8 @@
 
 <script type="text/javascript">
 
+<%= system `ls`	%>
+
 <%= render 'layouts/data' %>
 <%
 =begin
@@ -59,9 +61,8 @@ function changePassword(){
 		return;
 	}
 
-	doAction("changePassword",
-			"oldPwd", oldPwd,
-			"newPwd", newPwd1);
+	doRorLink('/users/change_password', 'put', {name:"old_password", value:oldPwd},{name:"new_password", value:newPwd1});
+
 }
 
 window.onload = function(){
@@ -73,11 +74,9 @@ window.onload = function(){
 	if(favoritesArr.length){
 		removePlaceholder(favBox);
 		for(var i in favoritesArr){
-//try{			
-//	alert(i+ " here")
+
 			var div = createItemElement(favoritesArr[i], ITEM_TYPE_FAVORITE, null, true);
 	
-//	}catch(e){alert(e)}
 			var favItem = favoritesArr[i];
 			div.oncontextmenu = function(e){
 				var cm = new ContextMenu();
@@ -165,6 +164,7 @@ window.onload = function(){
 			</td>
 		</tr>
 	</table>
+				
 	<table id=maintable class=maintable width=600 cellpadding=0 cellspacing=0 align=center>
 		
 		<tr>
@@ -173,7 +173,8 @@ window.onload = function(){
 				<table>
 					<tr>
 						<td width=95 class="toolheader">Tunes Home</td>
-						<td class="info white"></td>
+						<td class="info white">
+						</td>
 					</tr>
 				</table>	
 			</td>
@@ -182,7 +183,14 @@ window.onload = function(){
 		<tr>
 			<td class=info valign=top height=100%>
 
-
+				<% if flash[:error] %>
+					<div class=flash>! <%= flash[:error] %></div><br>
+				<% end %>
+				
+				<% if flash[:notice] %>
+					<div class=flashInfo>! <%= flash[:notice] %></div><br>
+				<% end %>
+	
 
 				
 				<!-- content table -->
@@ -216,7 +224,7 @@ window.onload = function(){
 							<div class=infohdr>Account</div>
 							<div class="item ltltgrayBkgd bubbleSection" style="width:300;"  id=accountBox style="margin-left:10px">
 								
-								<div class=info style="margin-top:5">username: <span class=item><?php echo $_SESSION['userName']; ?></span></div>
+								<div class=info style="margin-top:5">username: <span class=item><%= @user.username %></span></div>
 								<div class=info>password: <span class=item><?php for($i=0;$i<$_SESSION['passwordLength'];$i++) echo "&#8226;"; ?></span>
 									<span onclick="showChangePassword();" class="info ltgray">[change password]</span>
 								</div>
@@ -231,14 +239,9 @@ window.onload = function(){
 									
 								</div>
 								
-								<div class=info>email: <span class=item><?php echo $_SESSION['email']; ?></span></div>
-								<div class=info>registered: <span class=item><?php 
-										
-										echo @date('M j, Y h:i A', strtotime($_SESSION['createDate']));
-										?></span></div>
-								<div class=info style="margin-bottom:5">last login: <span class=item><?php 
-										echo @date('M j, Y h:i A', strtotime($_SESSION['lastLogin'])); 
-									?></span></div>
+								<div class=info>email: <span class=item><%= @user.email %></span></div>
+								<div class=info>registered: <span class=item><%= @user.createDate.strftime('%m/%d/%Y %H:%M:%S') %></span></div>
+								<div class=info style="margin-bottom:5">last login: <span class=item><%= @user.lastLogin.strftime('%m/%d/%Y %H:%M:%S') %></span></div>
 								<div class="info white grayBkgd">&nbsp;<span>edit</span>&nbsp;&nbsp;|&nbsp;&nbsp;<span>close account</span></div>
 								
 							</div>
