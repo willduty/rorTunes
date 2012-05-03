@@ -5,8 +5,6 @@ class TunesController < ApplicationController
 	@tunes = Tune.find(:all, :include => [:keys, :tune_types])
 	@keys = Key.all
 	@newTune = Tune.new
-	
-	@google_html = HTTParty.get("http://google.com") #testing
   end
 
 
@@ -52,8 +50,17 @@ class TunesController < ApplicationController
   def delete
   	tune = Tune.find_by_id(params[:id])
   	item = Item.find_by_itemable_id_and_itemable_type(params[:id], 'Tune')
+  	
+  	fav = Favorite.find_by_item_id(item.id, 'Favorite')
+  	unless fav.nil?
+	  	favitem = Item.find_by_itemable_id_and_itemable_type(fav.id, 'Favorite')
+	  	fav.destroy
+	  	favitem.destroy
+  	end
+  	
   	tune.destroy
   	item.destroy
+  	
   	redirect_to '/tunes'
   end
   

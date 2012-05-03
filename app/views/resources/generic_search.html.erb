@@ -1,0 +1,104 @@
+
+
+<script>
+	
+	var tuneId = <%= params[:tune_id] %>;
+	
+	
+	function saveResource(elem){
+		if(!confirm('save as resource? (cancel to follow link as usual)'))
+			return true;
+		
+		var rl = new RorLink();
+		var form = rl.getRorLinkForm('/resources/add', 'post', 
+					{name:'tune_id', value:tuneId},
+					{name:'resource[title]', value:elem.innerHTML},
+					{name:'resource[url]', value:elem.getAttribute('href')},
+					{name:'resource[resource_type]', value:11}
+					)
+		var ser_form = $(form).serialize();
+		
+		$.post('/resources/add', ser_form, function(resp){
+			alert( (!isNaN(resp.id)) ? 'resource saved' : 'save failed');
+		})
+		return false;
+	}
+	
+	function youtubeIdFromElem(elem){
+		var youtube_id = $(elem).parents('form').find('[name=youtube_id]').val().split(":")
+		return youtube_id[youtube_id.length - 1];
+	}
+	
+
+</script>
+
+<div id=showBox style='display:none;'>
+	<div name=embedBox></div>
+	<span class='info pointer' onclick='stopShow(this);'>close</span> | 
+	<span class='info pointer' onclick='saveResource(this);'>save this video link as resource</span>
+	
+</div>
+
+<%
+
+require 'open-uri'
+
+htmldoc = Nokogiri::HTML(open(params[:url]))
+
+as = htmldoc.css 'a'
+
+as.each do |a|
+	a['href'] = params[:url]  + a['href']
+	a['onclick'] = 'return saveResource(this);'
+end
+
+concat htmldoc.to_s.html_safe
+
+	
+%>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

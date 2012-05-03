@@ -381,7 +381,7 @@ function ResourceItem(nId, resourceType, title,
 
 
 
-//
+
 
 // a resource (link, sheetmusic file, video, audio files etc) associated with a tune.  
 function FavoriteItem(id, itemId, itemType){

@@ -547,13 +547,15 @@ function createItemElement(itemObj, itemType, groupId, useLabel, tag){
 			break;
 
 		case ITEM_TYPE_FAVORITE:
-	
+	try{
+		
 			var favoritedItem = getItemByIdAndType(itemObj.itemId, itemObj.itemType);
+	//	alert(itemObj.itemId+","+ itemObj.itemType)
 			elem = createItemElement(favoritedItem, itemObj.itemType, null, true);
 			elem.setAttribute("itemId", itemObj.id);
 			elem.setAttribute("favoritedItemId", itemObj.itemId);
 			
-			
+		}catch(e){alert(e)}	
 			break;
 			
 		case ITEM_TYPE_NOTE:
@@ -579,44 +581,40 @@ function deleteTune(tuneId){
 
 
 
+
+
 function doRorLink(url, method){
+	var rl = new RorLinkWRedirect();
+	RorLinkWRedirect.prototype.doRorLink.apply(this, Array.prototype.slice.call(arguments))
+}
+
+
+// inherits from RorLink, adds a redirect based on name of page  
+function RorLinkWRedirect(){
+}
+
+RorLinkWRedirect.prototype = new RorLink;
+RorLinkWRedirect.prototype.constructor = RorLinkWRedirect;
+
+RorLinkWRedirect.prototype.doRorLink = function(url, method /* , args */){
 
 	// check for redirect
-	var b = false; arr = [arguments[0], arguments[1]];
+	// add redirect to this page as argument if not specified
+	var b = false, arr = Array.prototype.slice.call(arguments);
 	for(var i=2; i<arguments.length; i++){
 		if(arguments[i].name == 'redirect')
 			b = true;
-		arr.push(arguments[i])
 	}
 	
-	// add redirect to this page as argument if not specified
 	if(!b)
 		arr.push({name:'redirect', value:'/'+getCurrentPage()})
-		
-	var form = getRorLinkForm.apply(this, arr)
 	
-	// go
-	$(form).appendTo(document.body).submit();
 	
+	// add redirect,  call super
+	RorLink.prototype.doRorLink.apply(this, arr);
 }
 
 
-function getRorLinkForm(url, method){
-
-	// create form with "indicated" method 
-	var form = $("<form method=post action='"+url+"'><input type=hidden name=_method value='"+method+"' />"+
-		"<input type=hidden name=authenticity_token value='"+$('[name=csrf-token]').attr('content') + "' /></form>")
-	
-	// additional data fields
-	for(var i=2; i<arguments.length; i++){
-		var val = arguments[i].value.toString().replace(/\"/g, "&quot;");
-		form.append("<input type=hidden name='"+arguments[i].name+"' value=\""+val+"\"></input>")
-	}
-		
-	return form.get(0);
-}
-
-	
 
 function addTuneContextMenu(elem, tuneObj){
 	

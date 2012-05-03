@@ -29,4 +29,11 @@ class ResourcesController < ApplicationController
   def search_youtube
   	@resource = Resource.new
   end
+  
 end
+
+
+class Myparser
+	include HTTParty
+end
+

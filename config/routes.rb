@@ -12,6 +12,8 @@ match "tunes", :to =>"tunes#index"
 
 get "resources/index"
 get "resources/search_youtube"
+get "resources/generic_search"
+
 post "resources/add"
 put "resources/update/:id", :to=>'resources#update'
 delete "resources/delete/:id", :to=>'resources#delete' 

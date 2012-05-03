@@ -769,8 +769,8 @@ function Grid(container, options){
 		if(_this.colResizeInProgress){
 			var hdr1obj = _this.columnsArr[_this.resizeDragIdx];
 			var hdr2obj = _this.columnsArr[Number(_this.resizeDragIdx) + 1];
-			hdr1obj.width = parseInt(hdr1obj.cell.offsetWidth - _this.hdrCellBorder*2) + 'px';
-			hdr2obj.width = parseInt(hdr2obj.cell.offsetWidth - _this.hdrCellBorder*2) + 'px';
+			hdr1obj.width = parseInt(hdr1obj.cell.offsetWidth - _this.hdrCellBorder*2);
+			hdr2obj.width = parseInt(hdr2obj.cell.offsetWidth - _this.hdrCellBorder*2);
 			_this.colResizeInProgress = false;
 			_this.resizeDragIdx = -1;
 		}

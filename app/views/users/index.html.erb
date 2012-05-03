@@ -65,16 +65,19 @@ function changePassword(){
 }
 
 window.onload = function(){
-	
+
 	setNavbarSelected();
 		
 	// favorites
 	var favBox = document.getElementById("favoritesBox");
 	if(favoritesArr.length){
 		removePlaceholder(favBox);
-		
 		for(var i in favoritesArr){
+//try{			
+//	alert(i+ " here")
 			var div = createItemElement(favoritesArr[i], ITEM_TYPE_FAVORITE, null, true);
+	
+//	}catch(e){alert(e)}
 			var favItem = favoritesArr[i];
 			div.oncontextmenu = function(e){
 				var cm = new ContextMenu();
@@ -87,7 +90,6 @@ window.onload = function(){
 		
 		
 	}
-	
 	
 	// latest
 	var arr = [tunesArr, resourcesArr, setsArr, groupsArr];

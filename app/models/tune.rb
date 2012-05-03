@@ -4,7 +4,8 @@ class Tune < ActiveRecord::Base
 	has_and_belongs_to_many :resources
 	has_many :other_titles, :dependent=>:destroy
 	
-	belongs_to :user
+#	has_and_belongs_to_many :users, :join_table => :items, :foreign_key => 'itemable_id',
+#			:conditions => proc { ["items.itemable_type = ?", "Tune"] }
 	
 	accepts_nested_attributes_for :keys, :tune_types
 	

@@ -26,9 +26,9 @@
 			switch(tool.id){
 				case "newResource":
 					srcArr.push(["youtube", "/resources/search_youtube", "keywords=" + tuneTitle + "+irish+music"]);
-					srcArr.push(["thesession.org", "searchmp3page.php", "url=http://thesession.org"]);
-					srcArr.push(["comhaltas.ie", "searchmp3page.php", "url=http://comhaltas.ie"]);
-					srcArr.push(["doug lowder's page", "searchmp3page.php", "url=http://douglowder.com/PloughRecordings/"]);
+					srcArr.push(["thesession.org", "/resources/generic_search", "url=http://thesession.org"]);
+					srcArr.push(["comhaltas.ie", "/resources/generic_search", "url=http://comhaltas.ie"]);
+					srcArr.push(["doug lowder's page", "/resources/generic_search", "url=http://douglowder.com/PloughRecordings/"]);
 					srcArr.push(["flute geezers", "searchmp3page.php", "url=http://www.lafferty.ca/music/irish/flute-geezers/"]);
 					srcArr.push(["irishflute.podbean.com", "searchmp3page.php", "url=http://irishflute.podbean.com/"]);
 					srcArr.push(["tradlessons", "searchmp3page.php", "url=http://tradlessons.com/"]);
@@ -77,13 +77,13 @@
 		for(var i in options.params)
 			arr.push(options.params[i])
 	
-		var data = $(getRorLinkForm.apply(this, arr)).serialize();
+		var data = $(RorLink.prototype.getRorLinkForm.apply(this, arr)).serialize();
+	
 		
 		// get search results via ajax
 		$.post(options.action, 
 			data,
-			function(resp){
-			
+			function(resp){	
 				var frameBox = getToolElementByName(clickedElem, "frameBox");
 				var frame = getToolElementByName(clickedElem, "searchFrame");
 
@@ -136,7 +136,7 @@
 </script>
 
 <div>
-	<table id=newResource class=toolContainer name=toolContainer width=100%>
+	<table id=newResource class=toolContainer name=toolContainer width=100% style='display:none;'>
 		<tr>
 			<td height=60 class=toolheader>
 				New Resource<br>

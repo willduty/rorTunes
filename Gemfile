@@ -11,6 +11,8 @@ gem 'json'
 
 gem "httparty"
 
+gem "nokogiri"
+
 
 
 group :production do
