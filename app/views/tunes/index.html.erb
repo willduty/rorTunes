@@ -290,8 +290,9 @@ function getFilters(){
 
 
 function addToSet(){
+	
 	var bl = document.getElementById("newSetList");
-	var op = new Option(gTuneList.selectedItem.innerHTML, gTuneList.selectedItem.id);
+	var op = new Option(tunesArr[gTuneList.selectedItem.id].title, gTuneList.selectedItem.id);
 	bl.options[bl.options.length] = op;
 	
 }
@@ -566,10 +567,9 @@ try{
 										</tr>
 									</table>
 									<br>
-									<%= nt.submit %>
-									<%= nt.button 'cancel' %>
+									<%= nt.submit :type=>'submit' %>
+									<%= nt.submit 'cancel', {:type=>'button', :name=>'toolCancel'} %>
 									 
-									<span class="info cancel pointer" id=btn1 name=toolCancel>cancel</span>
 									<% end %>
 								</td>
 							</tr>					

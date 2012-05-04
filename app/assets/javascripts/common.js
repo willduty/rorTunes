@@ -280,9 +280,9 @@ function showPad(padtype, targetElem, callback, event){
 			break;
 			
 		case "activity":
-				pad.addItem('i know', STATUS_ACTIVE, false);
+				pad.addItem('learnt', STATUS_ACTIVE, false);
 				pad.addItem('to learn', STATUS_INACTIVE, false);
-				pad.addItem('both', STATUS_ACTIVE|STATUS_INACTIVE, false);
+				pad.addItem('all', STATUS_ACTIVE|STATUS_INACTIVE, false);
 			break;
 	}
 	pad.show(event);
