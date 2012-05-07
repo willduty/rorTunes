@@ -105,7 +105,7 @@ function validateTuneTitle(str){
 function setUpPadSwitches(){
 	
 	$('[padSwitch]').click(function(e){
-		// not great way to do this pad callbacks must be global.
+		// not great way to do this: pad callbacks must be global.
 		// but better than eval... TODO
 		showPad($(this).attr('padSwitch'), $(this).get(0), window[$(this).attr('padCallback')], e);
 	})

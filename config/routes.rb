@@ -26,6 +26,7 @@ delete "group_items/delete/:group_id/:type", :to =>"group_items#delete"
 
 post "users/add"
 put "users/change_password"
+put "users/update_user_settings"
 delete "users/delete"
 match "home", :to=>"users#index"
 match "register", :to=>"users#new"
