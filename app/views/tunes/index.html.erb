@@ -199,8 +199,8 @@ function showGrid(){
 	var selectedTuneIdx = tuneId;
 
 	// get a sorted copy of tunesArr
-	var tunesArrSorted = getFilteredTunesList()
-	
+	var tunesArrSorted = getFilteredTunesList();
+	setCount(tunesArrSorted);
 	
 	for(var i in tunesArrSorted){
 	
@@ -257,7 +257,6 @@ function showGrid(){
 		alert('showTunes(){} err: '+e)
 		}
 	
-	updateCount();
 }
 
 
@@ -317,10 +316,6 @@ function clearList(listId){
 }
 
 
-function updateCount(){
-	document.getElementById("tuneCount").innerHTML = gTuneList.getRowCount();
-}
-
 
 function submitMultiple(){
 	try{
@@ -377,7 +372,7 @@ function submitMultiple(){
 	
 	// todo show summary before submitting
 	
-	doRorLink('/tunes/add', 'post', {name:'tunes', value:json});
+	doRorLink('/tunes', 'post', {name:'tunes', value:json});
 
 	
 	}catch(e){"exception caught: "+alert(e.message)}
@@ -423,7 +418,7 @@ try{
 	gBtnMgr.setUpButtons();
 
 	// showTunes();
-	updateCount(); 
+	setCount(); 
 	
 	}catch(e){alert('Load Err: '+ e)}	
 }
@@ -459,7 +454,7 @@ try{
 							<table >
 								<tr>
 									<td width=95 class="toolheader">Tunes</td>
-									<td class="info white">Count: <span id=tuneCount></span></td>
+									<td class="info white">Count: <span id=count></span></td>
 								</tr>
 							</table>
 						</td>
@@ -523,7 +518,7 @@ try{
 							</tr>
 							<tr>
 								<td valign=top align=left class=infohdr>
-									<%= form_for @newTune, {:url=>{:action=>'add'}} do |nt| %>
+									<%= form_for @newTune, {:url=>{:action=>'create'}, :html=>{:method=>:post}} do |nt| %>
 									
 									<table border=0 class=bubbleSectionTool>
 										<tr>
@@ -588,7 +583,7 @@ try{
 										<tr><td class='bubbleSectionTool'>
 											<div height=10 class='plainText white'>To add multiple tunes add a line-separated list of tunes. 
 												<br><span class='copper'>more info&raquo;</span></div>
-											<textarea id=addMultipleBox rows=10 cols=30 clearOnCancel></textarea>
+											<textarea id=addMultipleBox rows=15 cols=40 clearOnCancel></textarea>
 										</td></tr>
 										<tr>
 											<td align=left>

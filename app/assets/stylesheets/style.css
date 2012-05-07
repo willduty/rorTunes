@@ -62,8 +62,27 @@ option {color:#333;
 
 .groovedbox {border-style:groove; border-width:2px;}
 .indentedbox {margin-left:5px;}
+.indent20 {margin-left:20px;}
+.indent40 {margin-left:40px;}
 
-#contentarea {width:340px; background-color:white;}
+.settingsSection{margin-left:20px;}
+
+.settingsSection span.label {
+	color:gray; 
+	font:bold 13px helvetica;
+}
+
+.settingsSection span {
+	color:#ca4;
+	font:normal 12px helvetica; 
+	text-decoration:none;
+}
+
+
+#contentarea {
+	width:340px; 
+	background-color:white;
+}
 
 
 .pointer {cursor:pointer;}
@@ -72,6 +91,7 @@ option {color:#333;
 .whiteBkgd {background-color:white;}
 .black {color:black;}
 .blackBkgd{background-color:black;}
+.darkgray {color:#333}
 .gray {color:#666;}
 .grayBkgd {background-color:#666;}
 .ltgray {color:#888;}

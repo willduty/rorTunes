@@ -239,6 +239,14 @@ function GroupItem(nId, strTitle, status, priority, entryDate){
 		return false;
 	}
 	
+	this.isArchived = function(){
+		return this.status & STATUS_BIT_ARCHIVED; 
+	}
+	
+	this.isNotArchived = function(){
+		return this.status & STATUS_BIT_ARCHIVED ^ STATUS_BIT_ARCHIVED; 
+	}
+	
 	
 	// checks if group contains a specific item
 	this.getSetsWithTune = function(tuneId){

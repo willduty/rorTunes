@@ -25,7 +25,7 @@
 	function saveResource(elem){
 		var youtube_id = youtubeIdFromElem(elem)
 		var ser_form = $(elem).parents('form').serialize();
-		$.post('/resources/add', ser_form, function(resp){
+		$.post('/resources', ser_form, function(resp){
 			alert( (!isNaN(resp.id)) ? 'resource saved' : 'save failed');
 		})
 	}
@@ -67,8 +67,11 @@ begin
 		form = form_for @resource do |f|
 			
 			youtube_id = entry.elements['id'].text.split(':').last
+			
 			concat f.hidden_field :youtube_id, {:name=>'youtube_id', :value=>youtube_id}
-			concat f.hidden_field :tune_id, {:name=>'tune_id', :value=>params[:tune_id]}
+			
+			concat f.hidden_field :tune_id, {:name=>'tune_id', :value=>params[:tune_id]} if params.has_key?('tune_id') 
+			
 			concat f.hidden_field :title, {:value=>entry.elements['title'].text}
 			concat f.hidden_field :url, {:value=>'http://www.youtube.com/embed/' + youtube_id}
 			concat f.hidden_field :resource_type, {:value=>11} # todo get this value into config as RESOURCE_TYPE_YOUTUBE

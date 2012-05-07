@@ -4,23 +4,9 @@
 
 <%= render 'layouts/data' %>
 
-var TOOL_NEW_SET = 1;
-var TOOL_NEW_SET_MANUAL = 2;
-var TOOL_SEARCH_SETS = 3;
-
-
-function getReturnPageParams(){
-	var arr = new Array();
-	try{
-		arr.push("contentScroll=" + getContentArea().scrollTop);
-	}catch(e){}
-	return arr;
-}
-
 function getContentArea(){
 	return document.getElementById("contentarea");
 }
-
 
 function scrollContentArea(){	
 	if(scrollPoint = getRequestParam("contentScroll")){
@@ -148,8 +134,7 @@ function showByTune(){
 			// append the tune title div
 			var tune = createTitleDiv(tunesArr[i].title, i);
 			tune.style.fontSize = "12px";
-			tune.style.backgroundColor = "eeeeee";
-			
+			tune.style.backgroundColor = "#eee";
 			tune.setAttribute("tuneId", tunesArr[i].id);
 			tune.onclick = function(){
 				location = "tune.php?tuneId=" + this.getAttribute("tuneId");
@@ -188,23 +173,20 @@ function clearContentArea(){
 		contentArea.removeChild(contentArea.firstChild)
 }
 
-function updateCount(){
-	for(var i in resourcesArr)
-	document.getElementById("resourceCount").innerHTML++;	
-}
-
 window.onload = function (){
-try{	
-	sizeContentArea();
-	setUpToolSwitches(); 
-	setNavbarSelected();
-	var btnMgr = new ButtonManager();
-	btnMgr.setUpButtons(); // this calls show resources
-	
-	updateCount(); 
-	scrollContentArea();
-	//addResourceOptions();
-}catch(e){alert(e)}	
+	try{	
+		sizeContentArea();
+		setUpToolSwitches(); 
+		setNavbarSelected();
+		var btnMgr = new ButtonManager();
+		btnMgr.setUpButtons(); // this calls show resources
+		
+		scrollContentArea();
+		addResourceOptions();
+		
+		setCount();
+		
+	}catch(e){alert(e)}	
 }
 
 </script>
@@ -237,7 +219,7 @@ try{
 							<table >
 								<tr>
 									<td width=95 class="toolheader">Resources</td>
-									<td class="info white">Count: <span id=resourceCount></span></td>
+									<td class="info white">Count: <span id=count></span></td>
 								</tr>
 							</table>
 						</td>

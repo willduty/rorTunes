@@ -1,5 +1,19 @@
 
 
+// sets a page element named "count" to the count of 
+// items in the items array, usually: page-name + "Arr"
+// or the arr param if sent
+function setCount(arr){
+	try{
+		if(typeof arr == 'undefined')
+			arr = gObjArrs[getCurrentPage()];
+		var ctr = 0;
+		for(var i in arr) 
+			ctr++;
+		$('#count').html(ctr)
+	}catch(e){}	
+}
+
 
 // gets the filename (no path) of the current page
 function getCurrentPage(){
@@ -81,142 +95,6 @@ function validateTuneTitle(str){
 
 
 
-function setUpToolSwitches(){
-	$('[name=toolButton]').each(function(){
-		$(this).get(0).onselectstart = function(){return false;}
-		$(this).click(function(){return switchToolArea($(this).get(0));})
-		$(document).find('#'+$(this).attr('tool')+' [name=toolCancel]').click(function(){
-			closeTool($(this).parents('[name=toolContainer]').get(0));
-		})
-	})
-	hideAllTools();
-}
-
-function switchToolArea(btn){
-		
-	var onBtnClass = "toolBtnOn";
-	var offBtnClass = "toolBtnOff";
-	// todo if btn is already on, hide the tool and return
-
-	var toolElem = document.getElementById(btn.getAttribute("tool"));
-	
-	if(btn.className == onBtnClass){
-		toolElem.style.display = "none";
-		btn.className = offBtnClass;
-		return;
-	}
-
-	var toolButtons = document.getElementsByName("toolButton");
-	for(i=0; i<toolButtons.length; i++){
-		toolButtons[i].className = (toolButtons[i] == btn) ? onBtnClass : offBtnClass;
-	}
-	
-	hideAllTools();
-
-	// full page tool
-	if(btn.getAttribute("fullPageTool") != null){
-		expandToolAnim(toolElem);
-	}
-	toolElem.style.display = "";
-	return false;
-}
-
-var gAnimStep = 7;
-function expandToolAnim(toolElem, fillToElem, posTool, step){
-
-	if(typeof(fillToElem) == 'undefined')
-		fillToElem = document.getElementById("maintable");
-	
-	var posFillTo = new objPos(fillToElem);
-	
-	// first time thru func set values for animation
-	if(typeof(step) == 'undefined'){
-		step = 1;
-		posTool = new objPos(CBParentElement(toolElem));
-		
-		$(toolElem).css({position:"absolute", display:'', 
-			left:posTool.left, top:posTool.top, 
-			width: CBParentElement(toolElem).offsetWidth, 
-			height: CBParentElement(toolElem).offsetHeight})
-		
-	}
-	
-	// do animation step
-	$(toolElem).css({
-		opacity: step/gAnimStep,
-		width: posTool.width + Math.round((posFillTo.width - posTool.width) * step/gAnimStep),
-		height: posTool.height + Math.round((posFillTo.height - posTool.height) * step/gAnimStep),
-		left: posTool.left - Math.round((posTool.left - posFillTo.left) * step/gAnimStep),
-		top: posTool.top - Math.round((posTool.top - posFillTo.top) * step/gAnimStep)})
-	
-	// if step is 1 we're done, else do again
-	if(step == gAnimStep)
-		return;
-	step++;
-	
-	// continue through animation until step == 1
-	setTimeout(function(){expandToolAnim(toolElem, fillToElem, posTool, step)}, 20);
-	
-}
-
-
-function switchOnToolByButton(id){
-	var btn = (typeof(id) == 'string') ? document.getElementById(id) : id;
-	if(document.getElementById(btn.getAttribute("tool")).style.display == "none")
-		switchToolArea(btn);
-}
-
-function switchOffToolByButton(id){
-	var btn = (typeof(id) == 'string') ? document.getElementById(id) : id;
-	if(document.getElementById(btn.getAttribute("tool")).style.display == "")
-		switchToolArea(btn);
-}
-
-
-function closeTool(toolId){
-	var tool = (typeof(toolId) == 'string') ? 
-		document.getElementById(toolId) : toolId;
-	
-	funcElementsByAttribute("clearOnCancel", tool, 
-		function(elem){
-			elem.innerHTML = "";
-			elem.value = "";
-			if(elem.tagName == "select"){
-				elem.options.length = 0;
-			}
-			// todo clear onoff button
-		});
-	
-	
-	funcElementsByAttribute("removeOnCancel", tool, 
-		function(elem){document.removeChild(elem);});
-	
-	funcElementsByAttribute("hideOnCancel", tool, 
-		function(elem){elem.style.display = "none";});
-			
-	funcElementsByAttribute("tool", document.body, switchOffToolByButton);
-	
-	tool.style.position = "relative";
-	tool.style.display = "none";
-	
-}
-
-
-function hideAllTools(){
-	// todo clear out eraseable child elements	
-	var toolContainers = new Array();
-	CBGetElementsByName("toolContainer", null, toolContainers);
-	
-	for(i=0; i<toolContainers.length; i++){
-		toolContainers[i].style.display = "none";		
-	}
-	
-	
-}
-
-// END TOOL LAYOUT FUNCTIONS
-
-
 
 
 
@@ -225,8 +103,11 @@ function hideAllTools(){
 
 
 function setUpPadSwitches(){
+	
 	$('[padSwitch]').click(function(e){
-		showPad($(this).attr('padSwitch'), $(this).get(0) , eval($(this).attr('padCallback')), e);
+		// not great way to do this pad callbacks must be global.
+		// but better than eval... TODO
+		showPad($(this).attr('padSwitch'), $(this).get(0), window[$(this).attr('padCallback')], e);
 	})
 }
 
@@ -338,7 +219,7 @@ function autoSuggestCallback(str, type){
 	str = str.replace(/^\s\s*/, ''); // ltrim
 	if(str.length)			
 		for(var i in populateFromArr){
-			var title = eval("populateFromArr[i]." + prop);
+			var title = populateFromArr[i][prop];
 			
 			if(title.substr(0, str.length).toLowerCase() == str){
 				
@@ -394,49 +275,6 @@ function getTypeLabel(type){
 
 
 
-function itemsInMultiCol(items, type, groupId){
-
-	var count = items.length;
-	var k = 0, c = 0, col = 0; widest = 0;
-	var colArrs = new Array();
-	
-	while(k < items.length){
-		var div = createItemElement(items[k], type, groupId, false);
-		var width = getDimensionsBeforeShowing(div).w;
-		if(!colArrs[col])
-			colArrs[col] = new Array();
-		colArrs[col].push(div);
-		
-		c++;
-		if(c >= Math.ceil(count/3)){
-			c = 0;
-			col++;
-			// widest = 0;
-		}
-		k++;
-	}
-	var table = document.createElement("table");
-	table.className = "unpaddedtable";
-	var tbody = document.createElement("tbody");
-	var tr = document.createElement("tr");
-	table.appendChild(tbody);
-	tbody.appendChild(tr);
-	for(var r in colArrs){
-		var td = document.createElement("td");
-		td.setAttribute("valign", "top");
-		td.className = "ltgrayTableBorder";
-		tr.appendChild(td);
-		for(var s in colArrs[r]){
-			if(s!="widest")
-				td.appendChild(colArrs[r][s]);
-		}
-	}
-	return table;
-}
-
-
-
-
 // ITEM ELEMENT FUNCTIONS 
 
 function getItemByIdAndType(itemId, itemType){
@@ -468,151 +306,8 @@ function getTunesByType(type){
 }
 
 
-// create the display element of any page item such as
-// a tune, set, resource etc
-function createItemElement(itemObj, itemType, groupId, useLabel, tag){
-
-	// create the html elem and set css style usually "item pointer"
-	var elem = document.createElement(tag ? tag : "div");
-	elem.className = "item pointer"; 
-
-	// most importantly set attributes "itemId" and "itemType" in the element tag
-	elem.setAttribute("itemId", itemObj.id);
-	elem.setAttribute("itemType", itemType);
-	elem.value = itemObj.id; // todo needed?
-	if(groupId)
-		elem.setAttribute("groupId", groupId); 
-	elem.innerHTML = (useLabel ? (itemObj.getLabel(true, true)) : "");
-
-	switch(itemType){
-	
-		case ITEM_TYPE_TUNE:
-			elem.innerHTML += itemObj.title;
-			if(typeof(addTuneContextMenu) != 'undefined')
-				addTuneContextMenu(elem, itemObj);
-			break;
-			
-		case ITEM_TYPE_SET:
-			
-			// set up the element text and value
-			elem.innerHTML += itemObj.getSetAsString();
-			
-			// if functions are available attach handlers
-			if(typeof(makeSetContextMenu) != 'undefined')
-				elem.oncontextmenu = function(e){return makeSetContextMenu(e);}
-				
-			if(typeof(showSetEditDlg) != 'undefined')
-				elem.ondblclick = function(e){showSetEditDlg(itemObj.id, e); }
-			
-			// other handlers
-			elem.onclick = function(){selectItem(this);}
-			CBDisableSelect(elem);
-			break;
-			
-		case ITEM_TYPE_GROUP:
-			elem.innerHTML +=  itemObj.title; // todo 
-			// elem = makeGroupElement(itemObj).getSection()
-			break;	
-			
-		case ITEM_TYPE_RESOURCE:		
-			// set up resource item element
-			var src = (itemObj.localFile) ?
-				itemObj.localFile : itemObj.url;
-			elem.setAttribute("frameSrc", src);
-
-			try{
-				// tuneId might be zero if not related to a tune
-				if(itemObj.resourceType == RESOURCE_SHEETMUSIC)
-					elem.innerHTML += tunesArr[itemObj.tuneId].title;
-					
-			}catch(e){			
-				elem.innerHTML += "[uncategorized]";
-			}
-			
-			elem.innerHTML += itemObj.title;
-			if(typeof(addResourceContextMenu) != 'undefined')
-				addResourceContextMenu(elem, itemObj);
-			
-			CBAddEventListener(elem, "contextmenu", function(){selectItem(this);}, false)
-			
-			
-			elem.onclick = function(){
-				selectItem(this);
-			}
-			
-			// onclick handler for resource item
-			elem.ondblclick = function(event){
-				showResource(itemObj);
-			}
-			break;
-
-		case ITEM_TYPE_FAVORITE:
-	try{
-		
-			var favoritedItem = getItemByIdAndType(itemObj.itemId, itemObj.itemType);
-	//	alert(itemObj.itemId+","+ itemObj.itemType)
-			elem = createItemElement(favoritedItem, itemObj.itemType, null, true);
-			elem.setAttribute("itemId", itemObj.id);
-			elem.setAttribute("favoritedItemId", itemObj.itemId);
-			
-		}catch(e){alert(e)}	
-			break;
-			
-		case ITEM_TYPE_NOTE:
-			break;	
-	}
-	return elem;
-}
 
 
-function deleteResource(id){
-	if(confirm("Are you sure? This cannot be undone..."))	
-		doRorLink('/resources/delete/' + id, 'delete', {name:"id", value:id});
-}
-
-function deleteTune(tuneId){
-	if(!confirm("Are you sure? \n\n\""+tunesArr[tuneId].title+
-		"\" will be deleted. This cannot be undone.")){
-		return;
-	}
-		
-	doRorLink('/tunes/delete/'+tuneId, 'delete')
-}
-
-
-
-
-
-function doRorLink(url, method){
-	var rl = new RorLinkWRedirect();
-	RorLinkWRedirect.prototype.doRorLink.apply(this, Array.prototype.slice.call(arguments))
-}
-
-
-// inherits from RorLink, adds a redirect based on name of page  
-function RorLinkWRedirect(){
-}
-
-RorLinkWRedirect.prototype = new RorLink;
-RorLinkWRedirect.prototype.constructor = RorLinkWRedirect;
-
-RorLinkWRedirect.prototype.doRorLink = function(url, method /* , args */){
-
-	// check for redirect
-	// add redirect to this page as argument if not specified
-	var b = false, arr = Array.prototype.slice.call(arguments);
-	for(var i=2; i<arguments.length; i++){
-		if(arguments[i].name == 'redirect')
-			b = true;
-	}
-	
-	if(!b)
-		arr.push({name:'redirect', value:'/'+getCurrentPage()})
-	
-	
-	// add redirect,  call super
-	RorLink.prototype.doRorLink.apply(this, arr);
-}
 
 
 
@@ -643,11 +338,13 @@ function addTuneContextMenu(elem, tuneObj){
 		else{
 			var groups = ctxMenu.addSubMenu("Add To Group");
 			for(var j in groupsArr){
+				if(groupsArr[j].isNotArchived())
 				if(groupsArr[j].hasItem(tuneObj.id, ITEM_TYPE_TUNE))
 					groups.addItem(groupsArr[j].title);
 				else
 					groups.addItem(groupsArr[j].title, addItemToGroup,
 						{itemId:tuneObj.id, itemType: ITEM_TYPE_TUNE, groupId: groupsArr[j].id});
+			
 			}
 			groups.addSeparator();
 			groups.addItem("Add To New Group...", addItemToGroup, {itemId:tuneObj.id, itemType: ITEM_TYPE_TUNE});
@@ -666,79 +363,6 @@ function addTuneContextMenu(elem, tuneObj){
 
 
 
-// sort funcs for objects by-property. convention: sortBy + [object property]
-// 	omit "get". eg. sorting an obj by its getLabel() would be sortByLabel
-
-function sortByResourceType(a, b){
-	return (a.resourceType > b.resourceType) ? 1 : -1;
-}
-
-function sortBySetAsString(a, b){
-	return (a.getSetAsString(false) > b.getSetAsString(false)) ? 1 : -1;
-}
-
-function sortByEntryDate(a, b){
-	return (a.entryDate > b.entryDate) ? 1 : -1;
-}
-
-function sortByEntryDateAsc(a, b){
-	return (a.entryDate < b.entryDate) ? 1 : -1;
-}
-
-function sortByTitle(a, b){
-	return (a.title.toLowerCase() > b.title.toLowerCase()) ? 1 : -1;
-}
-
-function sortByPriority(a, b){
-	return (a.priority > b.priority) ? 1 : -1;
-}
-
-
-// to get sorted arrays of associative arrays which can't
-// themselves be sorted without mismatching the keys
-function getSortedArrayCopy(arr, sortFunc){
-	var copyArr = new Array();
-	for(var i in arr)
-		copyArr.push(arr[i]);
-	copyArr.sort(sortFunc);
-	return copyArr;
-}
-
-
-// util funcs
-function setsWithTune(tuneId){
-	try{
-		var arr = new Array();
-		
-		for(var j in setsArr){
-			if(setsArr[j].hasTune(tuneId)){
-				arr.push(setsArr[j]);
-			}
-		}
-		return arr;
-	}
-	catch(e){alert(e)}
-}
-
-
-
-// most pages will have a main "content area" showing various
-// items. Simple util func to clear items as needed.
-function clearContentArea(listElemId){
-	if(!listElemId)
-		listElemId = "contentarea";
-	var msl = document.getElementById(listElemId);
-	while(msl.childNodes.length > 0) msl.removeChild(msl.firstChild);
-}
-
-function sizeContentArea(contentArea){
-	contentArea = contentArea ? $(contentArea) : $('#maintable');
-	var Y = getWindowInnerHeight();
-	contentArea.css('height', Math.floor(Y * .95) + 'px');
-}
-
-
-
 
 // GROUP CONTEXT MENU AND CALLBACKS
 
@@ -747,23 +371,31 @@ function addGroupContextMenu(elem){
 		var ctxMenu = new ContextMenu();
 		
 		var groupId = this.getAttribute('itemId');
-		ctxMenu.addItem("Add Item...", addTuneToGroupCallback, groupId);
+		var archived = groupsArr[groupId].status & STATUS_BIT_ARCHIVED;
 		
-		if(elem.hasAttribute("showOrganizeOption")){
-			ctxMenu.addItem("Organize Tunes Into Sets...", showOrganizeTunesDialog, groupId);
+		if(!archived){
+			ctxMenu.addItem("Add Tune...", addTuneToGroupCallback, groupId);
+		
+			if(elem.hasAttribute("showOrganizeOption")){
+				ctxMenu.addItem("Organize Tunes Into Sets...", showOrganizeTunesDialog, groupId);
+			}
+		
+			ctxMenu.addSeparator();
+		
+			ctxMenu.addItem("Rename Group...", renameGroup, groupId);
+			
+			
+			ctxMenu.addItem("Unflag All", unflagGroupItems, {groupId:groupId, itemType:ITEM_TYPE_SET});
+			ctxMenu.addItem("Favorite Item", favoriteItem, groupsArr[groupId]);
 		}
 		
-		ctxMenu.addSeparator();
+		var label = (groupsArr[groupId].status & STATUS_BIT_ARCHIVED) ? "Unarchive Group" : "Archive Group";
+			ctxMenu.addItem(label, flagUnflag, 
+					{itemId:groupId, itemType:ITEM_TYPE_GROUP, bit:STATUS_BIT_ARCHIVED});
 		
-		ctxMenu.addItem("Rename Group...", renameGroup, groupId);
+		
 		ctxMenu.addItem("Copy Group...", copyGroup, groupId);
 		
-		var label = (groupsArr[groupId].status & STATUS_BIT_ARCHIVED) ? "Unarchive Group" : "Archive Group";
-		ctxMenu.addItem(label, flagUnflag, 
-				{itemId:groupId, itemType:ITEM_TYPE_GROUP, bit:STATUS_BIT_ARCHIVED});
-		
-		ctxMenu.addItem("Unflag All", unflagGroupItems, {groupId:groupId, itemType:ITEM_TYPE_SET});
-		ctxMenu.addItem("Favorite Item", favoriteItem, groupsArr[groupId]);
 		ctxMenu.addSeparator();
 		
 		ctxMenu.addItem("Email Group...", ctxEmailGroup, groupId);
@@ -783,6 +415,10 @@ function addGroupSubHdrContextMenu(elem){
 		var typeLabel = getTypeLabel(type);
 		
 		if(type == ITEM_TYPE_TUNE){
+		
+			var groupId = this.getAttribute('itemId');
+			ctxMenu.addItem("Add Tune...", addTuneToGroupCallback, this.getAttribute("groupId"));
+		
 			ctxMenu.addItem("Make selected tunes into set", groupTunesIntoSet, this.nextSibling);
 			var _this = this;
 			ctxMenu.addItem("Develop sets from these tunes...", function(tunesDiv){
@@ -821,6 +457,154 @@ function addGroupSubHdrContextMenu(elem){
 		return false;
 	}
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+// sorting
+
+// sort funcs for objects by-property. convention: sortBy + [object property]
+// 	omit "get". eg. sorting an obj by its getLabel() would be sortByLabel
+
+function sortByResourceType(a, b){
+	return (a.resourceType > b.resourceType) ? 1 : -1;
+}
+
+function sortBySetAsString(a, b){
+	return (a.getSetAsString(false) > b.getSetAsString(false)) ? 1 : -1;
+}
+
+function sortByEntryDate(a, b){
+	return (a.entryDate > b.entryDate) ? 1 : -1;
+}
+
+function sortByEntryDateAsc(a, b){
+	return (a.entryDate < b.entryDate) ? 1 : -1;
+}
+
+function sortByTitle(a, b){
+	return (a.title.toLowerCase() > b.title.toLowerCase()) ? 1 : -1;
+}
+
+function sortByPriority(a, b){
+	return (a.priority > b.priority) ? 1 : -1;
+}
+
+
+// to get sorted arrays of associative arrays which can't
+// themselves be sorted without mismatching the keys
+function getSortedArrayCopy(arr, sortFunc){
+	var copyArr = arr.slice();
+	copyArr.sort(sortFunc);
+	return copyArr;
+}
+
+
+
+
+
+function deleteResource(id){
+	if(confirm("Are you sure? This cannot be undone..."))	
+		doRorLink('/resources/' + id, 'delete', {name:"id", value:id});
+}
+
+
+function deleteTune(tuneId){
+	if(!confirm("Are you sure? \n\n\""+tunesArr[tuneId].title+
+		"\" will be deleted. This cannot be undone.")){
+		return;
+	}
+		
+	doRorLink('/tunes/'+tuneId, 'delete')
+}
+
+
+
+
+
+function doRorLink(url, method){
+	var rl = new RorLinkWRedirect();
+	RorLinkWRedirect.prototype.doRorLink.apply(this, Array.prototype.slice.call(arguments))
+}
+
+
+// inherits from RorLink, adds a redirect based on name of page  
+function RorLinkWRedirect(){
+}
+
+RorLinkWRedirect.prototype = new RorLink;
+RorLinkWRedirect.prototype.constructor = RorLinkWRedirect;
+
+RorLinkWRedirect.prototype.doRorLink = function(url, method /* , args */){
+
+	// check for redirect
+	// add redirect to this page as argument if not specified
+	var b = false, arr = Array.prototype.slice.call(arguments);
+	for(var i=2; i<arguments.length; i++){
+		if(arguments[i].name == 'redirect')
+			b = true;
+	}
+	
+	if(!b)
+		arr.push({name:'redirect', value:location.pathname})
+	
+	// add redirect,  call super
+	RorLink.prototype.doRorLink.apply(this, arr);
+}
+
+
+
+
+
+
+
+
+
+function setsWithTune(tuneId){
+	try{
+		var arr = new Array();
+		
+		for(var j in setsArr){
+			if(setsArr[j].hasTune(tuneId)){
+				arr.push(setsArr[j]);
+			}
+		}
+		return arr;
+	}
+	catch(e){alert(e)}
+}
+
+
+
+// most pages will have a main "content area" showing various
+// items. Simple util func to clear items as needed.
+function clearContentArea(listElemId){
+	if(!listElemId)
+		listElemId = "contentarea";
+	var msl = document.getElementById(listElemId);
+	while(msl.childNodes.length > 0) msl.removeChild(msl.firstChild);
+}
+
+function sizeContentArea(contentArea){
+	contentArea = contentArea ? $(contentArea) : $('#maintable');
+	var Y = getWindowInnerHeight();
+	contentArea.css('height', Math.floor(Y * .95) + 'px');
+}
+
+
 
 
 function removeFromGroupByType(obj){
@@ -910,10 +694,10 @@ function saveNewSet(obj){
 	
 	// save the set
 	if(obj.groupId){
-		doRorLink('/tune_sets/add', 'post', {name:'tune_set[tuneIds]', value:tuneIds}, 
+		doRorLink('/tune_sets/', 'post', {name:'tune_set[tuneIds]', value:tuneIds}, 
 							{name:'group_id', value:obj.groupId});
 	}else{
-		doRorLink('/tune_sets/add', 'post', {name:'tune_set[tuneIds]', value:tuneIds});
+		doRorLink('/tune_sets/', 'post', {name:'tune_set[tuneIds]', value:tuneIds});
 	}
 		
 }
@@ -936,13 +720,17 @@ function renameGroup(groupId){
 		if (groupsArr[i].id == groupId) 
 			currName = groupsArr[i].title;
 	
-	var newName = prompt("Enter new name for group: \""+currName+"\"", currName);
-	if(newName == null)
+	var title = prompt("Enter new name for group: \""+currName+"\"", currName);
+	if(title == null)
 		return;
-		
-	doRorLink('groups/update/' + groupId, 
+	
+	if(!(title = validateTitleStr(title))){
+		alert('invalid title')
+		return;
+	}
+	doRorLink('groups/' + groupId, 
 			'put', 
-			{name:'group[title]', value:newName}, 
+			{name:'group[title]', value:title}, 
 			{name:'group[id]', value:groupId});
 		
 }
@@ -964,7 +752,7 @@ function copyGroup(id){
 
 function favoriteItem(itemObj){
 
-	doRorLink('favorites/add',
+	doRorLink('/favorites',
 		'post',
 		{name:'favorite[itemable_id]', value:itemObj.id},
 		{name:'favorite[itemable_type]', value:itemableTypeFromItemType(itemObj.itemType)})
@@ -972,7 +760,7 @@ function favoriteItem(itemObj){
 
 function removeFavorite(favObjId){
 	var favObj = favoritesArr[favObjId];
-	doRorLink('/favorites/delete/' + favObjId, 'delete');
+	doRorLink('/favorites/' + favObjId, 'delete');
 	
 }
 
@@ -994,7 +782,7 @@ function ctxEmailGroup(groupId){
 
 function removeGroup(groupId){
 if(confirm("Are you sure? This cannot be undone."))	
-	doRorLink('groups/delete/'+groupId,
+	doRorLink('groups/'+groupId,
 		'delete'
 	);
 }
@@ -1064,7 +852,10 @@ function addResourceContextMenu(elem, objResource){
 		var groupMenu = ctxMenu.addSubMenu("Add To Group");
 		for(var i in groupsArr){
 			var group = groupsArr[i]
-			groupMenu.addItem(group.title, addItemToGroup, {itemId:objResource.id, itemType: ITEM_TYPE_RESOURCE, groupId: group.id});
+			if(group.isNotArchived()){
+				groupMenu.addItem(group.title, addItemToGroup, 
+						{itemId:objResource.id, itemType: ITEM_TYPE_RESOURCE, groupId: group.id});
+			}
 		}
 		ctxMenu.addSeparator();
 		
@@ -1186,7 +977,7 @@ function goToTunePage(id){
 function editResourceTitle(resObj){
 	var newTitle = prompt("Edit Resource Title", resObj.title);
 	if(newTitle){
-		doRorLink('/resources/update/' + resObj.id, 'put', 
+		doRorLink('/resources/' + resObj.id, 'put', 
 			{name:'resource[id]', value:resObj.id}, 
 			{name:'resource[title]', value:newTitle}
 		)
@@ -1266,7 +1057,7 @@ function newGroup(){
 		return false;
 	}
 	
-	doRorLink('groups/add', 'post', {name:'group[title]', value:title});
+	doRorLink('/groups', 'post', {name:'group[title]', value:title});
 	
 }
 
@@ -1329,6 +1120,7 @@ function makeSetContextMenu(event){
 	// add to group submenu
 	var groups = ctxMenu.addSubMenu("Add to Group");
 	for(var i in groupsArr){
+		if(groupsArr[i].isNotArchived())
 		if(groupsArr[i].hasItem(setId, ITEM_TYPE_SET))
 			groups.addItem(groupsArr[i].title);
 		else
@@ -1501,7 +1293,7 @@ function removeItemFromGroup(obj){
 
 function setEditCallback(obj){
 
-	doRorLink('tune_sets/update/'+ obj.setId, 
+	doRorLink('tune_sets/'+ obj.setId, 
 			'put', 
 			{name:'tune_set[tuneIds]', value:obj.getCurrentOrder()}
 			);
@@ -1532,101 +1324,9 @@ function showSetEditDlg(id, event){
 function deleteSet(id){
 	if(confirm("Are you sure you want to delete set "+id+"? This cannot be undone."))	
 	
-	doRorLink('/tune_sets/delete/'+id, 'delete');
+	doRorLink('/tune_sets/'+id, 'delete');
 }
 
-
-
-
-
-/* 
-	makes a group element
- 	expandable page element with 
- 	subsections for different item types
-*/
-
-function makeGroupElement(group){
-
-	// create the title div for each group 
-	// which will be the header for an expandable section
-	var groupTitleDiv = createTitleDiv(group.title, group.id, "span");
-	groupTitleDiv.setAttribute("showOrganizeOption", "");
-	groupTitleDiv.setAttribute("status", group.status);
-	if(group.status & STATUS_BIT_ARCHIVED)
-		groupTitleDiv.innerHTML += " <span style='color:772200;'>[archived]</span>";
-	var es = new expandableSection(groupTitleDiv, group.id, ES_STATE_COLLAPSED);
-	
-	es.setBodyClass('bubbleSection');
-				
-	
-	var types = new Array(ITEM_TYPE_TUNE, ITEM_TYPE_SET, ITEM_TYPE_RESOURCE);
-			
-	for(var j in types){
-		var items;
-		if(items = group.getItemsByType(types[j])){
-			switch(types[j]){
-				case ITEM_TYPE_TUNE: items.sort(sortByTitle); break;
-				case ITEM_TYPE_SET: items.sort(sortBySetAsString); break;
-				case ITEM_TYPE_RESOURCE: items.sort(sortByTitle); break;
-			}
-			
-			var typeLabel = document.createElement("div");
-			typeLabel.innerHTML = getTypeLabel(types[j]) + " ("+items.length +")";
-			typeLabel.className = "info gray pointer";
-			typeLabel.setAttribute("containsItemType", types[j]);
-			typeLabel.setAttribute("groupId", group.id);
-			addGroupSubHdrContextMenu(typeLabel);
-			
-			if(items.length)
-				es.addElem(typeLabel);
-					
-			
-			// for tunes put them in columns to save space
-			if(types[j] == ITEM_TYPE_TUNE){
-				var count = items.length;
-				
-				if(count >= 9){
-					// calculate how many columns can be made for tunes display
-					var sectionWidth = es.getSection().offsetWidth;
-					var table = itemsInMultiCol(items, types[j], group.id);
-					es.addElem(table);
-					es.addBreak();
-				}
-				else{
-					for(var k in items){
-						var div = createItemElement(items[k], types[j], group.id, false);
-						var width = getDimensionsBeforeShowing(div);
-						es.addElem(div);
-					}
-					es.addBreak();
-				}
-				
-				var arrTest = [];
-				CBGetElementsByAttr('itemType', '1', es.getElem(), arrTest);
-				for(var i in arrTest){
-					arrTest[i].onclick = function(){
-						// toggle item element 'selection' when clicked
-						var cn = this.className.replace(/(?:^|\s)(item)(?=\s|$)/, 'itemselected');
-						this.className = (cn != this.className) ? cn : 
-							this.className.replace(/itemselected/, 'item');		
-					}
-				}
-			}
-			
-			// for other item types just list
-			else{
-				for(var k in items){
-					try{
-						var div = createItemElement(items[k], types[j], group.id, false);
-						es.addElem(div);
-					}catch(e){alert("error creating element. " + items.length)}
-				}
-				es.addBreak();
-			}
-		}
-	}
-	return es;
-}
 
 
 

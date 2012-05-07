@@ -31,7 +31,7 @@ function saveProperty(property, value){
 	switch(property){
 		case "otherTitles":
 		
-			doRorLink('/tunes/update/' + gTune.id, 'put',
+			doRorLink('/tunes/' + gTune.id, 'put',
 				{name:'tune[other_title][title]', value:value})
 		
 			return;
@@ -64,7 +64,7 @@ function saveTuneChanges(){
 	var comments = document.getElementById("tunecomments").innerHTML;
 	comments = comments.replace(/<br>/g, "\n");
 	
-	doRorLink('/tunes/update/' + gTune.id, 'put',
+	doRorLink('/tunes/' + gTune.id, 'put',
 		{name:"tune[id]", value:gTune.id},
 		{name:"tune[title]", value:$("#tunetitle").html()},
 		{name:"tune[comments]", value:comments},
@@ -253,8 +253,8 @@ function fillTuneProps(){
 				tunePropElems[i].innerHTML = str;
 				break;
 			default:
-				str = eval("gTune." + propName);
-				value = eval("gTune." + propName);
+				str = gTune[propName];
+				value = gTune[propName];
 				tunePropElems[i].innerHTML = str;
 		}
 		

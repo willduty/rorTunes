@@ -152,10 +152,10 @@
 
 ul.expandableSectionHdr {
 	list-style:none;
-	clear:both;
+	clear:left;
 	margin:0px;
 	padding:0px;
-	border:none;
+	border:1px solid lightgray;
 }
 	
 ul.expandableSectionHdr  li{
@@ -173,10 +173,12 @@ ul.expandableSectionHdr [name=expandIcon]{
 	height: 1em;
 	background:#eee;
 	cursor: pointer;
-	padding: 2px 0px 2px 7px;
-	margin: 1px;
+	padding: 0px 0px 6px 7px;
+	margin: 0px;
 }
 ul.expandableSectionHdr  li:last-child{
+	padding: 2px 0px 2px 10px;
+	
 	width: 90%;
 }
 

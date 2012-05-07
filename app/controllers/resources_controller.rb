@@ -4,11 +4,13 @@ class ResourcesController < ApplicationController
 	@resources = Resource.all
   end
 
-  def add
+  def create
   	resource = Resource.new(params[:resource])
   	if resource.save
-  		resource.tunes << Tune.find_by_id(params[:tune_id])
   		Item.create(:itemable_id=>resource.id, :itemable_type=>'Resource', :user_id=>session[:user_cookie])
+  		if params.has_key?(:tune_id)
+  			resource.tunes << Tune.find_by_id(params[:tune_id]) 
+  		end
   	end
   	render :json => resource
   end
@@ -18,12 +20,12 @@ class ResourcesController < ApplicationController
 	redirect_to params[:redirect]
   end
 
-  def delete
+  def destroy
   	res = Resource.find_by_id(params[:id])
   	item = Item.find_by_itemable_id_and_itemable_type(params[:id], 'Resource')
   	res.delete
   	item.delete
-  	redirect_to '/resources'
+	redirect_to params[:redirect]
   end
   
   def search_youtube
@@ -32,8 +34,4 @@ class ResourcesController < ApplicationController
   
 end
 
-
-class Myparser
-	include HTTParty
-end
 

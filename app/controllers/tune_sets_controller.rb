@@ -6,7 +6,7 @@ class TuneSetsController < ApplicationController
   end
 
 
-  def add
+  def create
   	newTuneSet = TuneSet.create(params[:tune_set])
   	newTuneSet.save
   	newItem = Item.create(:itemable_id=>newTuneSet.id, :itemable_type=>'TuneSet', :user_id=>session[:user_cookie])
@@ -29,7 +29,7 @@ class TuneSetsController < ApplicationController
   end
 
 
-  def delete
+  def destroy
   	set = TuneSet.find_by_id(params[:id])
   	item = Item.find_by_itemable_id(set.id, :conditions => {:itemable_type => 'TuneSet'})
   	group_item = GroupItem.find_by_itemable_id(set.id, :conditions => {:itemable_type => 'TuneSet'})

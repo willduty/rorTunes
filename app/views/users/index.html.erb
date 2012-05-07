@@ -7,63 +7,17 @@
 
 <script type="text/javascript">
 
-<%= system `ls`	%>
+var gUserSettings = <%= @user.user_settings.to_json.html_safe %>;	
 
 <%= render 'layouts/data' %>
-<%
-=begin
-
-<?php
-
-
-
-$counts = getCounts($_SESSION['userId']);
-	
-echo "var countsArr = new Array();";
-foreach($counts as $itemType=>$count){	
-	echo "countsArr[$itemType] = $count;";
-}
-
-?>
-
-
-=end
-%>
-
-function getReturnPageParams(){
-	var arr = new Array();
-	return arr;
-}
 
 
 function showChangePassword(cancel){
-	var changePwdBox = document.getElementById("changePasswordBox");	
-	if(typeof(cancel) == 'undefined')
-		changePwdBox.style.display = "";
-	else{
-		changePwdBox.style.display = "none";
-		closeTool("changePwdBox");
-	}
+	var box = $("#changePasswordBox");	
+	if(typeof(cancel) == 'undefined') box.show() 
+	else{ box.hide(); closeTool("changePwdBox")}
 }
 
-function changePassword(){
-	var oldPwd = document.getElementById("oldPassword").value;	
-	var newPwd1 = document.getElementById("newPassword1").value;	
-	var newPwd2 = document.getElementById("newPassword2").value;	
-	if(oldPwd == "" || newPwd1 == "" || newPwd2 == "")
-	{
-		alert("One or more fields are blank.");
-		return;
-	}
-	
-	if(newPwd1 != newPwd2){
-		alert("New password entries do not match.");
-		return;
-	}
-
-	doRorLink('/users/change_password', 'put', {name:"old_password", value:oldPwd},{name:"new_password", value:newPwd1});
-
-}
 
 window.onload = function(){
 
@@ -91,62 +45,52 @@ window.onload = function(){
 	}
 	
 	// latest
-	var arr = [tunesArr, resourcesArr, setsArr, groupsArr];
-	var latestBox = document.getElementById("latestBox");
+	var arr = ['tunes', 'resources', 'sets', 'groups'];
 	for(var i in arr){
-		var itemArr = getSortedArrayCopy(arr[i], sortByEntryDateAsc);	
+		var itemArr = getSortedArrayCopy(gObjArrs[arr[i]], sortByEntryDateAsc);	
 		var ctr = 0;
 		for(var j in itemArr){
-			var boxId, hdrId, count;
-			switch(arr[i]){
-				case tunesArr: 
-					boxId = "latestTunesBox"; 
-					hdrId = "tunesSectionHdr"; 
-					count = tunesArr.length; 
-					break;
-				case resourcesArr: 
-					boxId = "latestResourcesBox"; 
-					hdrId = "resourcesSectionHdr"; 
-					count  = resourcesArr.length; 
-					break;
-				case setsArr: 
-					boxId = "latestSetsBox"; 
-					hdrId = "setsSectionHdr"; 
-					count = setsArr.length;
-					break;
-				case groupsArr: 
-					boxId = "latestGroupsBox"; 
-					hdrId = "groupsSectionHdr"; 
-					count = groupsArr.length; 
-					break;
-			}
-			var box = document.getElementById(boxId);
+			
+			var hdrId = arr[i]+"SectionHdr";
+			var box = $('#'+"latest"+arr[i]+"Box");
 			var div = createItemElement(itemArr[j], itemArr[j].itemType, null, false);
 			div.innerHTML = itemArr[j].entryDate + ": " + div.innerHTML
-			
 			try{
 				div.getHeader().setAttribute('itemId', group.id);
 				addGroupContextMenu(div.getHeader());
 				es.setHeaderClass("info");
 			}catch(e){}
 			
-			
-			box.appendChild(div);
-			ctr++;
-			if(ctr>2)
-				break;
+			box.append(div);
+			ctr++; if(ctr>2) break; // brk after three latest
 		}
 		
-		var hdr = document.getElementById(hdrId);
-			hdr.innerHTML += " [item count: " + count + "]";
+		var count = 0;
+		for(var c in itemArr) count++;
+		document.getElementById(hdrId).innerHTML += " [item count: " + count + "]";
 			
-		box.appendChild(document.createElement("br"))
+		box.append(document.createElement("br"))
 	}
 	
+	
+	// misc
 	setUpToolSwitches()
 
 	$('[itemType='+ITEM_TYPE_TUNE+']').each(function(){colorCodeTune($(this).get(0))})
 	
+	$('#change_password').bind('submit', function(){
+		var oldPwd = $("[name=old_password]").val();
+		var newPwd1 = $("[name=new_password]").val();	
+		var newPwd2 = $("[name=new_password_again]").val();	
+		if(oldPwd == "" || newPwd1 == "" || newPwd2 == ""){
+			alert("One or more fields are blank.");
+			return false;
+		}
+		if(newPwd1 != newPwd2){
+			alert("New password entries do not match.");
+			return false;
+		}
+	});
 }
 
 
@@ -209,13 +153,13 @@ window.onload = function(){
 							<div class=infohdr>Latest</div>
 							<div class="item ltltgrayBkgd bubbleSection" style="width:500;" id=latestBox style="margin-left:10px">
 								<div><a href="tunes.php" id=tunesSectionHdr class="info copper">Tunes:</a></div>
-								<div class="indentedbox" id=latestTunesBox></div>
+								<div class="indentedbox" id=latesttunesBox></div>
 								<div><a href="resources.php" id=resourcesSectionHdr class="info copper">Resources:</a></div>
-								<div class="indentedbox" id=latestResourcesBox></div>
+								<div class="indentedbox" id=latestresourcesBox></div>
 								<div><a href="sets.php" id=setsSectionHdr class="info copper ">Sets:</a></div>
-								<div class="indentedbox" id=latestSetsBox></div>
+								<div class="indentedbox" id=latestsetsBox></div>
 								<div><a href="groups.php" id=groupsSectionHdr class="info copper">Groups:</a></div>
-								<div class="indentedbox" id=latestGroupsBox></div>
+								<div class="indentedbox" id=latestgroupsBox></div>
 							</div>
 							<br>			
 						</td>
@@ -225,34 +169,131 @@ window.onload = function(){
 							<div class="item ltltgrayBkgd bubbleSection" style="width:300;"  id=accountBox style="margin-left:10px">
 								
 								<div class=info style="margin-top:5">username: <span class=item><%= @user.username %></span></div>
-								<div class=info>password: <span class=item><?php for($i=0;$i<$_SESSION['passwordLength'];$i++) echo "&#8226;"; ?></span>
+								<div class=info>password: <span class=item><%= 
+									(1..@user.password.length).map{|d| '&#8226;'}.to_s.html_safe %></span>
 									<span onclick="showChangePassword();" class="info ltgray">[change password]</span>
 								</div>
-								<div class="info bubbleSection whiteBkgd" id=changePasswordBox style="display:none; margin-bottom:10px;">
-									<form>
-									<br>
-									<label> Old password:</label><input type=password id=oldPassword clearOnCancel></input><br>
-									<label> New password:</label><input type=password id=newPassword1 clearOnCancel></input><br>
-									<label> Reenter new password:</label><input type=password id=newPassword2 clearOnCancel></input><br>
-									</form>
-									<div class="grayBkgd white"><span onclick="changePassword()">save</span> | <span class="cancel" onclick="showChangePassword(true)">cancel</span></div>
+								<div class="info bubbleSection whiteBkgd" id=changePasswordBox style="display:none; width:90%; margin-bottom:10px;">
+								
+									<%= form_for @user, {:url=>{:action=>:change_password}, :method=>:put, :html=>{:id=>'change_password'}} do |f| %>
+									<%= f.label 'current password' %>
+									<%= f.password_field :password, {:name=>:old_password, :clearOnCancel=>true, :size=>15} %><br>
+									<%= f.label 'new password' %>
+									<%= f.password_field :password, {:name=>:new_password, :clearOnCancel=>true, :size=>15} %><br>
+									<%= f.label 'reenter new password' %>
+									<%= f.password_field :password, {:name=>:new_password_again, :clearOnCancel=>true, :size=>15} %><br>
+									<%= f.button 'change password' %><%= f.button 'cancel', {:type=>:button, :onclick=>"showChangePassword(true)"} %><br>
+									<%= f.hidden_field :redirect, {:name=>:redirect, :value=>'/home'} %>
+									<% end %>
 									
 								</div>
 								
 								<div class=info>email: <span class=item><%= @user.email %></span></div>
 								<div class=info>registered: <span class=item><%= @user.createDate.strftime('%m/%d/%Y %H:%M:%S') %></span></div>
 								<div class=info style="margin-bottom:5">last login: <span class=item><%= @user.lastLogin.strftime('%m/%d/%Y %H:%M:%S') %></span></div>
-								<div class="info white grayBkgd">&nbsp;<span>edit</span>&nbsp;&nbsp;|&nbsp;&nbsp;<span>close account</span></div>
+								
 								
 							</div>
 							<br>
 							
 							<div class=infohdr>Options</div>
-							<div class="item ltltgrayBkgd bubbleSection" style="width:300;"  id=settingsBox style="margin-left:10px">
-								<div class=info tool=generalSettings name=toolButton >general</div>
+							<div class="ltltgrayBkgd bubbleSection" style="width:300;"  id=settingsBox style="margin-left:10px">
+							
+							
+							
+							
+								<%= form_for @user, {:url=>{:action=>:update_user_settings}} do|f| %>
+									
+									<% f.object.user_settings.each do |us| %>
+									
+										<%= f.fields_for us do |setting| %>
+										
+											<%=  setting.hidden_field :name %>		
+											<%=  setting.hidden_field :page %>
+										<% 
+										end
+									end
+									%>
 								
-								<div id=generalSettings name=toolContainer style="display:none;">hello<br>hello<br>hello</div>
-								<div class=info>sharing</div>
+								<% end %>
+							
+								
+								
+								
+								<div tool=viewOptions name=toolButton onClass='black' offClass='darkgray'>View &raquo;</div>	
+								<div id=viewOptions tool style='display:none;'>
+								<div class=label>Tunes Page</div>
+								
+									<div class=settingsSection>
+									<span class=label>View:</span> 
+										<span>grid</span> | 
+										<span>jumble</span><br>
+									<span class=label>Sort By:</span> 
+										<span name=sort_by page=tunes value=title>title</span> | 
+										<span name=sort_by page=tunes value=date>entry date</span> | 
+										<span name=sort_by page=tunes value=key>key</span> | 
+										<span name=sort_by page=tunes value=type>type</span>  
+										&nbsp;&nbsp;<span class=label>Direction:</span> 
+										<span>asc</span> | <span>desc</span><br>
+									</div>
+		
+								<div class=label>Sets Page</div>
+									<div class=settingsSection>
+									<span class=label>view:</span>
+										<span>grid</span> | 
+										<span>by group</span><br>
+										
+									<span class=label>sort by:</span> 
+										<span>title</span> | 
+										<span>entry date</span> | 
+										<span>tune type</span>
+										&nbsp;&nbsp;<span class=label>Direction:</span> 
+										<span>asc</span> | <span>desc</span><br>
+									</div>
+								<div class=label>Resources Page</div>
+									<div class=settingsSection>
+									<span class=label>view:</span> 
+										<span>grid</span> | 
+										<span>icon</span><br>
+									<span class=label>sort by:</span> 
+										<span>entry date</span> | 
+										<span>title</span> | 
+										<span>tune type</span>
+										&nbsp;&nbsp;<span class=label>Direction:</span> 
+										<span>asc</span> | <span>desc</span><br>
+									</div>
+								<div class=label>Groups Page</div>
+									<div class=settingsSection>
+									<span class=label>show archived </span><br> 
+									<span class=label>groups</span>
+									<span>open</span> |
+									<span>collapsed</span>
+									<br>
+									</div>
+								<div class=label>All Pages</div>
+									<div class=settingsSection>
+										<span class=label>width:</span> 
+										<span>column</span> | 
+										<span>expand</span><br>
+										<span class=label>height:</span>
+										<span>fit in window</span> | 
+										<span>full</span><br>
+										<span class=label>play resources in:
+										<span> page</span> | 
+										<span>new browser window</span><br>
+									</div>
+								<br>
+		
+								
+								
+								
+								<div align=right valign=top colspan=4 id=saveChangesDiv >
+									<span class="toolBtn white blackBkgd" onclick="saveTuneChanges();">save changes</span>  
+									<span id=cancelChangesButton class="toolBtn white blackBkgd" onclick="fillTuneProps();">cancel</span>
+								</div>
+								</div>
+								
+							
 								
 							</div>
 							<br>

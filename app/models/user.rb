@@ -9,7 +9,7 @@ end
 
 class User < ActiveRecord::Base
 	belongs_to :user_groups
-
+	
 	has_many :items
 	has_many :tunes, :through => :items, :source => :itemable, :source_type => 'Tune'
 	has_many :tune_sets, :through => :items, :source => :itemable, :source_type => 'TuneSet'
@@ -17,11 +17,14 @@ class User < ActiveRecord::Base
 	has_many :groups, :through => :items, :source => :itemable, :source_type => 'Group'
 	has_many :favorites, :through => :items, :source => :itemable, :source_type => 'Favorite'
 	
+	has_many :user_settings, :dependent=>:destroy
+	accepts_nested_attributes_for :user_settings
+	
 	attr_accessible :email, :password
 
 	validates :email, :presence => true, :email => true
 	validates :password, :presence => true
-
+	
 	def self.authenticate(email, password)
 		user = self.find_by_email(email)
 		return nil unless !user.nil?

@@ -215,8 +215,9 @@ function showAllSets(){
 	grid.show();
 	
 	// grid.sortByColumn(0, SORT_DESC);
-	$("#setCount").html(grid.getRowCount());
-
+	
+	setCount(setsArr);
+	
 	}catch(e){alert(e)}
 	
 }
@@ -284,8 +285,7 @@ function showSetsByGroup(){
 		if(b) 
 			appendSet(setsArr[i], 0);
 	}	
-	$("#setCount").html(setsCount);
-	
+	setCount(setsArr)
 	msl.style.overflow = "scroll";
 	
 }
@@ -447,7 +447,7 @@ window.onload = function(){
 						<td class="contentHeader">
 							<table >
 								<tr><td width='95px' class="toolheader">Sets</td>
-								<td class="info white">Count: <span id=setCount></span></td></tr>
+								<td class="info white">Count: <span id=count></span></td></tr>
 							</table>	
 						</td>
 					</tr>

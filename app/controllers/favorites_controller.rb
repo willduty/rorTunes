@@ -1,6 +1,6 @@
 class FavoritesController < ApplicationController
   
-  def add
+  def create
   	item = Item.find_by_itemable_id_and_itemable_type(params[:favorite][:itemable_id], params[:favorite][:itemable_type])
 	favorite = Favorite.create(:item_id=>item.id)
   	
@@ -8,7 +8,7 @@ class FavoritesController < ApplicationController
   	redirect_to params[:redirect]
   end
 
-  def delete
+  def destroy
   	favorite = Favorite.find_by_id(params[:id])
 	favorite.destroy
 	item = Item.find_by_itemable_id_and_itemable_type(favorite.id, 'Favorite')

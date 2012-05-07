@@ -13,7 +13,7 @@ class TunesController < ApplicationController
   end
   
 
-  def add
+  def create
   	if params[:tunes]
   		json = JSON.parse params[:tunes] 
   		json["tunes"].each do |tune|
@@ -47,7 +47,7 @@ class TunesController < ApplicationController
   end
 
 
-  def delete
+  def destroy
   	tune = Tune.find_by_id(params[:id])
   	item = Item.find_by_itemable_id_and_itemable_type(params[:id], 'Tune')
   	

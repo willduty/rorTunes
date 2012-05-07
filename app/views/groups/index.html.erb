@@ -5,6 +5,11 @@
 
 <%= render 'layouts/data' %>
 
+
+var gPageSettings = {groups:{show_archived:false, all_open:false}, layout:{}}
+
+
+
 function getContentArea(){
 	return document.getElementById("contentarea");
 }
@@ -213,13 +218,14 @@ function showGroups(containerElem){
 	var copyArr = getSortedArrayCopy(groupsArr, sortByPriority); 
 	for(var i in copyArr){
 		var group = copyArr[i];
-		var es = makeGroupElement(group);
-		gGroupSections[group.id] = es;
-		es.getHeader().setAttribute('itemId', group.id);
-		addGroupContextMenu(es.getHeader());
-		es.setHeaderClass("info gray");
-		msl.appendChild(es.getSection());
-		
+		if(gPageSettings.groups.show_archived || !(group.status & STATUS_BIT_ARCHIVED)){
+			var es = makeGroupElement(group);
+			gGroupSections[group.id] = es;
+			es.getHeader().setAttribute('itemId', group.id);
+			addGroupContextMenu(es.getHeader());
+			es.setHeaderClass("info gray");
+			msl.appendChild(es.getSection());
+		}
 	}	
 }
 
@@ -259,10 +265,16 @@ function reorderGroups(event){
 }
 
 function groupsReorderCallback(ro){
-	
-	doRorLink('groups/update', 'put', 
+	doRorLink('groups/reorder', 'put', 
 		{name:'group_ids', value:ro.getCurrentOrder()},
 		{name:'redirect', value:'/groups'});
+}
+
+
+function showArchived(){
+	gPageSettings.groups.show_archived = !gPageSettings.groups.show_archived;
+	$('#showArchivedBtn').html(gPageSettings.groups.show_archived ? 'hide archived' : 'show archived')
+	showGroups();
 }
 
 
@@ -343,6 +355,8 @@ window.onload = function(){
 							<span id=groupsPanel onclick="reorderGroups();" class="info ltltgray pointer">reorder groups</span> | 	
 							<span id=groupsPanel onclick="expandAll();" class="info ltltgray pointer">open all</span> | 
 							<span id=groupsPanel onclick="collapseAll();" class="info ltltgray pointer">collapse all</span>
+| 
+							<span id=showArchivedBtn onclick="showArchived()" class="info ltltgray pointer">show archived</span>
 							
 						</td>
 					</tr>
