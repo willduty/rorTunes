@@ -23,7 +23,7 @@ put "group_items/update"
 delete "group_items/delete/:id", :to =>"group_items#delete"
 delete "group_items/delete/:group_id/:type", :to =>"group_items#delete"
 
-get "users/index"
+
 post "users/add"
 put "users/change_password"
 delete "users/delete"
