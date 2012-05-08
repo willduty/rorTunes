@@ -1,7 +1,11 @@
 
 
+// full list is shown, though possibly in a scrollable div
+var LIST_VIEW_FULL = 1; 
 
-var LIST_VIEW_FULL = 1;
+// hand implemented display, only visible rows actually shown
+// "scrolling" is actually add/remove of necessary rows to create
+// illusion of scroll
 var LIST_VIEW_SCROLLBOX = 2;
 
 var DIRECTION_UP = 1;
@@ -14,9 +18,9 @@ var GRID_OPTIONS_SINGLE_ROW_CALLBACK = 1;
 var GRID_OPTIONS_ITEMS_CALLBACK = 2;
 
 // up/down arrows &#8593; &#8595;   &#8744; &#8743
-var upIcon = " <span style='color:white; background-color:gray; opacity:0.4; border-width:1px;'>&#8743;</span>"
-var downIcon = " <span style='color:white; background-color:gray; opacity:0.4; border-width:1px;'>&#8744;</span>"
-var checkIcon = "<span style='color:#000; font-size:11; border-width:1px;'>&#8730;&nbsp;&nbsp;</span>"
+var upIcon = " <span class=gridUpIcon>&#8743;</span>"
+var downIcon = " <span class=gridDownIcon>&#8744;</span>"
+var checkIcon = "<span class=gridCheckIcon>&#8730;&nbsp;&nbsp;</span>"
 
 function Grid(container, options){
 	var _this = this;
@@ -210,7 +214,6 @@ function Grid(container, options){
 					_this.scrollByPage(DIRECTION_DOWN);
 					return false;
 				case KEY_HOME:
-					alert(9)
 					CBStopEventPropagation(event);
 					_this.showFrom(0, 0);
 					return false; 
@@ -302,7 +305,6 @@ function Grid(container, options){
 		function makeCell(text, id, callback){
 			var item = document.createElement("li");
 			CBDisableSelect(item);
-			//alert(text)
 			item.innerHTML = text;
 			item.id = id;
 			item.className = "gridCell";
@@ -470,17 +472,20 @@ function Grid(container, options){
 	
 		// if we're in a scrollable div, scroll height of next row
 		if(this.options & LIST_VIEW_FULL){
-			
 			// a bit complicated but the box has to scroll flush to the bottom of the next item
-			if(DOWN && ((nextItem.offsetTop + nextItem.offsetHeight) > this.rowsBox.offsetHeight + this.rowsBox.scrollTop)){
-				this.rowsBox.scrollTop = nextItem.offsetTop + nextItem.offsetHeight - this.rowsBox.offsetHeight;
+			if(DOWN && ((nextItem.offsetTop + nextItem.offsetHeight) > 
+					this.rowsBox.offsetHeight + this.rowsBox.scrollTop)){
+				this.rowsBox.scrollTop = nextItem.offsetTop + 
+					nextItem.offsetHeight - this.rowsBox.offsetHeight;
 				
 			}
 			if(UP && nextItem.offsetTop < this.rowsBox.scrollTop + 18){
-				this.rowsBox.scrollTop = nextItem.offsetTop - (this.selectedItem.offsetTop - nextItem.offsetTop);
+				this.rowsBox.scrollTop = nextItem.offsetTop - 
+					(this.selectedItem.offsetTop - nextItem.offsetTop);
 			}
 		}
 		else{
+			alert()
 			// we are at bottom of visible list
 			if(this.rowsArr[i].elem == this.rowsBox.lastChild && DOWN){
 				this.rowsBox.removeChild(this.rowsBox.firstChild);
@@ -537,10 +542,12 @@ function Grid(container, options){
 		
 		// create visible rows
 		for(var i in this.rowsArr){
-			this.rowsArr[i].elem.style.width = hdrWidth + 'px';
-			this.rowsBox.appendChild(this.rowsArr[i].elem);
-			for(var n=0; n < this.rowsArr[i].cells.length; n++){
-				this.rowsArr[i].cells[n].style.width = arrWidths[n] + 'px';
+			var row = this.rowsArr[i];
+			row.elem.style.width = hdrWidth + 'px';
+			this.rowsBox.appendChild(row.elem);
+			var len = row.cells.length
+			for(var n=0; n < len; n++){
+				row.cells[n].style.width = arrWidths[n] + 'px';
 			}
 		}
 	}
@@ -559,7 +566,6 @@ function Grid(container, options){
 	
 	
 	this.showFrom = function(newStartIdx, selIdx){
-	alert('showFrom')
 		if(this.options & LIST_VIEW_FULL){
 			// todo: why does the hdr div affect offsetTop of elem in rowsBox?
 			this.rowsBox.scrollTop = 
@@ -736,7 +742,8 @@ function Grid(container, options){
 		_this.rowsArr.sort(sortBy);
 		
 		// reset the "index" attr of all the rows to match array
-		for(var n in _this.rowsArr){
+		var len = _this.rowsArr.length;
+		for(var n=0; n<len; n++){
 			_this.rowsArr[n].elem.setAttribute("index", n)
 		}
 		

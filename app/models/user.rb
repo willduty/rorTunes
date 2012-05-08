@@ -10,8 +10,8 @@ end
 class User < ActiveRecord::Base
 	belongs_to :user_groups
 	
-	has_many :items
-	has_many :tunes, :through => :items, :source => :itemable, :source_type => 'Tune'
+	has_many :items, :dependent=>:destroy
+	has_many :tunes, :through => :items, :source => :itemable, :source_type => 'Tune', :dependent=>:destroy
 	has_many :tune_sets, :through => :items, :source => :itemable, :source_type => 'TuneSet'
 	has_many :resources, :through => :items, :source => :itemable, :source_type => 'Resource'
 	has_many :groups, :through => :items, :source => :itemable, :source_type => 'Group'
@@ -26,7 +26,7 @@ class User < ActiveRecord::Base
 	validates :password, :presence => true
 	
 	def self.authenticate(email, password)
-		user = self.find_by_email(email)
+		user = self.find_by_email_and_password(email, password)
 		return nil unless !user.nil?
 		pwd = user.password
 		pwd.strip!

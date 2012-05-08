@@ -1,4 +1,7 @@
 class SessionController < ApplicationController
+
+  layout '_no_navbar', :only => :login
+
   def index
 	userid = 1;
 	unless params[:id].nil?

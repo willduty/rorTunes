@@ -192,127 +192,112 @@ window.onload = function (){
 </script>
 
 <link rel=StyleSheet href="css/style.css" type="text/css" media=screen>
- 
-</head>
 
 
-<body>
-	<title>My Tunes Page</title>
-
-	<table class=navtable id=navtable border=0 cellpadding="0" border="0" cellspacing="0" align=center>
-		<!-- NAV BAR -->
-		<tr>
-			<td colspan=2>				
-				<%= render 'layouts/navbar' %>
-			</td>
-		</tr>
-	</table>
-	
-	<table  id=maintable onselectstart="return false;" cellpadding="0" border="0" cellspacing="0" align=center>
-		<tr id=mainRow>
-			<!-- LEFT COLUMN, CONTENT AREA -->
-			<td height=100% width=650 valign=top id=mainTableLeftColumn >
-				<table class=unpaddedtable height=100%  cellpadding="0" border="0" cellspacing="0" >
-					<tr>
-						<!-- header -->
-						<td class="contentHeader" >
-							<table >
-								<tr>
-									<td width=95 class="toolheader">Resources</td>
-									<td class="info white">Count: <span id=count></span></td>
-								</tr>
-							</table>
-						</td>
-					</tr>
-					<tr>
-						<!-- buttons -->
-						<td bgcolor=aaaaaa height=25 style="padding-top:2px;padding-bottom:4px;" onselectstart="return false;">
-							&nbsp;&nbsp;<span class="info gray">View: </span>
-							<span onOff="on" name=onOffButton id=viewResources btnGroup=view callback=showGrid><span>grid</span></span>
-							<span onOff="off" name=onOffButton id=viewResources btnGroup=view callback=showList><span>as list</span></span>
-							<span onOff="off" name=onOffButton id=viewResourcesByTune btnGroup=view callback=showByTune><span>by tune</span></span>
-						</td>
-					</tr>
+<table  id=maintable onselectstart="return false;" cellpadding="0" border="0" cellspacing="0" align=center>
+	<tr id=mainRow>
+		<!-- LEFT COLUMN, CONTENT AREA -->
+		<td height=100% width=650 valign=top id=mainTableLeftColumn >
+			<table class=unpaddedtable height=100%  cellpadding="0" border="0" cellspacing="0" >
+				<tr>
+					<!-- header -->
+					<td class="contentHeader" >
+						<table >
+							<tr>
+								<td width=95 class="toolheader">Resources</td>
+								<td class="info white">Count: <span id=count></span></td>
+							</tr>
+						</table>
+					</td>
+				</tr>
+				<tr>
+					<!-- buttons -->
+					<td bgcolor=aaaaaa height=25 style="padding-top:2px;padding-bottom:4px;" onselectstart="return false;">
+						&nbsp;&nbsp;<span class="info gray">View: </span>
+						<span onOff="on" name=onOffButton id=viewResources btnGroup=view callback=showGrid><span>grid</span></span>
+						<span onOff="off" name=onOffButton id=viewResources btnGroup=view callback=showList><span>as list</span></span>
+						<span onOff="off" name=onOffButton id=viewResourcesByTune btnGroup=view callback=showByTune><span>by tune</span></span>
+					</td>
+				</tr>
+			
+				<!-- CONTENT -->
+				<tr>
+					<td id=contentarea style="height:100%; width:100%;"></td>
+				</tr>
 				
-					<!-- CONTENT -->
-					<tr>
-						<td id=contentarea style="height:100%; width:100%;"></td>
-					</tr>
-					
-				</table>		
-			</td>
+			</table>		
+		</td>
+	
 		
 			
-				
-			<!-- RIGHT COLUMN, TOOL AREA -->
-			<td class=toolArea valign=top width=350>
-				<table width=100% height=100%>
-					<tr>
-						<td height=30>
-							<table>
-								<tr>
-									<!-- tool switches -->
-									<td>
-										<span class="toolBtnOff" name=toolButton tool=newResource fullPageTool>New Resource</span> | 
-										<span class="toolBtnOff" name=toolButton tool=searchResources>Search</span>
-									
-									</td>
-								</tr>								
-							</table>
-						</td>
-					</tr>
-					<tr>
-						<td colspan=3>
-							<!-- tool elements -->
-							
-													
-							<!-- new resource tool -->
-							<%= render 'layouts/resource_search_tool' %>
+		<!-- RIGHT COLUMN, TOOL AREA -->
+		<td class=toolArea valign=top width=350>
+			<table width=100% height=100%>
+				<tr>
+					<td height=30>
+						<table>
+							<tr>
+								<!-- tool switches -->
+								<td>
+									<span class="toolBtnOff" name=toolButton tool=newResource fullPageTool>New Resource</span> | 
+									<span class="toolBtnOff" name=toolButton tool=searchResources>Search</span>
+								
+								</td>
+							</tr>								
+						</table>
+					</td>
+				</tr>
+				<tr>
+					<td colspan=3>
+						<!-- tool elements -->
+						
+												
+						<!-- new resource tool -->
+						<%= render 'layouts/resource_search_tool' %>
 
-							
-							<!-- search sets tool -->
-							<table id=searchResources class=toolContainer name=toolContainer style="display:none;" border=0 width=100%>
-								<tr>
-									<td colspan=3 height=60 class=toolheader>Search Resources</td>
-								</tr>
-								<tr>
-									<td colspan=3 height=40 class="info white">
-										Search For:<br>
-										<input type=text id=searchResourcesEntryBox clearOnCancel></input>
-									</td>
-								</tr>
-								<tr>
-									<td colspan=3 height=10>
-										<div id=searchResourcesResultBoxContainer>
-											<div id=resultsLabel class='info white' style="display:none;" hideOnCancel>results:</div>
-											<div id=searchResourcesResultBox clearOnCancel></div>
-										</div>
-									</td>
-								</tr>
-								<tr>
-									<td valign=top>
-										<span class="info white pointer" onclick="alert('todo')">search</span> | 
-										<span class="info cancel pointer" name=toolCancel>close</span>
-									</td>
-									<td></td>
-									<td></td>
-								</tr>
-							</table>
-						</td>
-					</tr>
-					
-				</table>
-		
-			</td>
-		</tr>
-		
-		<!-- BOTTOM SPACER ROW -->
-		<tr>
-			<td bgcolor=#555 height=10 colspan=2>
-				<div class='info pointer' onclick='saveCurrentView();'>save current page view</div>
-			</td>
-		</tr>
-		
-	</table>		
-</body>
-</html>
+						
+						<!-- search sets tool -->
+						<table id=searchResources class=toolContainer name=toolContainer style="display:none;" border=0 width=100%>
+							<tr>
+								<td colspan=3 height=60 class=toolheader>Search Resources</td>
+							</tr>
+							<tr>
+								<td colspan=3 height=40 class="info white">
+									Search For:<br>
+									<input type=text id=searchResourcesEntryBox clearOnCancel></input>
+								</td>
+							</tr>
+							<tr>
+								<td colspan=3 height=10>
+									<div id=searchResourcesResultBoxContainer>
+										<div id=resultsLabel class='info white' style="display:none;" hideOnCancel>results:</div>
+										<div id=searchResourcesResultBox clearOnCancel></div>
+									</div>
+								</td>
+							</tr>
+							<tr>
+								<td valign=top>
+									<span class="info white pointer" onclick="alert('todo')">search</span> | 
+									<span class="info cancel pointer" name=toolCancel>close</span>
+								</td>
+								<td></td>
+								<td></td>
+							</tr>
+						</table>
+					</td>
+				</tr>
+				
+			</table>
+	
+		</td>
+	</tr>
+	
+	<!-- BOTTOM SPACER ROW -->
+	<tr>
+		<td bgcolor=#555 height=10 colspan=2>
+			<div class='info pointer' onclick='saveCurrentView();'>save current page view</div>
+		</td>
+	</tr>
+	
+</table>		
+

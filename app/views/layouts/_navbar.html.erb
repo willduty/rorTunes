@@ -2,17 +2,40 @@
 					<tr>
 						<td width=80%>
 							</span>&nbsp;</span>
-							<span><a href="/home" class=navbarlink id=navhome> Home</a> <span class=gray>|</span> </span>
-							<span><a href="/tunes" class=navbarlink id=navtunes> Tunes</a> <span class=gray>|</span> </span>
-							<span><a href="/tune_sets" class=navbarlink id=navtune_sets> Sets</a> <span class=gray>|</span> </span>
-							<span><a href="/resources" class=navbarlink id=navresources> Resources</a> <span class=gray>|</span> </span>
-							<span><a href="/groups" class=navbarlink id=navgroups> Groups</a> <span class=gray>|</span> </span>
+							<span><a href="/home" class=navbarlink id=navhome> Home</a>
+							 <span class=gray>|</span> </span>
+							<span><a href="/tunes" class=navbarlink id=navtunes> Tunes</a>
+							 <span class=gray>|</span> </span>
+							<span><a href="/tune_sets" class=navbarlink id=navtune_sets> Sets</a>
+							 <span class=gray>|</span> </span>
+							<span><a href="/resources" class=navbarlink id=navresources> Resources</a>
+							 <span class=gray>|</span> </span>
+							<span><a href="/groups" class=navbarlink id=navgroups> Groups</a>
+							 <span class=gray>|</span> </span>
 							<span><a href="/tools" class=navbarlink id=navexport> Tools</a></span>
-							<!--<span><a href="manage.php" class=navbarlink id=navmanage> Manage</a></span>-->
+					
+					
+							<% 
+								user = User.find_by_id(session[:user_cookie])
+								admin = user.user_group_id == 1
+								
+							%>	
+							<% if admin %>
+							
+							<span class=gray>|</span> 
+							<span><a href="/admin" class=navbarlink id=navadmin> Admin</a></span>
+							end
+							
+							<% end %>
+					
+					
 						</td>
 						<td align=right>
-							<span style="text-align:right;"><a href="helppage.php" class=navbarlink>Help/About</a></span> <span class=gray>|</span> 
-							<span style="text-align:right;"><%= link_to 'Logout', '/session/logout', :method=>:delete, :class=>'navbarlink' %></span></span>&nbsp;</span>
+							<span style="text-align:right;">
+							<a href="helppage.php" class=navbarlink>Help/About</a></span>
+							 <span class=gray>|</span> 
+							<span style="text-align:right;">
+							<%= link_to 'Logout', '/session/logout', :method=>:delete, :class=>'navbarlink' %></span></span>&nbsp;</span>
 						</td>
 					</tr>
 				</table>

@@ -1,7 +1,9 @@
 class TunesController < ApplicationController
 
+	
   def index
-	@title = 'Tunes'
+
+  	@title = 'Tunes'
 	@tunes = Tune.find(:all, :include => [:keys, :tune_types])
 	@keys = Key.all
 	@newTune = Tune.new

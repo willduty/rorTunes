@@ -1,9 +1,3 @@
-<!DOCTYPE html>
-
-<html>
-
-<head>
-
 
 <script type="text/javascript">
 
@@ -96,216 +90,202 @@ window.onload = function(){
 
 </script>
 
-</head>
-
-
-<body>
-	<table class=navtable id=navtable border=0 cellpadding=0 cellspacing=0 align=center>
-		<!-- NAV BAR -->
-		<tr>
-			<td class=headerbar>
-				<%= render 'layouts/navbar' %>
-			</td>
-		</tr>
-	</table>
 				
-	<table id=maintable class=maintable width=600 cellpadding=0 cellspacing=0 align=center>
-		
-		<tr>
-			<!-- header -->
-			<td class="contentHeader">
-				<table>
-					<tr>
-						<td width=95 class="toolheader">Tunes Home</td>
-						<td class="info white">
-						</td>
-					</tr>
-				</table>	
-			</td>
-		</tr>
-		
-		<tr>
-			<td class=info valign=top height=100%>
-
-				<% if flash[:error] %>
-					<div class=flash>! <%= flash[:error] %></div><br>
-				<% end %>
-				
-				<% if flash[:notice] %>
-					<div class=flashInfo>! <%= flash[:notice] %></div><br>
-				<% end %>
+<table id=maintable class=maintable width=600 cellpadding=0 cellspacing=0 align=center>
 	
+	<tr>
+		<!-- header -->
+		<td class="contentHeader">
+			<table>
+				<tr>
+					<td width=95 class="toolheader">Tunes Home</td>
+					<td class="info white">
+					</td>
+				</tr>
+			</table>	
+		</td>
+	</tr>
+	
+	<tr>
+		<td class=info valign=top height=100%>
 
-				
-				<!-- content table -->
-				<table cellspacing=20>
-					<tr>
-						<td valign=top>
-						
-						<!--<span><div class=helpicon>?</div></span>-->
-							
-							<div class=infohdr>Favorites&nbsp;&nbsp;<img src='img/helpIcon.gif'></img></div>
-							<div class="item ltltgrayBkgd bubbleSection" style="width:500;"  id=favoritesBox style="margin-left:10px">
-								<div class='info gray' name=placeholder>&nbsp;[no favorites have been added]</div>
-							</div>
-							<br>
-							
-							<div class=infohdr>Latest</div>
-							<div class="item ltltgrayBkgd bubbleSection" style="width:500;" id=latestBox style="margin-left:10px">
-								<div><a href="tunes.php" id=tunesSectionHdr class="info copper">Tunes:</a></div>
-								<div class="indentedbox" id=latesttunesBox></div>
-								<div><a href="resources.php" id=resourcesSectionHdr class="info copper">Resources:</a></div>
-								<div class="indentedbox" id=latestresourcesBox></div>
-								<div><a href="sets.php" id=setsSectionHdr class="info copper ">Sets:</a></div>
-								<div class="indentedbox" id=latestsetsBox></div>
-								<div><a href="groups.php" id=groupsSectionHdr class="info copper">Groups:</a></div>
-								<div class="indentedbox" id=latestgroupsBox></div>
-							</div>
-							<br>			
-						</td>
-						
-						<td valign=top>
-							<div class=infohdr>Account</div>
-							<div class="item ltltgrayBkgd bubbleSection" style="width:300;"  id=accountBox style="margin-left:10px">
-								
-								<div class=info style="margin-top:5">username: <span class=item><%= @user.username %></span></div>
-								<div class=info>password: <span class=item><%= 
-									(1..@user.password.length).map{|d| '&#8226;'}.to_s.html_safe %></span>
-									<span onclick="showChangePassword();" class="info ltgray">[change password]</span>
-								</div>
-								<div class="info bubbleSection whiteBkgd" id=changePasswordBox style="display:none; width:90%; margin-bottom:10px;">
-								
-									<%= form_for @user, {:url=>{:action=>:change_password}, :method=>:put, :html=>{:id=>'change_password'}} do |f| %>
-									<%= f.label 'current password' %>
-									<%= f.password_field :password, {:name=>:old_password, :clearOnCancel=>true, :size=>15} %><br>
-									<%= f.label 'new password' %>
-									<%= f.password_field :password, {:name=>:new_password, :clearOnCancel=>true, :size=>15} %><br>
-									<%= f.label 'reenter new password' %>
-									<%= f.password_field :password, {:name=>:new_password_again, :clearOnCancel=>true, :size=>15} %><br>
-									<%= f.button 'change password' %><%= f.button 'cancel', {:type=>:button, :onclick=>"showChangePassword(true)"} %><br>
-									<%= f.hidden_field :redirect, {:name=>:redirect, :value=>'/home'} %>
-									<% end %>
-									
-								</div>
-								
-								<div class=info>email: <span class=item><%= @user.email %></span></div>
-								<div class=info>registered: <span class=item><%= @user.createDate.strftime('%m/%d/%Y %H:%M:%S') %></span></div>
-								<div class=info style="margin-bottom:5">last login: <span class=item><%= @user.lastLogin.strftime('%m/%d/%Y %H:%M:%S') %></span></div>
-								
-								
-							</div>
-							<br>
-							
-							<div class=infohdr>Options</div>
-							<div class="ltltgrayBkgd bubbleSection" style="width:300;"  id=settingsBox style="margin-left:10px">
-							
-							
-							
-							
-								<%= form_for @user, {:url=>{:action=>:update_user_settings}} do|f| %>
-									
-									<% f.object.user_settings.each do |us| %>
-									
-										<%= f.fields_for us do |setting| %>
-										
-											<%=  setting.hidden_field :name %>		
-											<%=  setting.hidden_field :page %>
-										<% 
-										end
-									end
-									%>
-								
-								<% end %>
-							
-								
-								
-								
-								<div tool=viewOptions name=toolButton onClass='black' offClass='darkgray'>View &raquo;</div>	
-								<div id=viewOptions tool style='display:none;'>
-								<div class=label>Tunes Page</div>
-								
-									<div class=settingsSection>
-									<span class=label>View:</span> 
-										<span>grid</span> | 
-										<span>jumble</span><br>
-									<span class=label>Sort By:</span> 
-										<span name=sort_by page=tunes value=title>title</span> | 
-										<span name=sort_by page=tunes value=date>entry date</span> | 
-										<span name=sort_by page=tunes value=key>key</span> | 
-										<span name=sort_by page=tunes value=type>type</span>  
-										&nbsp;&nbsp;<span class=label>Direction:</span> 
-										<span>asc</span> | <span>desc</span><br>
-									</div>
-		
-								<div class=label>Sets Page</div>
-									<div class=settingsSection>
-									<span class=label>view:</span>
-										<span>grid</span> | 
-										<span>by group</span><br>
-										
-									<span class=label>sort by:</span> 
-										<span>title</span> | 
-										<span>entry date</span> | 
-										<span>tune type</span>
-										&nbsp;&nbsp;<span class=label>Direction:</span> 
-										<span>asc</span> | <span>desc</span><br>
-									</div>
-								<div class=label>Resources Page</div>
-									<div class=settingsSection>
-									<span class=label>view:</span> 
-										<span>grid</span> | 
-										<span>icon</span><br>
-									<span class=label>sort by:</span> 
-										<span>entry date</span> | 
-										<span>title</span> | 
-										<span>tune type</span>
-										&nbsp;&nbsp;<span class=label>Direction:</span> 
-										<span>asc</span> | <span>desc</span><br>
-									</div>
-								<div class=label>Groups Page</div>
-									<div class=settingsSection>
-									<span class=label>show archived </span><br> 
-									<span class=label>groups</span>
-									<span>open</span> |
-									<span>collapsed</span>
-									<br>
-									</div>
-								<div class=label>All Pages</div>
-									<div class=settingsSection>
-										<span class=label>width:</span> 
-										<span>column</span> | 
-										<span>expand</span><br>
-										<span class=label>height:</span>
-										<span>fit in window</span> | 
-										<span>full</span><br>
-										<span class=label>play resources in:
-										<span> page</span> | 
-										<span>new browser window</span><br>
-									</div>
-								<br>
-		
-								
-								
-								
-								<div align=right valign=top colspan=4 id=saveChangesDiv >
-									<span class="toolBtn white blackBkgd" onclick="saveTuneChanges();">save changes</span>  
-									<span id=cancelChangesButton class="toolBtn white blackBkgd" onclick="fillTuneProps();">cancel</span>
-								</div>
-								</div>
-								
-							
-								
-							</div>
-							<br>
-						</td>
+			<% if flash[:error] %>
+				<div class=flash>! <%= flash[:error] %></div><br>
+			<% end %>
+			
+			<% if flash[:notice] %>
+				<div class=flashInfo>! <%= flash[:notice] %></div><br>
+			<% end %>
+
+
+			
+			<!-- content table -->
+			<table cellspacing=20>
+				<tr>
+					<td valign=top>
 					
-					</tr>
-				</table>
+					<!--<span><div class=helpicon>?</div></span>-->
+						
+						<div class=infohdr>Favorites&nbsp;&nbsp;<img src='img/helpIcon.gif'></img></div>
+						<div class="item ltltgrayBkgd bubbleSection" style="width:500;"  id=favoritesBox style="margin-left:10px">
+							<div class='info gray' name=placeholder>&nbsp;[no favorites have been added]</div>
+						</div>
+						<br>
+						
+						<div class=infohdr>Latest</div>
+						<div class="item ltltgrayBkgd bubbleSection" style="width:500;" id=latestBox style="margin-left:10px">
+							<div><a href="tunes.php" id=tunesSectionHdr class="info copper">Tunes:</a></div>
+							<div class="indentedbox" id=latesttunesBox></div>
+							<div><a href="resources.php" id=resourcesSectionHdr class="info copper">Resources:</a></div>
+							<div class="indentedbox" id=latestresourcesBox></div>
+							<div><a href="sets.php" id=setsSectionHdr class="info copper ">Sets:</a></div>
+							<div class="indentedbox" id=latestsetsBox></div>
+							<div><a href="groups.php" id=groupsSectionHdr class="info copper">Groups:</a></div>
+							<div class="indentedbox" id=latestgroupsBox></div>
+						</div>
+						<br>			
+					</td>
+					
+					<td valign=top>
+						<div class=infohdr>Account</div>
+						<div class="item ltltgrayBkgd bubbleSection" style="width:300;"  id=accountBox style="margin-left:10px">
+							
+							<div class=info style="margin-top:5">username: <span class=item><%= @user.username %></span></div>
+							<div class=info>password: <span class=item><%= 
+								(1..@user.password.length).map{|d| '&#8226;'}.to_s.html_safe %></span>
+								<span onclick="showChangePassword();" class="info ltgray">[change password]</span>
+							</div>
+							<div class="info bubbleSection whiteBkgd" id=changePasswordBox style="display:none; width:90%; margin-bottom:10px;">
+							
+								<%= form_for @user, {:url=>{:action=>:change_password}, :method=>:put, :html=>{:id=>'change_password'}} do |f| %>
+								<%= f.label 'current password' %>
+								<%= f.password_field :password, {:name=>:old_password, :clearOnCancel=>true, :size=>15} %><br>
+								<%= f.label 'new password' %>
+								<%= f.password_field :password, {:name=>:new_password, :clearOnCancel=>true, :size=>15} %><br>
+								<%= f.label 'reenter new password' %>
+								<%= f.password_field :password, {:name=>:new_password_again, :clearOnCancel=>true, :size=>15} %><br>
+								<%= f.button 'change password' %><%= f.button 'cancel', {:type=>:button, :onclick=>"showChangePassword(true)"} %><br>
+								<%= f.hidden_field :redirect, {:name=>:redirect, :value=>'/home'} %>
+								<% end %>
+								
+							</div>
+							
+							<div class=info>email: <span class=item><%= @user.email %></span></div>
+							<div class=info>registered: <span class=item><%= @user.createDate.strftime('%m/%d/%Y %H:%M:%S') %></span></div>
+							<div class=info style="margin-bottom:5">last login: <span class=item><%= @user.lastLogin.strftime('%m/%d/%Y %H:%M:%S') %></span></div>
+							
+							
+						</div>
+						<br>
+						
+						<div class=infohdr>Options</div>
+						<div class="ltltgrayBkgd bubbleSection" style="width:300;"  id=settingsBox style="margin-left:10px">
+						
+						
+						
+						
+							<%= form_for @user, {:url=>{:action=>:update_user_settings}} do|f| %>
+								
+								<% f.object.user_settings.each do |us| %>
+								
+									<%= f.fields_for us do |setting| %>
+									
+										<%=  setting.hidden_field :name %>		
+										<%=  setting.hidden_field :page %>
+									<% 
+									end
+								end
+								%>
+							
+							<% end %>
+						
+							
+							
+							
+							<div tool=viewOptions name=toolButton onClass='black' offClass='darkgray'>View &raquo;</div>	
+							<div id=viewOptions tool style='display:none;'>
+							<div class=label>Tunes Page</div>
+							
+								<div class=settingsSection>
+								<span class=label>View:</span> 
+									<span>grid</span> | 
+									<span>jumble</span><br>
+								<span class=label>Sort By:</span> 
+									<span name=sort_by page=tunes value=title>title</span> | 
+									<span name=sort_by page=tunes value=date>entry date</span> | 
+									<span name=sort_by page=tunes value=key>key</span> | 
+									<span name=sort_by page=tunes value=type>type</span>  
+									&nbsp;&nbsp;<span class=label>Direction:</span> 
+									<span>asc</span> | <span>desc</span><br>
+								</div>
+	
+							<div class=label>Sets Page</div>
+								<div class=settingsSection>
+								<span class=label>view:</span>
+									<span>grid</span> | 
+									<span>by group</span><br>
+									
+								<span class=label>sort by:</span> 
+									<span>title</span> | 
+									<span>entry date</span> | 
+									<span>tune type</span>
+									&nbsp;&nbsp;<span class=label>Direction:</span> 
+									<span>asc</span> | <span>desc</span><br>
+								</div>
+							<div class=label>Resources Page</div>
+								<div class=settingsSection>
+								<span class=label>view:</span> 
+									<span>grid</span> | 
+									<span>icon</span><br>
+								<span class=label>sort by:</span> 
+									<span>entry date</span> | 
+									<span>title</span> | 
+									<span>tune type</span>
+									&nbsp;&nbsp;<span class=label>Direction:</span> 
+									<span>asc</span> | <span>desc</span><br>
+								</div>
+							<div class=label>Groups Page</div>
+								<div class=settingsSection>
+								<span class=label>show archived </span><br> 
+								<span class=label>groups</span>
+								<span>open</span> |
+								<span>collapsed</span>
+								<br>
+								</div>
+							<div class=label>All Pages</div>
+								<div class=settingsSection>
+									<span class=label>width:</span> 
+									<span>column</span> | 
+									<span>expand</span><br>
+									<span class=label>height:</span>
+									<span>fit in window</span> | 
+									<span>full</span><br>
+									<span class=label>play resources in:
+									<span> page</span> | 
+									<span>new browser window</span><br>
+								</div>
+							<br>
+	
+							
+							
+							
+							<div align=right valign=top colspan=4 id=saveChangesDiv >
+								<span class="toolBtn white blackBkgd" onclick="saveTuneChanges();">save changes</span>  
+								<span id=cancelChangesButton class="toolBtn white blackBkgd" onclick="fillTuneProps();">cancel</span>
+							</div>
+							</div>
+							
+						
+							
+						</div>
+						<br>
+					</td>
 				
-			</td>
-		</tr>
-		
-	</table>		
-</body>
-</html>
+				</tr>
+			</table>
+			
+		</td>
+	</tr>
+	
+</table>		
 

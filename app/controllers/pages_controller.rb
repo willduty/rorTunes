@@ -8,6 +8,10 @@ class PagesController < ApplicationController
 		t = Test.new
 		render :json => t
 	end
+	
+	def admin
+		@users = User.find :all
+	end
 
 end
 

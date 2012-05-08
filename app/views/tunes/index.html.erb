@@ -1,4 +1,7 @@
 
+
+<%= @whichcontroller %>
+
 <script type="text/javascript">
 
 // user settings
@@ -175,21 +178,6 @@ function showGrid(){
 									pair[1], useArr[pair[1]].title);
 		}
 	}
-	
-	
-	
-	
-	// set buttons from usersettings
-	// for(var name in gUserSettings.page){
-		// var btnGroup = $('[name=onOffButton][btnGroup='+name+']')
-		// if(btnGroup.length)
-			// btnGroup.each(function(){
-				// $(this).attr('onOff', ($(this).attr('id') == gUserSettings.page[name]) ?
-						// 'on' : 'off');
-			// })
-	// }
-	
-	
 	
 	
 	var filters = getFilters();
@@ -426,225 +414,204 @@ try{
 
  </script>
  
- 
- </head>
 
- 
-<body>
-
-	<title>My Tunes Page</title>
-
-	<table class=navtable id=navtable border=0 cellpadding=0 cellspacing=0 align=center>
-		<!-- NAV BAR -->
-		<tr>
-			<td>
-				<%= render 'layouts/navbar' %>
-			</td>
-		</tr>
-	</table>
-	
-	<table id=maintable border=0 cellpadding=0 cellspacing=0 align=center>
-		<tr>
-			<!-- LEFT COLUMN -->			
-			<td height=100% width=650 valign=top id=mainTableLeftColumn>
-				<table class=unpaddedtable height=100% border=0 cellpadding=0 cellspacing=0>
-					<tr>
-						<!-- header -->
-						<td class="contentHeader">
-							<table >
-								<tr>
-									<td width=95 class="toolheader">Tunes</td>
-									<td class="info white">Count: <span id=count></span></td>
-								</tr>
-							</table>
-						</td>
-					</tr>
-					<tr>
-						<!-- buttons -->
-						<td bgcolor=aaaaaa height=25 style="padding-top:2px;padding-bottom:4px;">	
-							&nbsp;&nbsp;<span class="info gray">View: </span> 
-							<span onOff="on" name=onOffButton id=viewGrid btnGroup=view callback="showTunes" class=onOffBtnOff><span>grid</span></span>
-							<span onOff="off" name=onOffButton id=viewList btnGroup=view callback="showTunes" class=onOffBtnOff><span>list</span></span>
-							
-							&nbsp;&nbsp;<span class="info gray">Filter by:</span> 
-							
-							<span onOff='off' name=onOffButton id=filterActivity callback=filterClicked padType=activity innerElem=filterActivitySlot class=onOffBtnOff>
-								<span>tune activity &nbsp;</span><span id=filterActivitySlot></span></span>
-							<span onOff='off' name=onOffButton id=filterKey callback=filterClicked padType=key innerElem=filterKeySlot class=onOffBtnOff>
-								<span>key &nbsp;</span><span id=filterKeySlot></span></span>
-							<span onOff='off' name=onOffButton id=filterType callback=filterClicked padType=type innerElem=filterTypeSlot class=onOffBtnOff>
-								<span>type &nbsp;</span><span id=filterTypeSlot></span></span> 
-							<span onOff='off' name=onOffButton id=filterGroup callback=filterClicked padType=group innerElem=filterGroupSlot class=onOffBtnOff>
-								<span>group&nbsp;</span><span id=filterGroupSlot></span></span>
-						
-						</td>
-					</tr>
-				
-					<!-- CONTENT -->
-					<tr>
-						<td id=contentarea style="height:100%; width:100%;"></td>
-					</tr>
-				</table>
-				
-			</td>
-			
-			<!-- RIGHT COLUMN, TOOL AREA -->
-			<td class=toolArea valign=top width=350 rowspan=3>
-				<table width=100% height=100%>
-					<tr>
-						<td height=30>
-							<table>
-								<tr>
-									<!-- tool switches -->
-									<td><span class="toolBtnOff" name=toolButton tool=newTuneTable>New Tune</span></td>
-									<td> | </td>
-									<td><span class="toolBtnOff" name=toolButton tool=addMultipleTable>Multiple New</span></td>
-									<td> | </td>
-									<td><span class="toolBtnOff" id=newSetBtn name=toolButton tool=newSetTable>New Set</span></td>
-								</tr>
-							</table>
-						</td>
-					</tr>
-					<tr>
-						<td style='vertical-align:top; '>
-
-						<!-- tool elements -->
-						
-
-						<!-- new tune table -->
-						<table id=newTuneTable name=toolContainer class=toolContainer style="display:none;" width=100%>
+<table id=maintable border=0 cellpadding=0 cellspacing=0 align=center>
+	<tr>
+		<!-- LEFT COLUMN -->			
+		<td height=100% width=650 valign=top id=mainTableLeftColumn>
+			<table class=unpaddedtable height=100% border=0 cellpadding=0 cellspacing=0>
+				<tr>
+					<!-- header -->
+					<td class="contentHeader">
+						<table >
 							<tr>
-								<td height=60 class=toolheader>New Tune</td>
+								<td width=95 class="toolheader">Tunes</td>
+								<td class="info white">Count: <span id=count></span></td>
 							</tr>
-							<tr>
-								<td valign=top align=left class=infohdr>
-									<%= form_for @newTune, {:url=>{:action=>'create'}, :html=>{:method=>:post}} do |nt| %>
-									
-									<table border=0 class=bubbleSectionTool>
-										<tr>
-											<td align=left height=35 class="infohdr ltltgray" colspan=3>
-												Title: <%= nt.text_field :title, :size => '20' %>
-												
-												<!-- <input type=text id=newTunetitle size=20 clearOnCancel></input>-->
-											</td>
-										</tr>				
-										<tr>
-											<td valign=top>
-												<table style="width:300" class="info white" border=0>
-													<tr>
-														<td style="width:100">
-															<span padTarget=newTuneType padSwitch=type padCallback=padItemSelected padHiddenTarget=newTuneTypesHidden class="pointer ltcopper">Type... </span>
-															<span id=newTuneType clearOnCancel class="info white"></span>
-															<br><br>
-															<span  padTarget=newTuneKey padSwitch=key padCallback=padItemSelected padHiddenTarget=newTuneKeysHidden class="pointer ltcopper">Key... </span>
-															<span id=newTuneKey clearOnCancel class="info white"></span>
-															<input type=hidden name='tune[key_ids]' value=1 id=newTuneKeysHidden>
-															<input type=hidden name='tune[tune_type_ids]' value=1 id=newTuneTypesHidden>
-															<input type=hidden name='tune[status]' value=1>
-															<input type=hidden name='tune[parts]' id=newTunePartsHidden value=2>
-															
-															<br><br>
-															<span padTarget=newTuneParts padSwitch=parts padCallback=padItemSelected padHiddenTarget=newTunePartsHidden class="pointer ltcopper">Parts... </span>
-															<span id=newTuneParts clearOnCancel class="info white"></span>
-														</td>
-														<td style="width:100">
-														</td>
-														<td style="width:100">
-														</td>
-													</tr>
-												</table>
-											</td>
-										</tr>
-										<tr>
-											<td>
-												<br><span onOff="off" name=onOffButton id=saveAsTodo class=onOffBtnOff>save as to-do tune</span><br>
-											</td>
-										</tr>
-									</table>
-									<br>
-									<%= nt.submit :type=>'submit' %>
-									<%= nt.submit 'cancel', {:type=>'button', :name=>'toolCancel'} %>
-									 
-									<% end %>
-								</td>
-							</tr>					
 						</table>
+					</td>
+				</tr>
+				<tr>
+					<!-- buttons -->
+					<td bgcolor=aaaaaa height=25 style="padding-top:2px;padding-bottom:4px;">	
+						&nbsp;&nbsp;<span class="info gray">View: </span> 
+						<span onOff="on" name=onOffButton id=viewGrid btnGroup=view callback="showTunes" class=onOffBtnOff><span>grid</span></span>
+						<span onOff="off" name=onOffButton id=viewList btnGroup=view callback="showTunes" class=onOffBtnOff><span>list</span></span>
 						
+						&nbsp;&nbsp;<span class="info gray">Filter by:</span> 
 						
-						
-						<!-- multiple new tunes table -->
-						<table id=addMultipleTable name=toolContainer class=toolContainer style="display:none;" width=100%>
-							<tr>
-								<td height=60 class=toolheader>Add Multiple New Tunes</td>
-							</tr>
-							<tr>
-								<td valign=top >
-									<table >
-										<tr><td class='bubbleSectionTool'>
-											<div height=10 class='plainText white'>To add multiple tunes add a line-separated list of tunes. 
-												<br><span class='copper'>more info&raquo;</span></div>
-											<textarea id=addMultipleBox rows=15 cols=40 clearOnCancel></textarea>
-										</td></tr>
-										<tr>
-											<td align=left>
-												<span class="info white pointer" onclick="submitMultiple(); return false;">submit</span> | 
-												<span class="info cancel pointer" id=btn1 name=toolCancel>cancel</span>
-											</td>
-										</tr>
-									</table>
-								</td>
-								
-							</tr>
-							
-							
-							
-						</table>
-						
-						
-						
-						<!-- new set table -->
-						<table id=newSetTable name=toolContainer class=toolContainer style="display:none;" width=100% border=0>
-							<tr><td colspan=3 height=60 class=toolheader>New Set</td></tr>
-							<tr>
-								<td valign=top>
-									<table width=100%>
-										<tr>
-											<td><button onclick="addToSet(); return false;">=></button></td>
-											<td>
-												<select multiple size=5 id=newSetList clearOnCancel></select><br>
-												<span class="info white pointer" onclick="clearList('newSetList'); return false;">clear</span>
-											</td>
-										</tr>
-									</table>
-									<br>
-									<span class="info white pointer" onclick="saveNewSet({groupId:0, setElem:document.getElementById('newSetList')}); return false;">save set</span> | 
-									<span class="info white pointer" id=saveNewSetToGroupBtn>save set to group</span> | 
-									<span class="info cancel pointer" id=btn2 name=toolCancel>cancel</span>
-								</td>	
-							</tr>
-						</table>						
-						
-						
-						</td>
-					</tr>
+						<span onOff='off' name=onOffButton id=filterActivity callback=filterClicked padType=activity innerElem=filterActivitySlot class=onOffBtnOff>
+							<span>tune activity &nbsp;</span><span id=filterActivitySlot></span></span>
+						<span onOff='off' name=onOffButton id=filterKey callback=filterClicked padType=key innerElem=filterKeySlot class=onOffBtnOff>
+							<span>key &nbsp;</span><span id=filterKeySlot></span></span>
+						<span onOff='off' name=onOffButton id=filterType callback=filterClicked padType=type innerElem=filterTypeSlot class=onOffBtnOff>
+							<span>type &nbsp;</span><span id=filterTypeSlot></span></span> 
+						<span onOff='off' name=onOffButton id=filterGroup callback=filterClicked padType=group innerElem=filterGroupSlot class=onOffBtnOff>
+							<span>group&nbsp;</span><span id=filterGroupSlot></span></span>
 					
-				</table>
-		
-			</td>
-		</tr>
+					</td>
+				</tr>
 			
-		<!-- BOTTOM SPACER ROW -->
-		<tr>
-			<td bgcolor=#555 height=10 colspan=2>
-				<div class='info pointer' onclick='saveCurrentView();'>save current page view</div>
-			</td>
-		</tr>
+				<!-- CONTENT -->
+				<tr>
+					<td id=contentarea style="height:100%; width:100%;"></td>
+				</tr>
+			</table>
+			
+		</td>
 		
-	</table>
+		<!-- RIGHT COLUMN, TOOL AREA -->
+		<td class=toolArea valign=top width=350 rowspan=3>
+			<table width=100% height=100%>
+				<tr>
+					<td height=30>
+						<table>
+							<tr>
+								<!-- tool switches -->
+								<td><span class="toolBtnOff" name=toolButton tool=newTuneTable>New Tune</span></td>
+								<td> | </td>
+								<td><span class="toolBtnOff" name=toolButton tool=addMultipleTable>Multiple New</span></td>
+								<td> | </td>
+								<td><span class="toolBtnOff" id=newSetBtn name=toolButton tool=newSetTable>New Set</span></td>
+							</tr>
+						</table>
+					</td>
+				</tr>
+				<tr>
+					<td style='vertical-align:top; '>
+
+					<!-- tool elements -->
+					
+
+					<!-- new tune table -->
+					<table id=newTuneTable name=toolContainer class=toolContainer style="display:none;" width=100%>
+						<tr>
+							<td height=60 class=toolheader>New Tune</td>
+						</tr>
+						<tr>
+							<td valign=top align=left class=infohdr>
+								<%= form_for @newTune, {:url=>{:action=>'create'}, :html=>{:method=>:post}} do |nt| %>
+								
+								<table border=0 class=bubbleSectionTool>
+									<tr>
+										<td align=left height=35 class="infohdr ltltgray" colspan=3>
+											Title: <%= nt.text_field :title, :size => '20' %>
+											
+											<!-- <input type=text id=newTunetitle size=20 clearOnCancel></input>-->
+										</td>
+									</tr>				
+									<tr>
+										<td valign=top>
+											<table style="width:300" class="info white" border=0>
+												<tr>
+													<td style="width:100">
+														<span padTarget=newTuneType padSwitch=type padCallback=padItemSelected padHiddenTarget=newTuneTypesHidden class="pointer ltcopper">Type... </span>
+														<span id=newTuneType clearOnCancel class="info white"></span>
+														<br><br>
+														<span  padTarget=newTuneKey padSwitch=key padCallback=padItemSelected padHiddenTarget=newTuneKeysHidden class="pointer ltcopper">Key... </span>
+														<span id=newTuneKey clearOnCancel class="info white"></span>
+														<input type=hidden name='tune[key_ids]' value=1 id=newTuneKeysHidden>
+														<input type=hidden name='tune[tune_type_ids]' value=1 id=newTuneTypesHidden>
+														<input type=hidden name='tune[status]' value=1>
+														<input type=hidden name='tune[parts]' id=newTunePartsHidden value=2>
+														
+														<br><br>
+														<span padTarget=newTuneParts padSwitch=parts padCallback=padItemSelected padHiddenTarget=newTunePartsHidden class="pointer ltcopper">Parts... </span>
+														<span id=newTuneParts clearOnCancel class="info white"></span>
+													</td>
+													<td style="width:100">
+													</td>
+													<td style="width:100">
+													</td>
+												</tr>
+											</table>
+										</td>
+									</tr>
+									<tr>
+										<td>
+											<br><span onOff="off" name=onOffButton id=saveAsTodo class=onOffBtnOff>save as to-do tune</span><br>
+										</td>
+									</tr>
+								</table>
+								<br>
+								<%= nt.submit :type=>'submit' %>
+								<%= nt.submit 'cancel', {:type=>'button', :name=>'toolCancel'} %>
+								 
+								<% end %>
+							</td>
+						</tr>					
+					</table>
+					
+					
+					
+					<!-- multiple new tunes table -->
+					<table id=addMultipleTable name=toolContainer class=toolContainer style="display:none;" width=100%>
+						<tr>
+							<td height=60 class=toolheader>Add Multiple New Tunes</td>
+						</tr>
+						<tr>
+							<td valign=top >
+								<table >
+									<tr><td class='bubbleSectionTool'>
+										<div height=10 class='plainText white'>To add multiple tunes add a line-separated list of tunes. 
+											<br><span class='copper'>more info&raquo;</span></div>
+										<textarea id=addMultipleBox rows=15 cols=40 clearOnCancel></textarea>
+									</td></tr>
+									<tr>
+										<td align=left>
+											<span class="info white pointer" onclick="submitMultiple(); return false;">submit</span> | 
+											<span class="info cancel pointer" id=btn1 name=toolCancel>cancel</span>
+										</td>
+									</tr>
+								</table>
+							</td>
+							
+						</tr>
+						
+						
+						
+					</table>
+					
+					
+					
+					<!-- new set table -->
+					<table id=newSetTable name=toolContainer class=toolContainer style="display:none;" width=100% border=0>
+						<tr><td colspan=3 height=60 class=toolheader>New Set</td></tr>
+						<tr>
+							<td valign=top>
+								<table width=100%>
+									<tr>
+										<td><button onclick="addToSet(); return false;">=></button></td>
+										<td>
+											<select multiple size=5 id=newSetList clearOnCancel></select><br>
+											<span class="info white pointer" onclick="clearList('newSetList'); return false;">clear</span>
+										</td>
+									</tr>
+								</table>
+								<br>
+								<span class="info white pointer" onclick="saveNewSet({groupId:0, setElem:document.getElementById('newSetList')}); return false;">save set</span> | 
+								<span class="info white pointer" id=saveNewSetToGroupBtn>save set to group</span> | 
+								<span class="info cancel pointer" id=btn2 name=toolCancel>cancel</span>
+							</td>	
+						</tr>
+					</table>						
+					
+					
+					</td>
+				</tr>
+				
+			</table>
 	
+		</td>
+	</tr>
+		
+	<!-- BOTTOM SPACER ROW -->
+	<tr>
+		<td bgcolor=#555 height=10 colspan=2>
+			<div class='info pointer' onclick='saveCurrentView();'>save current page view</div>
+		</td>
+	</tr>
 	
-</body>
-</html>
- 
- 
- 
+</table>
+
+

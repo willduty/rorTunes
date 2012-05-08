@@ -1,0 +1,44 @@
+<script type=text/javascript>
+	window.onload = function(){
+	
+		sizeContentArea();
+	}
+</script>
+
+<% if flash[:error] %>
+	<div class=flash>! <%= flash[:error] %></div><br>
+<% end %>
+
+
+admin
+
+<table border=1 class='info black normal'>
+
+<tr>
+	<% User.columns.each do |u| %>
+	<td class=bold><%= u.name %></td>
+	<% end %>
+	<td class=bold>delete</td>
+	<td class=bold>activate</td>
+</tr>
+
+
+<% @users.each do |u| %>
+	<tr>
+	
+	<% User.columns.each do |n| %>
+		<td><%= u.send(n.name) %></td>
+	<% end %>	
+	
+	<td class='pointer'><span onclick='if(confirm("DELETING USER!! proceed?")) doRorLink("users/destroy/<%= u.id %>", "delete");'>delete</span></td>
+
+	<td><span class='pointer' onclick='doRorLink()'>activate</span></td>
+	
+	</tr>
+	
+<% end %>
+
+</table>
+
+
+

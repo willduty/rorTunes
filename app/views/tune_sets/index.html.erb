@@ -387,6 +387,7 @@ window.onload = function(){
 
 	try{
 	
+	sizeContentArea();
 	setUpToolSwitches();
 	setNavbarSelected();
 	showSearchResults();
@@ -424,165 +425,152 @@ window.onload = function(){
 </script>
 
 <link rel=StyleSheet href="css/style.css" type="text/css" media=screen>
- 
-	<title>My Tunes Page</title>
 
-
-	<table class=navtable id=navtable border=0 cellpadding=0 cellspacing=0 align=center>
-		<!-- NAV BAR -->
-		<tr>
-			<td class=headerbar colspan=2>
-				<%= render 'layouts/navbar' %>
-			</td>
-		</tr>
-	</table>
-	
-	<table class=maintable id=maintable border=0 cellpadding=0 cellspacing=0 align=center>	
-		<tr>
-			<!-- LEFT COLUMN, CONTENT AREA -->			
-			<td height=100% width='650px' valign=top id=mainTableLeftColumn>
-				<table class=unpaddedtable height=100% border=0 cellpadding=0 cellspacing=0>
-					<tr>
-						<!-- header -->
-						<td class="contentHeader">
-							<table >
-								<tr><td width='95px' class="toolheader">Sets</td>
-								<td class="info white">Count: <span id=count></span></td></tr>
-							</table>	
-						</td>
-					</tr>
-					<tr>
-						<!-- buttons -->
-						<td bgcolor=aaaaaa height=25 style="padding-top:2px;padding-bottom:4px;">
-							<span class="info gray">view: </span>
-							<span onOff="on" name=onOffButton id=viewAllSets btnGroup=view callback=showAllSets class=onOffBtnOff><span>grid</span></span>
-							<span onOff="off" name=onOffButton id=viewSetsByGroup btnGroup=view callback=showSetsByGroup class=onOffBtnOff><span>by group</span></span>
-							<span>&nbsp;&nbsp;&nbsp;</span>
-							
-						</td>
-					</tr>
-					
-					<!-- content -->
-					<tr>
-						<td id=contentarea style="height:100%; width:100%;"></td>
-					</tr>
-				</table>
+<table class=maintable id=maintable border=0 cellpadding=0 cellspacing=0 align=center>	
+	<tr>
+		<!-- LEFT COLUMN, CONTENT AREA -->			
+		<td height=100% width='650px' valign=top id=mainTableLeftColumn>
+			<table class=unpaddedtable height=100% border=0 cellpadding=0 cellspacing=0>
+				<tr>
+					<!-- header -->
+					<td class="contentHeader">
+						<table >
+							<tr><td width='95px' class="toolheader">Sets</td>
+							<td class="info white">Count: <span id=count></span></td></tr>
+						</table>	
+					</td>
+				</tr>
+				<tr>
+					<!-- buttons -->
+					<td bgcolor=aaaaaa height=25 style="padding-top:2px;padding-bottom:4px;">
+						<span class="info gray">view: </span>
+						<span onOff="on" name=onOffButton id=viewAllSets btnGroup=view callback=showAllSets class=onOffBtnOff><span>grid</span></span>
+						<span onOff="off" name=onOffButton id=viewSetsByGroup btnGroup=view callback=showSetsByGroup class=onOffBtnOff><span>by group</span></span>
+						<span>&nbsp;&nbsp;&nbsp;</span>
+						
+					</td>
+				</tr>
 				
-			</td>
-		
+				<!-- content -->
+				<tr>
+					<td id=contentarea style="height:100%; width:100%;"></td>
+				</tr>
+			</table>
 			
-			<!-- RIGHT COLUMN, TOOL AREA -->
-			<td class=toolArea valign=top width=350>
-				<table width=100% height=100%>
-					<tr>
-						<td height=30>
-							<table>
-								<tr>
-									<!-- tool switches -->
-									<td><span class="toolBtnOff" name=toolButton tool=manualSetEntry>New Set</span></td>
-									<td> | </td>
-									<td><span class="toolBtnOff" name=toolButton tool=searchSets id=searchSetsBtn>Search</span></td>
-									<td> | </td>
-									<td><span class="toolBtnOff" name=toolButton tool=randomSet>Random Sets</span></td>
-								</tr>								
-							</table>
-						</td>
-					</tr>
-					<tr>
-						<td colspan=3>
-							<!-- tool elements -->
-									
-							<!-- new set table -->
-							<table id=manualSetEntry class=toolContainer name=toolContainer style="display:none;" width=100%>
-								<tr>
-									<td height=60 class=toolheader>New Set</td>
-								</tr>
-								<tr>
-									<td height=40>
-										<input type=text id=manualSetEntryBox clearOnCancel></input>
-									</td>
-								</tr>
-								<tr>
-									<td>
-										<div id=manualSetResultBox class="info white pointer"></div>	
-									</td>
-								</tr>
-								<tr height=100%>
-									<td valign=top>
-										<span class="info white pointer" id=saveSetBtn>save set</span> | 
-										<span class="info white pointer" id=saveSetToGroupBtn>save set to group</span> | 
-										<span class="info cancel pointer" name=toolCancel>cancel</span>
-									</td>
-									<td colspan=2></td>
-								</tr>
-							</table>
-							
-							<!-- random sets tool -->
-							<table id=randomSet class=toolContainer name=toolContainer style="display:none;" width=100%>
-								<tr>
-									<td height=60 class=toolheader>Generate Random Sets</td>
-								</tr>
-								<tr>
-									<td height=40 class="info white">
-										Start With (or leave blank):<br>
-										<input type=text id=randomSetRequiredTune clearOnCancel>
-									</td>
-								</tr>
-								<tr>
-									<td height=20 valign=top>
-										<span class="info pointer" onclick="generateRandomSets();">generate</span> | 
-										<span class="info pointer" onclick="clearContentArea('randomSetResultBox');">clear</span> | 
-										<span class="info cancel pointer" name=toolCancel>cancel</span>
-									</td>
-								</tr>
-								<tr>
-									<td height=100% valign=top>
-										<div id=randomSetResultBox class="info white" clearOnCancel></div>
-									</td>
-								</tr>
-							</table>
-							
-							<!-- search sets tool -->
-							<table id=searchSets class=toolContainer name=toolContainer border=0 width=100%>
-								<tr>
-									<td colspan=3 height=60 class=toolheader>Search Sets</td>
-								</tr>
-								<tr>
-									<td colspan=3 height=40 class="info white">
-										Search For:<br>
-										<input type=text id=setSearchEntryBox clearOnCancel></input>
-									</td>
-								</tr>
-								<tr>
-									<td colspan=3 height=10>
-										<div id=setSearchResultBoxContainer>
-											<div id=resultsLabel class='info white' style="display:none;" hideOnCancel>results:</div>
-											<div id=setSearchResultBox clearOnCancel></div>
-										</div>
-									</td>
-								</tr>
-								<tr>
-									<td valign=top><span class="info cancel pointer" name=toolCancel>close</span></td>
-									<td></td>
-									<td></td>
-								</tr>
-							</table>						
-							
-							
-						</td>
-					</tr>
-				</table>
-		
-			</td>
-		</tr>
-			
-			
-		<!-- BOTTOM SPACER ROW -->
-		<tr>
-			<td bgcolor=555555 colspan=2 height=10></td>
-		</tr>	
-			
-	</table>
+		</td>
 	
-	<?php include("emailBox.php"); ?>
+		
+		<!-- RIGHT COLUMN, TOOL AREA -->
+		<td class=toolArea valign=top width=350>
+			<table width=100% height=100%>
+				<tr>
+					<td height=30>
+						<table>
+							<tr>
+								<!-- tool switches -->
+								<td><span class="toolBtnOff" name=toolButton tool=manualSetEntry>New Set</span></td>
+								<td> | </td>
+								<td><span class="toolBtnOff" name=toolButton tool=searchSets id=searchSetsBtn>Search</span></td>
+								<td> | </td>
+								<td><span class="toolBtnOff" name=toolButton tool=randomSet>Random Sets</span></td>
+							</tr>								
+						</table>
+					</td>
+				</tr>
+				<tr>
+					<td colspan=3>
+						<!-- tool elements -->
+								
+						<!-- new set table -->
+						<table id=manualSetEntry class=toolContainer name=toolContainer style="display:none;" width=100%>
+							<tr>
+								<td height=60 class=toolheader>New Set</td>
+							</tr>
+							<tr>
+								<td height=40>
+									<input type=text id=manualSetEntryBox clearOnCancel></input>
+								</td>
+							</tr>
+							<tr>
+								<td>
+									<div id=manualSetResultBox class="info white pointer"></div>	
+								</td>
+							</tr>
+							<tr height=100%>
+								<td valign=top>
+									<span class="info white pointer" id=saveSetBtn>save set</span> | 
+									<span class="info white pointer" id=saveSetToGroupBtn>save set to group</span> | 
+									<span class="info cancel pointer" name=toolCancel>cancel</span>
+								</td>
+								<td colspan=2></td>
+							</tr>
+						</table>
+						
+						<!-- random sets tool -->
+						<table id=randomSet class=toolContainer name=toolContainer style="display:none;" width=100%>
+							<tr>
+								<td height=60 class=toolheader>Generate Random Sets</td>
+							</tr>
+							<tr>
+								<td height=40 class="info white">
+									Start With (or leave blank):<br>
+									<input type=text id=randomSetRequiredTune clearOnCancel>
+								</td>
+							</tr>
+							<tr>
+								<td height=20 valign=top>
+									<span class="info pointer" onclick="generateRandomSets();">generate</span> | 
+									<span class="info pointer" onclick="clearContentArea('randomSetResultBox');">clear</span> | 
+									<span class="info cancel pointer" name=toolCancel>cancel</span>
+								</td>
+							</tr>
+							<tr>
+								<td height=100% valign=top>
+									<div id=randomSetResultBox class="info white" clearOnCancel></div>
+								</td>
+							</tr>
+						</table>
+						
+						<!-- search sets tool -->
+						<table id=searchSets class=toolContainer name=toolContainer border=0 width=100%>
+							<tr>
+								<td colspan=3 height=60 class=toolheader>Search Sets</td>
+							</tr>
+							<tr>
+								<td colspan=3 height=40 class="info white">
+									Search For:<br>
+									<input type=text id=setSearchEntryBox clearOnCancel></input>
+								</td>
+							</tr>
+							<tr>
+								<td colspan=3 height=10>
+									<div id=setSearchResultBoxContainer>
+										<div id=resultsLabel class='info white' style="display:none;" hideOnCancel>results:</div>
+										<div id=setSearchResultBox clearOnCancel></div>
+									</div>
+								</td>
+							</tr>
+							<tr>
+								<td valign=top><span class="info cancel pointer" name=toolCancel>close</span></td>
+								<td></td>
+								<td></td>
+							</tr>
+						</table>						
+						
+						
+					</td>
+				</tr>
+			</table>
 	
+		</td>
+	</tr>
+		
+		
+	<!-- BOTTOM SPACER ROW -->
+	<tr>
+		<td bgcolor=#555 colspan=2 height=10></td>
+	</tr>	
+		
+</table>
+
+

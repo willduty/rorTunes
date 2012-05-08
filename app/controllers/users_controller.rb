@@ -49,7 +49,16 @@ class UsersController < ApplicationController
   	
   end
 
-  def delete 
+  def destroy
+  	user = User.find_by_id(params[:id])
+  	
+  	usergroup = UserGroup.find_by_id(user.user_group_id)
+  	if usergroup.title == 'admin'
+  		flash[:error] = 'You can\'t delete this account. It is an admin.'
+  	else
+  		user.destroy
+  	end
+  	redirect_to params[:redirect] 
   end
   
   

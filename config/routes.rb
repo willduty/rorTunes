@@ -27,7 +27,7 @@ delete "group_items/delete/:group_id/:type", :to =>"group_items#delete"
 post "users/add"
 put "users/change_password"
 put "users/update_user_settings"
-delete "users/delete"
+delete "users/destroy/:id", :to => 'users#destroy'
 match "home", :to=>"users#index"
 match "register", :to=>"users#new"
 
@@ -41,6 +41,8 @@ put 'items/toggle_flag/:id/:type', :to=>'items#toggle_flag'
 
 match '/tools' => 'pages#tools'
 match '/get_abc' => 'pages#get_abc'
+match '/admin' => 'pages#admin'
+
 
 root :to => 'session#login'
 
