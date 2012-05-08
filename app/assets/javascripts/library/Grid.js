@@ -326,7 +326,7 @@ function Grid(container, options){
 	this.makeRow = function(){
 		var row = document.createElement("ul");
 		CBDisableSelect(row);	
-		row.className = "listItem gridRow";
+		row.className = "gridRow";
 		return row;
 	}
 	
@@ -485,7 +485,7 @@ function Grid(container, options){
 			}
 		}
 		else{
-			alert()
+		
 			// we are at bottom of visible list
 			if(this.rowsArr[i].elem == this.rowsBox.lastChild && DOWN){
 				this.rowsBox.removeChild(this.rowsBox.firstChild);
@@ -498,7 +498,7 @@ function Grid(container, options){
 				this.rowsBox.insertBefore(nextItem, this.rowsBox.firstChild);
 			}
 		}
-		
+	
 		this.selectItem(nextItem);
 	}
 	
@@ -585,7 +585,7 @@ function Grid(container, options){
 			var i = newStartIdx;
 			while(i - newStartIdx < visibleCount){
 				this.rowsBox.appendChild(this.rowsArr[i].elem);
-				this.rowsArr[i].elem.className = "listItem";
+				//this.rowsArr[i].elem.className = "listItem";
 				i++;
 							
 				if(i > lastArrIdx)

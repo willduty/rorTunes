@@ -50,7 +50,7 @@ option {color:#333;
 .itemTunePage {color:white; text-decoration:none; font:normal 12px arial; }
 .itemTunePage:hover {color:#eee; cursor:pointer;}
 
-.itemselected {color:#750; background-color:#ddd; text-decoration:none; font:normal 12px arial; }
+.itemselected {color:#750; background-color:#ddd; text-decoration:none; font:normal 12px arial; padding: 0px 2px 0px 2px;}
 
 
 .unpaddedtable {padding:0px; border-spacing:0px; width:100%;}
@@ -101,6 +101,8 @@ option {color:#333;
 
 .copper {color:#a82;}
 .ltcopper {color:#ca4;}
+.darkcopper {color:#861;}
+
 
 .bold {font-weight:bold;}
 .normal {font-weight:normal;}

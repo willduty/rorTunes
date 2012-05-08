@@ -267,6 +267,8 @@ function fillTuneProps(){
 
 window.onload = function(){
 
+	
+	sizeContentArea();
 	setUpPadSwitches();
 		
 	for(var i in gTune.resources){	
@@ -310,169 +312,155 @@ window.onload = function(){
 
 
 </script>
- 
-	<title>My Tunes Page</title>
 
-	<table class=navtable id=navtable border=0 cellpadding=0 cellspacing=0 align=center>
-		<!-- NAV BAR -->
-		<tr>
-			<td>
-				<%= render 'layouts/navbar' %>
-			</td>
-		</tr>
-	</table>
+<table id=maintable border=0 cellpadding=0 cellspacing=0 align=center>
+	<tr>
 	
-	<table id=maintable border=0 cellpadding=0 cellspacing=0 align=center>
-		<tr>
-		
-			<td style="vertical-align:top;padding:0;margin:0;">
-				<table width=100% class=unpaddedtable border=0 cellpadding=0 cellspacing=0>
-					<tr>
-						<!-- header -->
-						<td class="contentHeader">
-							<table class="info black">
-								<tr>
-									<td class="toolheader"><span id=tunetitle name=tuneProperty property=title></span></td>
-									<td style='width:50px;'></td>
-									
-									<td valign=top>
-										<span >Entry Date: </span>
-										<span id=tuneEntryDate name=tuneProperty property=entryDate class="info ltltgray"></span>
-									</td>
-									<td valign=top >
-										<span >Last Update: </span>
-										<span id=tuneLastUpdate name=tuneProperty property=lastUpdate class="info ltltgray"></span>
-									</td>
-								</tr>
-							</table>
-						</td>
-					</tr>
-				</table>
+		<td style="vertical-align:top;padding:0;margin:0;">
+			<table width=100% class=unpaddedtable border=0 cellpadding=0 cellspacing=0>
+				<tr>
+					<!-- header -->
+					<td class="contentHeader">
+						<table class="info black">
+							<tr>
+								<td class="toolheader"><span id=tunetitle name=tuneProperty property=title></span></td>
+								<td style='width:50px;'></td>
+								
+								<td valign=top>
+									<span >Entry Date: </span>
+									<span id=tuneEntryDate name=tuneProperty property=entryDate class="info ltltgray"></span>
+								</td>
+								<td valign=top >
+									<span >Last Update: </span>
+									<span id=tuneLastUpdate name=tuneProperty property=lastUpdate class="info ltltgray"></span>
+								</td>
+							</tr>
+						</table>
+					</td>
+				</tr>
+			</table>
 
 
-				<table class=unpaddedtable style="height:70" bgcolor=aaaaaa>
+			<table class=unpaddedtable style="height:70" bgcolor=aaaaaa>
 
-					<tr>
-						<td valign=top class=infohdr width=10%>
-							<span>Type: </span>
-							<span id=tuneType class="info white pointer" name=tuneProperty property=typeId padSwitch=type padCallback=fieldUpdate></span>
-						</td>
+				<tr>
+					<td valign=top class=infohdr width=10%>
+						<span>Type: </span>
+						<span id=tuneType class="info white pointer" name=tuneProperty property=typeId padSwitch=type padCallback=fieldUpdate></span>
+					</td>
 
-						<td valign=top class=infohdr width=10%>
-							<span>Key: </span>
-							<span id=tuneKey class="info white pointer" name=tuneProperty property=keyId padSwitch=key padCallback=fieldUpdate></span>
-						</td>
-						<td valign=top class=infohdr width=10%>
-							<span>Parts: </span>
-							<span id=tuneParts class="info white pointer" name=tuneProperty property=parts padSwitch=parts padCallback=fieldUpdate></span>
-						</td>
-						<td valign=top class=infohdr width=70%>
-							<span>Status: </span>
-							<span id=tuneStatus class="info white pointer" name=tuneProperty property=status padSwitch=status padCallback=fieldUpdate></span>
-						</td>
-					</tr>
+					<td valign=top class=infohdr width=10%>
+						<span>Key: </span>
+						<span id=tuneKey class="info white pointer" name=tuneProperty property=keyId padSwitch=key padCallback=fieldUpdate></span>
+					</td>
+					<td valign=top class=infohdr width=10%>
+						<span>Parts: </span>
+						<span id=tuneParts class="info white pointer" name=tuneProperty property=parts padSwitch=parts padCallback=fieldUpdate></span>
+					</td>
+					<td valign=top class=infohdr width=70%>
+						<span>Status: </span>
+						<span id=tuneStatus class="info white pointer" name=tuneProperty property=status padSwitch=status padCallback=fieldUpdate></span>
+					</td>
+				</tr>
 
-					
-					<tr>
-						<td valign=top colspan=4>
+				
+				<tr>
+					<td valign=top colspan=4>
+					<br>
+						<span class=infohdr>Additional Titles:</span>									
+						<span class=infohdr style='color:#ddd; cursor:pointer;' id=addNewTitle>[add&raquo;]</span><br>
+						<span style="width:100%;" name=tuneProperty property=otherTitles></span>							
 						<br>
-							<span class=infohdr>Additional Titles:</span>									
-							<span class=infohdr style='color:#ddd; cursor:pointer;' id=addNewTitle>[add&raquo;]</span><br>
-							<span style="width:100%;" name=tuneProperty property=otherTitles></span>							
-							<br>
-						</td>
-					</tr>
-					
-					<tr>
-						<td valign=top colspan=4>
-							<br>
-							<span class=infohdr>Comments</span><br>
-							<div><span id=tunecomments class="itemTunePage" style="width:100%;" name=tuneProperty property=comments></span></div>
-							<br>
-						</td>
-					</tr>
-					
-					<tr>
-						<td valign=top class=infohdr colspan=4 width=100%>
-							
-						</td>	
-					</tr>
-					<!--
-					<?php
-					@$flash = new sessionFlash();
-					$msg = "";
-					if($msg = $flash->getFlash())
-						echo "<tr><td valign=top colspan=4>$msg</td></tr>";
-					?>
-					-->
-					<tr>
-						<td align=right valign=top colspan=4 id=saveChangesDiv style="display:none;" >
-							<span class="toolBtn white blackBkgd" onclick="saveTuneChanges();">save changes</span>  
-							<span id=cancelChangesButton class="toolBtn white blackBkgd" onclick="fillTuneProps();">cancel</span>
-						</td>
-					</tr>
-				</table>		
-
-
-				<br>
-				<div class=infohdr>Belongs To</div>
-				<table>
-					<tr>
-						<td valign=top>
-							<div><span id=relateditems style="width:450;"></span></div>
-						</td>
-					</tr>
-				</table>
-				<br>
+					</td>
+				</tr>
 				
-
-				<!-- resources -->
-				<span class=infohdr>Resources </span><span class="toolBtnOff" name=toolButton tool=newResource fullPageTool>[New Resource]</span>		
-				<%= render 'layouts/resource_search_tool' %>
-
-				<table width=100%>
-					<tr>
-						<td valign=top >
-							<span id=resourceBox></span>
-						</td>
-					</tr>
-				</table>
+				<tr>
+					<td valign=top colspan=4>
+						<br>
+						<span class=infohdr>Comments</span><br>
+						<div><span id=tunecomments class="itemTunePage" style="width:100%;" name=tuneProperty property=comments></span></div>
+						<br>
+					</td>
+				</tr>
 				
+				<tr>
+					<td valign=top class=infohdr colspan=4 width=100%>
+						
+					</td>	
+				</tr>
+				<!--
+				<?php
+				@$flash = new sessionFlash();
+				$msg = "";
+				if($msg = $flash->getFlash())
+					echo "<tr><td valign=top colspan=4>$msg</td></tr>";
+				?>
+				-->
+				<tr>
+					<td align=right valign=top colspan=4 id=saveChangesDiv style="display:none;" >
+						<span class="toolBtn white blackBkgd" onclick="saveTuneChanges();">save changes</span>  
+						<span id=cancelChangesButton class="toolBtn white blackBkgd" onclick="fillTuneProps();">cancel</span>
+					</td>
+				</tr>
+			</table>		
 
-				<!-- sheetmusic -->
-				<br>
-				<span class=infohdr>Sheetmusic </span><span class="toolBtnOff" name=toolButton tool=newSheetMusic fullPageTool>[New SheetMusic]</span>
-				<table>										
-					<tr>
-						<td valign=top class=infohdr style="height:400;">	
-							<span id=sheetmusicBox></span>
-						</td>
-					</tr>								
-				</table>
-				
-				<table id=newSheetMusic class=toolContainer name=toolContainer width=100%>
-					<tr>
-						<td height=60 class=toolheader>New Sheetmusic<br>
-							<span class="info cancel pointer" name=toolCancel onclick="closeSearchFrame(this)">close</span>
-						</td>
-						<td rowspan=2 width=85%>
-							<div name=frameBox style="display:none; ">
-								<iframe name=searchFrame></iframe><br>
-							</div>
-						</td>
-					</tr>
-					<tr>
-						<td valign=top class=infohdr name=resourceOptionsBox></td>
-					</tr>	
-				</table>
-				
-			</td>
-		</tr>
+
+			<br>
+			<div class=infohdr>Belongs To</div>
+			<table>
+				<tr>
+					<td valign=top>
+						<div><span id=relateditems style="width:450;"></span></div>
+					</td>
+				</tr>
+			</table>
+			<br>
+			
+
+			<!-- resources -->
+			<span class=infohdr>Resources </span><span class="toolBtnOff" name=toolButton tool=newResource fullPageTool>[New Resource]</span>		
+			<%= render 'layouts/resource_search_tool' %>
+
+			<table width=100%>
+				<tr>
+					<td valign=top >
+						<span id=resourceBox></span>
+					</td>
+				</tr>
+			</table>
+			
+
+			<!-- sheetmusic -->
+			<br>
+			<span class=infohdr>Sheetmusic </span><span class="toolBtnOff" name=toolButton tool=newSheetMusic fullPageTool>[New SheetMusic]</span>
+			<table>										
+				<tr>
+					<td valign=top class=infohdr style="height:400;">	
+						<span id=sheetmusicBox></span>
+					</td>
+				</tr>								
+			</table>
+			
+			<table id=newSheetMusic class=toolContainer name=toolContainer width=100%>
+				<tr>
+					<td height=60 class=toolheader>New Sheetmusic<br>
+						<span class="info cancel pointer" name=toolCancel onclick="closeSearchFrame(this)">close</span>
+					</td>
+					<td rowspan=2 width=85%>
+						<div name=frameBox style="display:none; ">
+							<iframe name=searchFrame></iframe><br>
+						</div>
+					</td>
+				</tr>
+				<tr>
+					<td valign=top class=infohdr name=resourceOptionsBox></td>
+				</tr>	
+			</table>
+			
+		</td>
+	</tr>
+	
+</table>	
 		
-	</table>	
-			
-			
-			
-	<?php include("emailBox.php"); ?>
-
+		
 

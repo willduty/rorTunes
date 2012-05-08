@@ -30,7 +30,7 @@ admin
 		<td><%= u.send(n.name) %></td>
 	<% end %>	
 	
-	<td class='pointer'><span onclick='if(confirm("DELETING USER!! proceed?")) doRorLink("users/destroy/<%= u.id %>", "delete");'>delete</span></td>
+	<td class='pointer'><span onclick='if(confirm( "DELETING USER!! proceed?" )) doRorLink("users/destroy/<%= u.id %>", "delete");'>delete</span></td>
 
 	<td><span class='pointer' onclick='doRorLink()'>activate</span></td>
 	

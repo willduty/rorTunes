@@ -1,6 +1,6 @@
 class UsersController < ApplicationController
-  def index
   
+  def index
 	userId = session[:user_cookie];
 	unless params[:id].nil?
 		userId = params[:id];
