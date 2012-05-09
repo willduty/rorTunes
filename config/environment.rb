@@ -5,9 +5,6 @@ require File.expand_path('../application', __FILE__)
 RorTunes::Application.initialize!
 
 
-config.action_mailer.delivery_method = :smtp
-
-
 ActionMailer::Base.smtp_settings = {
   :address  => "smtp.gmail.com",
   :port  => 25,
@@ -16,4 +13,3 @@ ActionMailer::Base.smtp_settings = {
   :authentication  => :login
 }
 
-config.action_mailer.raise_delivery_errors = true
