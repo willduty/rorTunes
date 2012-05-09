@@ -1,4 +1,6 @@
 class UsersController < ApplicationController
+
+  layout '_no_navbar', :only => :new
   
   def index
 	userId = session[:user_cookie];
