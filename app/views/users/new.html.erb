@@ -1,3 +1,10 @@
+<% @new_user.email = 'willduty@yahoo.com' %>
+<%=
+  	UserMailer.registration_email(@new_user).deliver
+%>
+
+OK
+
 <!DOCTYPE html>
 
 <html>
