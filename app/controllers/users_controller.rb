@@ -1,6 +1,6 @@
 class UsersController < ApplicationController
 
-  layout '_no_navbar', :only => :new
+  layout '_no_navbar', :only => [:new, :activate]
   
   def index
 	userId = session[:user_cookie];
@@ -9,13 +9,11 @@ class UsersController < ApplicationController
 	end
   	@user = User.find(userId)
 	@title = @user.email
-	#@tunes = User.tunes
   end
 
 
   def new
   	@new_user = User.new
-  	
   end
 
 
@@ -25,10 +23,20 @@ class UsersController < ApplicationController
 
   	params[:user].delete(:password2)
 	
-	@new_user = User.create(params[:user])
-		
+	@new_user = User.new(params[:user])
+	
+	# activation token	
+	chars =  [('a'..'z'),('A'..'Z'),(0..9)].map{|i| i.to_a}.flatten
+	activation_token = (0..39).map{ chars[rand(chars.length)]  }.join
+	@new_user.activation_token = activation_token
+	
+	# initial user status (unconfirmed)
+	@new_user.user_group_id = 3
+	
+	@new_user.save
+	
 	if @new_user.valid?
-		UserMailer.confirm_email(@new_user).deliver
+		UserMailer.registration_email(@new_user).deliver
 	  	redirect_to '/thankyou'
   	else
   		flash[:error] = @new_user.errors[:email]
@@ -36,6 +44,16 @@ class UsersController < ApplicationController
   		return
   	end
   end
+  
+  
+  def activate
+  	user = User.find_by_activation_token params[:token]
+  	@token = params[:token]
+  	user.user_group_id = 2
+  	@activated = user.save ? true : false
+  	
+  end
+  
 
   def change_password
   	user = User.find_by_id(session[:user_cookie])
@@ -48,15 +66,17 @@ class UsersController < ApplicationController
 	  		flash[:notice] = 'new password saved'
 	  	end 
 	  	redirect_to params[:redirect]
-  	end
-  	
+  	end  	
   end
 
   def destroy
   	user = User.find_by_id(params[:id])
   	
   	usergroup = UserGroup.find_by_id(user.user_group_id)
-  	if usergroup.title == 'admin'
+  	
+  	if usergroup.nil?
+  		user.destroy
+  	elsif usergroup.title == 'admin'
   		flash[:error] = 'You can\'t delete this account. It is an admin.'
   	else
   		user.destroy
@@ -66,4 +86,5 @@ class UsersController < ApplicationController
   
   
 end
+
 

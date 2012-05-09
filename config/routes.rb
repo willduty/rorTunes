@@ -30,6 +30,7 @@ put "users/update_user_settings"
 delete "users/destroy/:id", :to => 'users#destroy'
 match "home", :to=>"users#index"
 match "register", :to=>"users#new"
+match "activate/:token", :to=>"users#activate"
 
 get 'session/login'
 post 'session/create'

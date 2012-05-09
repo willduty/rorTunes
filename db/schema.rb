@@ -10,7 +10,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 0) do
+ActiveRecord::Schema.define(:version => 20120509172536) do
 
   create_table "abcs", :force => true do |t|
     t.binary "data"
@@ -22,17 +22,15 @@ ActiveRecord::Schema.define(:version => 0) do
   end
 
   create_table "favorites", :force => true do |t|
-    t.string "item_id",   :limit => 45
-    t.string "itemType",  :limit => 45
-    t.date   "entryDate"
+    t.integer "item_id"
+    t.date    "entryDate"
   end
 
-  create_table "group_items", :id => false, :force => true do |t|
+  create_table "group_items", :force => true do |t|
     t.integer "group_id"
     t.integer "itemable_id"
-    t.integer "itemable_typebackup",               :default => 1
-    t.integer "priority",                          :default => 1
-    t.string  "itemable_type",       :limit => 45,                :null => false
+    t.integer "priority",                    :default => 1
+    t.string  "itemable_type", :limit => 45,                :null => false
   end
 
   create_table "groups", :force => true do |t|
@@ -44,8 +42,9 @@ ActiveRecord::Schema.define(:version => 0) do
 
   create_table "items", :force => true do |t|
     t.integer "user_id"
-    t.string  "itemable_id",   :limit => 45
+    t.integer "itemable_id"
     t.string  "itemable_type", :limit => 45, :default => "Tune", :null => false
+    t.integer "status"
   end
 
   create_table "keys", :force => true do |t|
@@ -64,14 +63,14 @@ ActiveRecord::Schema.define(:version => 0) do
   end
 
   create_table "resources", :force => true do |t|
-    t.integer "resourceType"
+    t.integer "resource_type"
     t.string  "title"
     t.binary  "url"
-    t.binary  "localFile"
+    t.binary  "local_file"
     t.binary  "comments"
     t.date    "entryDate"
     t.integer "priority"
-    t.integer "status",       :default => 1
+    t.integer "status",        :default => 1
     t.binary  "thumbnail"
   end
 
@@ -84,7 +83,7 @@ ActiveRecord::Schema.define(:version => 0) do
     t.string  "tuneIds"
     t.integer "flagged",   :limit => 1
     t.date    "entryDate"
-    t.integer "status",                 :default => 1
+    t.integer "status"
   end
 
   create_table "tune_types", :force => true do |t|
@@ -119,9 +118,10 @@ ActiveRecord::Schema.define(:version => 0) do
   end
 
   create_table "users", :force => true do |t|
+    t.integer  "user_group_id"
     t.string   "email",                       :null => false
     t.string   "username"
-    t.string   "password"
+    t.string   "password",                    :null => false
     t.datetime "createDate"
     t.date     "lastUpdate"
     t.integer  "userType"
@@ -129,7 +129,6 @@ ActiveRecord::Schema.define(:version => 0) do
     t.string   "lastName"
     t.datetime "lastLogin"
     t.integer  "status"
-    t.integer  "fkUserGroup"
     t.string   "initialIPAddr", :limit => 45
   end
 

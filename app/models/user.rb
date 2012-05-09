@@ -33,6 +33,13 @@ class User < ActiveRecord::Base
 		return nil unless pwd == password 
 		return user
 	end
+	
+	before_save :init
+	def init
+		self.createDate ||= Date.today if new_record?
+		self.lastUpdate ||= Date.today if new_record?
+	end
+	
 end
 
 
