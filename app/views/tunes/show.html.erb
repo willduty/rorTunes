@@ -1,3 +1,4 @@
+
 <script type="text/javascript">
 
 <%= render 'layouts/data' %>
@@ -30,7 +31,6 @@ function ctxDisassociateCallback(param){
 function saveProperty(property, value){
 	switch(property){
 		case "otherTitles":
-		
 			doRorLink('/tunes/' + gTune.id, 'put',
 				{name:'tune[other_title][title]', value:value})
 		
@@ -40,7 +40,6 @@ function saveProperty(property, value){
 
 
 function fieldUpdate(elem, newValue, newText){
-
 
 	if(typeof(newValue) != 'undefined'){
 		if(elem.id == "status"){
@@ -126,15 +125,11 @@ function ctxEmailSheetmusicCallback(resourceId){
 
 
 function addTitle(elem){
-	var newTitle;
-	
-	
 	var newTitle = (elem.innerHTML)
 
 	if(!validateTuneTitle(newTitle)){
 		alert('bad title!')
 		return;
-	
 	}
 		
 	if($.inArray(newTitle, gTune.otherTitles) != -1){
@@ -143,7 +138,6 @@ function addTitle(elem){
 	}
 		
 	saveProperty('otherTitles', newTitle);
-
 }
 
 function getTunePropElem(propName){
@@ -202,10 +196,12 @@ function fillTuneProps(){
 				break;
 		
 			case "comments":
+			
 				str = (!gTune.comments) ?
-					 "<div class='info gray' name=placeholder>&nbsp;[no comments have been added]</div>" : gTune.comments;
+					 "<div class='info gray' name=placeholder>&nbsp;[no notes have been added]</div>" : gTune.comments;
 				var commentsElem = document.getElementById("tunecomments");
-				commentsElem.innerHTML = str.replace(/\n/g, "<br>");
+				
+				commentsElem.innerHTML = str;
 				var options = (gTune.comments == "" || typeof(gTune.comments) == "undefined" ) ? 
 					MODE_TEXTAREA : (MODE_TEXTAREA | MODE_INCLUDE_ORIGINAL_TEXT);
 				new editableItem(commentsElem, options, fieldUpdate, commentsElem);
@@ -266,11 +262,11 @@ function fillTuneProps(){
 
 
 window.onload = function(){
-
 	
 	sizeContentArea();
 	setUpPadSwitches();
-		
+	setUpToolSwitches(); 
+	
 	for(var i in gTune.resources){	
 		appendResource(gTune.resources[i])
 	};
@@ -305,7 +301,6 @@ window.onload = function(){
 		}
 	}
 	
-	setUpToolSwitches(); 
 	addResourceOptions(tuneId);
 
 }
@@ -377,8 +372,8 @@ window.onload = function(){
 				<tr>
 					<td valign=top colspan=4>
 						<br>
-						<span class=infohdr>Comments</span><br>
-						<div><span id=tunecomments class="itemTunePage" style="width:100%;" name=tuneProperty property=comments></span></div>
+						<span class=infohdr>Notes</span><br>
+						<div id=tunecomments class="itemTunePage" style="width:100%;" name=tuneProperty property=comments></div>
 						<br>
 					</td>
 				</tr>
@@ -448,7 +443,7 @@ window.onload = function(){
 					</td>
 					<td rowspan=2 width=85%>
 						<div name=frameBox style="display:none; ">
-							<iframe name=searchFrame></iframe><br>
+							<div name=searchFrame></div><br>
 						</div>
 					</td>
 				</tr>

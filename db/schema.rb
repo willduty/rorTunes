@@ -10,7 +10,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20120509172536) do
+ActiveRecord::Schema.define(:version => 20120510200853) do
 
   create_table "abcs", :force => true do |t|
     t.binary "data"
@@ -119,17 +119,17 @@ ActiveRecord::Schema.define(:version => 20120509172536) do
 
   create_table "users", :force => true do |t|
     t.integer  "user_group_id"
-    t.string   "email",                       :null => false
+    t.string   "email",                          :null => false
     t.string   "username"
-    t.string   "password",                    :null => false
+    t.string   "password",                       :null => false
     t.datetime "createDate"
     t.date     "lastUpdate"
-    t.integer  "userType"
     t.string   "firstName"
     t.string   "lastName"
     t.datetime "lastLogin"
     t.integer  "status"
-    t.string   "initialIPAddr", :limit => 45
+    t.string   "initialIPAddr",    :limit => 45
+    t.string   "activation_token", :limit => 40, :null => false
   end
 
 end

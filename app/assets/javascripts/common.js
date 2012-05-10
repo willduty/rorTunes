@@ -1101,7 +1101,7 @@ function makeSetContextMenu(event){
 	ctxMenu.addSeparator();
 	
 	ctxMenu.addItem("Flag/Unflag Set", flagUnflag, {itemId:setId, itemType:ITEM_TYPE_SET, bit:STATUS_BIT_FLAGGED});
-	ctxMenu.addItem("Edit Set", showSetEditDlg, setId);
+	ctxMenu.addItem("Edit Set", setEditDlg, setId);
 	ctxMenu.addSeparator();
 	
 	
@@ -1299,7 +1299,7 @@ function setEditCallback(obj){
 			);
 }
 
-function showSetEditDlg(id, event){
+function setEditDlg(id, event){
 	try{
 		var ro = new objReorder();
 		var fl = new FloatingContainer(setEditCallback, null, ro);

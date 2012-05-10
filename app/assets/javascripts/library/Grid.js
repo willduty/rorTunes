@@ -137,6 +137,28 @@ function Grid(container, options){
 		
 	}
 	
+	// turn off hover class
+	this.turnOffHoverHilite = function(){
+		var len = _this.rowsArr.length;
+		for(var i=0; i<len; i++){
+			_this.rowsArr[i].elem.className = 'gridRowNoHover';
+		}
+	}
+	
+	
+	// turn off hover class
+	this.turnOnHoverHilite = function(){
+		var len = _this.rowsArr.length;
+		for(var i=0; i<len; i++){
+			
+			var elem = _this.rowsArr[i].elem;
+			if(_this.selectedItem != elem)
+				elem.className = 'gridRow';
+		}
+	}
+	
+	
+	
 	// handle keys
 	document.onkeydown = function(event){
 		var srcElemIsList = false;
@@ -201,15 +223,19 @@ function Grid(container, options){
 			// handle various keys for list functionality
 			switch(event.keyCode){
 				case KEY_UPARROW:
+					_this.turnOffHoverHilite();
 					dir = DIRECTION_UP;
 					break;
 				case KEY_DOWNARROW:
+					_this.turnOffHoverHilite();
 					dir = DIRECTION_DOWN;
 					break;
 				case KEY_PAGEUP:
+					_this.turnOffHoverHilite();
 					_this.scrollByPage(DIRECTION_UP);
 					break;
 				case KEY_PAGEDOWN:
+					_this.turnOffHoverHilite();
 					CBStopEventPropagation(event);
 					_this.scrollByPage(DIRECTION_DOWN);
 					return false;
@@ -812,6 +838,9 @@ function Grid(container, options){
 	// monitor mouse movement for column reorder or resize
 	document.onmousemove = function(e){
 			
+		
+		_this.turnOnHoverHilite();
+			
 		// event and mouse vars
 		e = e ? e : window.event;	
 		var mouseX = getMouseX(e);
@@ -975,3 +1004,6 @@ function isVisible(elem, box){
 		(elem.offsetTop + elem.offsetHeight < box.offsetHeight + box.scrollTop))
 	return b;
 }
+
+
+

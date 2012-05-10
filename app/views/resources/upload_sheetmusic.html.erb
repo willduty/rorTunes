@@ -1,0 +1,111 @@
+
+
+<script>
+	
+	
+	function saveResource(elem){
+		var youtube_id = youtubeIdFromElem(elem)
+		var ser_form = $(elem).parents('form').serialize();
+		$.post('/resources', ser_form, function(resp){
+			alert( (!isNaN(resp.id)) ? 'resource saved' : 'save failed');
+		})
+	}
+	
+
+</script>
+
+<div id=showBox style='display:none;'>
+	<div name=embedBox></div>
+	<span class='info pointer' onclick='stopShow(this);'>close</span> | 
+	<span class='info pointer' onclick='saveResource(this);'>save this video link as resource</span>
+	
+</div>
+
+
+hello
+
+<%
+
+begin
+	form = form_for @resource do |f|
+		
+		
+		concat f.hidden_field :tune_id, {:name=>'tune_id', :value=>params[:tune_id]} if params.has_key?('tune_id') 
+		
+		concat f.text_field :title
+		concat f.text_field :url
+		
+		concat f.hidden_field :resource_type, {:value=>11} # todo get this value into config as RESOURCE_TYPE_YOUTUBE
+		
+	end
+	concat '<br>'.html_safe
+	concat form
+
+rescue Exception => e
+	concat "ERROR: " + e.message
+
+end
+
+%>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

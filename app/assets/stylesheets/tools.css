@@ -110,7 +110,7 @@
 	font:bold 12px helvetica;
 }
 			
-.gridRow{
+.gridRow, .gridRowNoHover{
 	color:#750; 
 	list-style:none;
 	clear:both;

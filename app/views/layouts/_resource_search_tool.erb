@@ -36,7 +36,7 @@
 					break;
 					
 				case "newSheetMusic":
-					srcArr.push(["upload sheetmusic", "uploadsheetmusic.php", "keywords=" + tuneTitle + "+irish+music"]);
+					srcArr.push(["upload sheetmusic", "/resources/upload_sheetmusic", "keywords=" + tuneTitle + "+irish+music"]);
 					srcArr.push(["search thesession.org", "searchsessiondotorg.php", "url=http://thesession.org"]);
 					srcArr.push(["search norbeck", "searchmp3page.php", "url=http://homepage.mac.com/douglowder/PloughRecordings/"]);
 					break;
@@ -94,7 +94,6 @@
 		
 				// show frame
 				else{
-		
 					frameBox.style.display = "";
 					$(frame).css({width: CBParentElement(frameBox).offsetWidth - 5,
 						height: CBParentElement(frameBox).offsetHeight - 50,
@@ -102,6 +101,7 @@
 						overflow:'hidden',
 						overflowY:'scroll'});
 					$(frame).html(resp);
+					
 				}
 			
 			}
@@ -141,7 +141,6 @@
 			<td height=60 class=toolheader>
 				New Resource<br>
 				<div class="info white" id=tuneTitleHdr></div>
-				
 			</td>
 			<td rowspan=3 width=85%>
 				<div name=frameBox style="display:none;">

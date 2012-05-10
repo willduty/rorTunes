@@ -32,8 +32,8 @@ function createItemElement(itemObj, itemType, groupId, useLabel, tag){
 			if(typeof(makeSetContextMenu) != 'undefined')
 				elem.oncontextmenu = function(e){return makeSetContextMenu(e);}
 				
-			if(typeof(showSetEditDlg) != 'undefined')
-				elem.ondblclick = function(e){showSetEditDlg(itemObj.id, e); }
+			if(typeof(setEditDlg) != 'undefined')
+				elem.ondblclick = function(e){setEditDlg(itemObj.id, e); }
 			
 			// other handlers
 			elem.onclick = function(){selectItem(this);}

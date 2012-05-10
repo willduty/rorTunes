@@ -1,4 +1,9 @@
 class ResourcesController < ApplicationController
+
+layout '_no_navbar', :only => [:search_youtube, :generic_search, :upload_sheetmusic]
+
+respond_to :html, :json
+ 
   def index
 	@title = 'Resources'
 	@resources = Resource.all
@@ -31,6 +36,17 @@ class ResourcesController < ApplicationController
   def search_youtube
   	@resource = Resource.new
   end
+  
+  def upload_sheetmusic
+  
+  	@resource = Resource.new
+
+	respond_with @resources do |format|
+		format.html { render :layout => false}
+	end
+
+  end
+  
   
 end
 

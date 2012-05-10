@@ -71,8 +71,10 @@ function expandToolAnim(toolElem, fillToElem, posTool, step){
 	// if step is 1 we're done, else do again
 	if(step == TOOL_ANIM_STEP){
 		try{
+			
 			$(fillToElem).hide().parent().append(toolElem);
 			$(toolElem).attr('restore', fillToElem.getAttribute('id'));
+			$(toolElem).css({'position':'relative', 'left':'0px', 'top':'0px'});
 		}catch(e){alert(e)}
 		return;
 	}

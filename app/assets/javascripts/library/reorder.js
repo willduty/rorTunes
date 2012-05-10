@@ -174,11 +174,11 @@ function objReorder(id){
 		
 		// add context menu for item only if there's no handler already
 		if(elem.oncontextmenu == null){
-			elem.oncontextmenu = function(){
+			elem.oncontextmenu = function(e){
 				if(_this.allowRemove){
 					var cm = new ContextMenu();
 					cm.addItem("Remove Item", _this.removeItem, value);
-					cm.show();
+					cm.show(e);
 				}
 				return false;
 			}
