@@ -18,8 +18,17 @@ class UsersController < ApplicationController
 
 
   def add
+  
 	@params = params[:user]
 	@email = params[:user][:email]
+
+  	#validate user...
+	if User.find_by_email @email
+		flash[:error] = 'Email already exists. '+
+			'If you have already registered you can get your password through the forgot password'
+  		redirect_to '/register'
+  		return	
+	end
 
   	params[:user].delete(:password2)
 	
