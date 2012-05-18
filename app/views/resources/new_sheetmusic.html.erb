@@ -1,0 +1,201 @@
+
+
+<script>
+	
+	
+	function ajaxUpload(){
+		
+		var _this = this;
+		this.ajax = new XMLHttpRequest();
+		
+		
+		this.ajax.onreadystatechange = function(resp){
+			if(this.readyState == 4){
+				if(this.status == 200){
+					alert('upload done.')
+					location = location
+					//alert(_this.ajax.responseText)
+				}else{
+					alert('upload failed.')
+					alert(_this.ajax.responseText)
+				}
+			}
+           		
+		}
+		
+		this.doUpload = function(){
+			
+			
+			// if FormData is available do ajax, else just send form
+			try{
+				var fd = new FormData(this.form);
+			}catch(e){
+				$('<input type=hidden name=redirect value="'+location.pathname+'">').appendTo(this.form)
+				this.form.submit();
+				return;
+			}
+			
+			
+		     	this.ajax.open("post", "/resources/upload_sheetmusic", true);
+			this.ajax.send(fd)
+		}
+
+		this.setForm = function(form){
+			try{
+			if(typeof form == 'string')
+				var form = document.getElementById(form)
+			
+			}catch(e){alert(e)}
+			this.form = form;
+		}
+	}
+	
+	
+	function saveResource(elem){
+		var youtube_id = youtubeIdFromElem(elem)
+		var ser_form = $(elem).parents('form').serialize();
+		$.post('/resources', ser_form, function(resp){
+			alert( (!isNaN(resp.id)) ? 'resource saved' : 'save failed');
+		})
+	}
+	
+	
+	$(document).ready(function(){
+	
+		$('#UploadSheetmusicForm').submit(function(){
+			
+			try{
+				ajax = new ajaxUpload();
+				ajax.setForm('UploadSheetmusicForm');
+				ajax.doUpload();
+			}catch(e){alert('ERROR: '+e)}
+			
+			return false;
+			
+			$.post(this.getAttribute('action'),
+				$(this).serialize(),
+				function(resp){
+					alert(resp)
+			
+			})
+			return false;	
+		})
+	})
+
+</script>
+
+<div id=showBox style='display:none;'>
+	<div name=embedBox></div>
+	<span class='info pointer' onclick='stopShow(this);'>close</span> | 
+	<span class='info pointer' onclick='saveResource(this);'>save this video link as resource</span>
+	
+</div>
+
+<br>
+<div class=bubbleSection style='width:90%;'>
+<%
+
+
+begin
+
+	form = form_for @resource, {:url=>{:action=>:upload_sheetmusic}, :html=>{:id=>'UploadSheetmusicForm'}} do |f| %>
+		<%= f.fields_for @resource.tunes do |t| %>
+			<%= t.hidden_field :id %>
+		<% end %>
+		
+		
+		<%= f.label 'Select a sheetmusic file to upload', :class=>'info black' %>
+		<%= f.file_field :file, {:class=>'background:white;', :id=>'upload_file'} %>
+		
+		<%= tag 'br' %>
+		<%= tag 'br' %>
+		
+		
+		<%= f.label 'Title for this upload:', :class=>'info black' %>
+		<%= f.text_field :title, :value=>'sheetmusic for "'+params[:tune_title] + '"' %>
+		
+		<%= tag 'br' %>
+		<%= tag 'br' %>
+
+		<%= f.label 'Notes for this upload:', :class=>'info black' %>
+		<%= f.text_area :comments, {:rows=>5} %>
+		
+		<%= tag 'br' %>
+		<%= tag 'br' %>
+		<%= tag 'br' %>
+		
+		<%= '<label>&nbsp;</label>'.html_safe %>
+		<%= f.button 'upload file' %>
+	<%
+	end
+	concat '<br>'.html_safe
+	concat form
+
+rescue Exception => e
+	concat "ERROR: " + e.message
+
+end
+
+%>
+</div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

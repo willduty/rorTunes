@@ -108,7 +108,7 @@ option {color:#333;
 .normal {font-weight:normal;}
 
 .flash {background:pink; font:bold 12px helvetica; border:1px solid red; padding: 0px 10px 0px 10px; color:black;}
-.flashInfo {background:green; font:bold 12px helvetica; border:1px solid gray; color:white;}
+.flash_notice {background:green; font:bold 12px helvetica; border:1px solid gray; color:white;}
 
 
 form .hdr{

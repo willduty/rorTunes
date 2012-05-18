@@ -906,61 +906,53 @@ function showResource(res){
 		}
 	}
 	// create an iframe to show the resource item if clicked
-	var iframe = document.createElement("IFRAME");
+	var iframe = document.createElement("iframe");
+	iframe.setAttribute('frameborder','0');
 	var fl = new FloatingContainer(null, null, null);
 	fl.setCancelButtonText("close");	
-	fl.addContentElement(iframe);
 	var title = res.title;
 	if(title.length == 0)
 		title = res.url;
 	fl.setTitle(title);
 	
-	
 	switch(res.resourceType){
 	
 		case RESOURCE_SHEETMUSIC:				
+			
 			var img = document.createElement("img");
-			var isMoz = navigator.userAgent.indexOf('Mozilla') != -1 
-			if(!isMoz)
-				img.onload = showTheSheetmusic; // show after img load, otherwise frame can't be sized
+			
+			function showTheSheetmusic(){
+				fl.addContentElement(img);
+				fl.show(window.event);
+			}
+
+			img.onload = showTheSheetmusic; // show after img load to size
 
 			img.src = res.localFile; // sheetmusic will always be local on the server
 			var frameBodyMargin = 10; // a little room
-			if(iframe.contentDocument){
-				iframe.contentDocument.body.style.backgroundColor = "white";
-				iframe.contentWindow.document.body.style.margin = frameBodyMargin;
-				iframe.contentWindow.document.body.appendChild(img);
-			}
-			else{
-				iframe.src = img.src; // ie
-			}
 			
-			if(isMoz)
-				fl.show(window.event);
-
-			function showTheSheetmusic(){
-				iframe.style.width = img.width + frameBodyMargin * 2;
-				if(img.width > CBParentElement(iframe).offsetWidth){
-					iframe.style.width = CBParentElement(iframe).offsetWidth + frameBodyMargin * 2;
-				}
-				iframe.style.height = img.height + frameBodyMargin * 2;
-				fl.show(window.event);
-			}
-
-
 
 			break;
 			
 		case RESOURCE_LINK_COMHALTAS_FLV:
-			iframe.style.width = "440";
-			iframe.style.height = "375";
-			iframe.src = "comhaltasFlv.html?url=" + escape(res.url); 
+			iframe.style.width = "426px";
+			iframe.style.height = "349px";
+			iframe.src = "/resources/show_comhaltas_video?url=" + escape(res.url);
+			fl.addContentElement(iframe);
+			//res.resizeElemForResource(iframe);
 			fl.show(window.event);
 			break;
 		
+		case RESOURCE_LINK_YOUTUBE:
+			var iframe = $('<iframe width="420" height="315" src="'+res.url+'" frameborder="0" allowfullscreen></iframe>')
+			fl.addContentElement(iframe.get(0));
+			res.resizeElemForResource(iframe.get(0));
+			fl.show(window.event);	
+			break;
+		
 		default:
-			iframe.style.width = "95%";
-			iframe.style.height = "300";
+			iframe.style.width = '300px';
+			iframe.style.height = '300px';
 			iframe.src = res.url;
 			res.resizeElemForResource(iframe);
 			fl.show(window.event);

@@ -10,5 +10,11 @@ class ApplicationController < ActionController::Base
   	ts.save  
   end
   
+  
+  def make_rand_token(length)
+  	chars =  [('a'..'z'),('A'..'Z'),(0..9)].map{|i| i.to_a}.flatten
+	return (0..length-1).map{ chars[rand(chars.length)]  }.join
+  end
+  
 end
 

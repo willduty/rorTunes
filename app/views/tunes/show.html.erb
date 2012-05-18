@@ -81,6 +81,7 @@ function appendResource(res){
 	var rbox = document.getElementById("resourceBox");
 	
 	if(res.resourceType == RESOURCE_SHEETMUSIC){
+	
 		removePlaceholder(smbox);
 		var img = document.createElement("img");
 		img.style.display = "none";
@@ -383,25 +384,26 @@ window.onload = function(){
 						
 					</td>	
 				</tr>
-				<!--
-				<?php
-				@$flash = new sessionFlash();
-				$msg = "";
-				if($msg = $flash->getFlash())
-					echo "<tr><td valign=top colspan=4>$msg</td></tr>";
-				?>
-				-->
+
+				
 				<tr>
 					<td align=right valign=top colspan=4 id=saveChangesDiv style="display:none;" >
 						<span class="toolBtn white blackBkgd" onclick="saveTuneChanges();">save changes</span>  
 						<span id=cancelChangesButton class="toolBtn white blackBkgd" onclick="fillTuneProps();">cancel</span>
 					</td>
 				</tr>
+				<% if flash[:notice] %>
+					<tr><td valign=top colspan=4><div class=flash_notice>! <%= flash[:notice] %></div></td></tr>
+				<% end %>
 			</table>		
-
+			
+			
+						
+			
 
 			<br>
 			<div class=infohdr>Belongs To</div>
+
 			<table>
 				<tr>
 					<td valign=top>
@@ -439,6 +441,8 @@ window.onload = function(){
 			<table id=newSheetMusic class=toolContainer name=toolContainer width=100%>
 				<tr>
 					<td height=60 class=toolheader>New Sheetmusic<br>
+						<div class="info white" name=tuneTitleHdr></div>
+					
 						<span class="info cancel pointer" name=toolCancel onclick="closeSearchFrame(this)">close</span>
 					</td>
 					<td rowspan=2 width=85%>

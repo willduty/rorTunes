@@ -32,16 +32,11 @@ class UsersController < ApplicationController
 
   	params[:user].delete(:password2)
 	
+	# set up new user with activation token and 
+	# initial status unconfirmed
 	@new_user = User.new(params[:user])
-	
-	# activation token	
-	chars =  [('a'..'z'),('A'..'Z'),(0..9)].map{|i| i.to_a}.flatten
-	activation_token = (0..39).map{ chars[rand(chars.length)]  }.join
-	@new_user.activation_token = activation_token
-	
-	# initial user status (unconfirmed)
+	@new_user.activation_token = make_rand_token(40)
 	@new_user.user_group_id = 3
-	
 	@new_user.save
 	
 	if @new_user.valid?

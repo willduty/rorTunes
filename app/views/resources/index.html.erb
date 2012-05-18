@@ -61,17 +61,11 @@ function showGrid(){
 		var res = resArr[i];
 		var title = "";
 		try{
-			if(res.resourceType == RESOURCE_SHEETMUSIC){
-				if(res.associatedItemsArr.length){
-					title = tunesArr[res.associatedItemsArr[0].id].title;
-				}
-				else{
-					title = (res.localFile.length) ? res.localFile : res.url;
-				}
-			}
+			if(res.resourceType == RESOURCE_SHEETMUSIC)
+				title = res.title.length ? res.title : 'sheetmusic'
 			else
-				title = res.title.substr(0, 37);
-			
+				title = res.title;
+				
 			var elem = grid.addItem(GRID_OPTIONS_SINGLE_ROW_CALLBACK, 
 									title, 
 									res.getLabel(), 

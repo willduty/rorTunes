@@ -3,11 +3,9 @@
 
 
 	function addResourceOptions(tuneId){
-			
 		try{
-			$("#tuneTitleHdr").html(gTune.title); // if a title is available, show it
+			$("[name=tuneTitleHdr]").html(gTune.title); 
 		}catch(e){}
-			
 		var searchFrameSrc = "";
 		var resourceOptionsBoxes = new Array();
 		CBGetElementsByName("resourceOptionsBox", null, resourceOptionsBoxes);
@@ -36,7 +34,7 @@
 					break;
 					
 				case "newSheetMusic":
-					srcArr.push(["upload sheetmusic", "/resources/upload_sheetmusic", "keywords=" + tuneTitle + "+irish+music"]);
+					srcArr.push(["upload sheetmusic", "/resources/new_sheetmusic", "tune_title=" + tuneTitle]);
 					srcArr.push(["search thesession.org", "searchsessiondotorg.php", "url=http://thesession.org"]);
 					srcArr.push(["search norbeck", "searchmp3page.php", "url=http://homepage.mac.com/douglowder/PloughRecordings/"]);
 					break;
@@ -140,7 +138,7 @@
 		<tr>
 			<td height=60 class=toolheader>
 				New Resource<br>
-				<div class="info white" id=tuneTitleHdr></div>
+				<div class="info white" name=tuneTitleHdr></div>
 			</td>
 			<td rowspan=3 width=85%>
 				<div name=frameBox style="display:none;">

@@ -12,10 +12,10 @@ class User < ActiveRecord::Base
 	
 	has_many :items, :dependent=>:destroy
 	has_many :tunes, :through => :items, :source => :itemable, :source_type => 'Tune', :dependent=>:destroy
-	has_many :tune_sets, :through => :items, :source => :itemable, :source_type => 'TuneSet'
-	has_many :resources, :through => :items, :source => :itemable, :source_type => 'Resource'
-	has_many :groups, :through => :items, :source => :itemable, :source_type => 'Group'
-	has_many :favorites, :through => :items, :source => :itemable, :source_type => 'Favorite'
+	has_many :tune_sets, :through => :items, :source => :itemable, :source_type => 'TuneSet', :dependent=>:destroy
+	has_many :resources, :through => :items, :source => :itemable, :source_type => 'Resource', :dependent=>:destroy
+	has_many :groups, :through => :items, :source => :itemable, :source_type => 'Group', :dependent=>:destroy
+	has_many :favorites, :through => :items, :source => :itemable, :source_type => 'Favorite', :dependent=>:destroy
 	
 	has_many :user_settings, :dependent=>:destroy
 	accepts_nested_attributes_for :user_settings

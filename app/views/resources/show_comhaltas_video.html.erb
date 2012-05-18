@@ -1,0 +1,28 @@
+
+<html>
+
+<head>
+
+<script src="js/common.js" type="text/javascript"></script> 
+
+<script src="http://comhaltas.ie/js/ufo.js" type="text/javascript" charset="utf-8"></script> 
+<script type="text/javascript">
+
+window.onload = function(){
+		var flvFile = getRequestParam("url");
+		var FO = {movie:"http://comhaltas.ie/swf/flvplayer.swf",width:"426",height:"345",majorversion:"7",build:"0",bgcolor:"#FFFFFF",
+					flashvars:"file="+flvFile+"&showdigits=true&height=400&autostart=false"};
+		UFO.create(FO, "media");
+	}
+</script>		
+
+</head>
+
+<body style='margin:0px; padding:0px;'>
+
+<div  style='margin:0px; padding:0px;' id=media></div>
+
+</body> 
+</html>
+
+
