@@ -28,7 +28,7 @@
 			
 			// if FormData is available do ajax, else just send form
 			try{
-				var fd = new FormData(this.form);
+				var fd = new FormDataa(this.form);
 			}catch(e){
 				$('<input type=hidden name=redirect value="'+location.pathname+'">').appendTo(this.form)
 				this.form.submit();
