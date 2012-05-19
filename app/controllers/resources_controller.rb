@@ -101,8 +101,8 @@ respond_to :html, :json
   	
   	begin
 	  	if @resource.save
- 			Item.create(:itemable_id=>@resource.id, :itemable_type=>'Resource', :user_id=>session[:user_cookie])
- 			
+ 			#Item.create(:itemable_id=>@resource.id, :itemable_type=>'Resource', :user_id=>session[:user_cookie])
+ 			@resource.destroy
 	  	end
 	  	
 	rescue
