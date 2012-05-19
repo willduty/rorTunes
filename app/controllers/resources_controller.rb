@@ -102,16 +102,7 @@ respond_to :html, :json
   	begin
 	  	if @resource.save
  			Item.create(:itemable_id=>@resource.id, :itemable_type=>'Resource', :user_id=>session[:user_cookie])
- 			flash[:notice] = 'new sheetmusic uploaded'
  			
- 			if params.has_key? :redirect 
- 				redirect_to params[:redirect]
- 				return
- 			else
-	  			render :json => @resource
-	  		end
-	  	else 
-	  		flash[:error] = "could not save resource"
 	  	end
 	  	
 	rescue
