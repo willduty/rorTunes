@@ -74,7 +74,7 @@ respond_to :html, :json
   	@savename = make_rand_token(20) + '_'+ File.basename(@upload_file.original_filename)
   	
   	@resource = Resource.new
-  	@resource.title = params[:resource][:title]
+  	@resource.title = 'testing'
   	@resource.resource_type = Resource::RESOURCE_TYPE_SHEETMUSIC
   	@resource.url = '[user upload] ' + File.basename(@upload_file.original_filename)
   	
@@ -101,8 +101,8 @@ respond_to :html, :json
   	
   	begin
 	  	if @resource.save
- 			#Item.create(:itemable_id=>@resource.id, :itemable_type=>'Resource', :user_id=>session[:user_cookie])
- 			@resource.destroy
+ 			Item.create(:itemable_id=>@resource.id, :itemable_type=>'Resource', :user_id=>session[:user_cookie])
+ 			
 	  	end
 	  	
 	rescue
