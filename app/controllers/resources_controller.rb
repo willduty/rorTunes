@@ -106,6 +106,7 @@ respond_to :html, :json
  			
  			if params.has_key? :redirect 
  				redirect_to params[:redirect]
+ 				return
  			else
 	  			render :json => @resource
 	  		end
