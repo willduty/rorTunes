@@ -118,6 +118,8 @@ respond_to :html, :json
 		  	
   	end
   
+  	redirect_to '/tunes/3'
+  
   end
   
   
