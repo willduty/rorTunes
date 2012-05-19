@@ -395,6 +395,9 @@ window.onload = function(){
 				<% if flash[:notice] %>
 					<tr><td valign=top colspan=4><div class=flash_notice>! <%= flash[:notice] %></div></td></tr>
 				<% end %>
+				<% if flash[:error] %>
+					<tr><td valign=top colspan=4><div class=flash>! <%= flash[:error] %></div></td></tr>
+				<% end %>
 			</table>		
 			
 			
