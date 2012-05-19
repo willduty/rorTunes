@@ -115,7 +115,7 @@ respond_to :html, :json
 	  	end
 	  	
 	rescue
-		  	
+		flash[:error] = @resource.errors
   	end
   
   	redirect_to '/tunes/3'
