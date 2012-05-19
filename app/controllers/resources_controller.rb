@@ -79,20 +79,25 @@ respond_to :html, :json
   	@resource.url = '[user upload] ' + File.basename(@upload_file.original_filename)
   	
 	  	
-	begin
-		Dir::mkdir(Rails.root.join('public', 'uploads'))
-		Dir::mkdir(Rails.root.join('public', 'uploads', @user_id.to_s))
-	rescue
+	#begin
+	#	Dir::mkdir(Rails.root.join('public', 'uploads'))
+	#	Dir::mkdir(Rails.root.join('public', 'uploads', @user_id.to_s))
+	#rescue
+	#
+	#end 
 	
-	end 
 	
-  	@resource.local_file = '/uploads/' + (@user_id.to_s) + '/' + @savename
+  	#@resource.local_file = '/uploads/' + (@user_id.to_s) + '/' + @savename
+  	@resource.local_file = 'http://www.google.com/images/srpr/logo3w.png'
+  	
   	
   	@resource.tunes << Tune.find_by_id(params[:resource][:tune][:id])
   	
-  	File.open Rails.root.join('public', 'uploads', @user_id.to_s, @savename), 'wb' do |file|
-  		file.write(@upload_file.read)
-  	end
+  	
+  	#replace with write to amazon s3
+  	#File.open Rails.root.join('public', 'uploads', @user_id.to_s, @savename), 'wb' do |file|
+  	#	file.write(@upload_file.read)
+  	#end
   	
   	begin
 	  	if @resource.save
