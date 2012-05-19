@@ -641,6 +641,7 @@ function Grid(container, options){
 	// grid header
 	this.createHeader = function(){
 		var row = this.makeRow();
+		row.className = "gridRowNoHover";
 		CBDisableSelect(row);
 		this.hdrBox.appendChild(row);
 		var rowsBoxWidth = this.actualRowsBoxWidth();
