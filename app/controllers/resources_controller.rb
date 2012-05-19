@@ -115,10 +115,10 @@ respond_to :html, :json
 	  	end
 	  	
 	rescue
-		flash[:error] = @resource.errors
+		flash[:error] = 'problem here'
   	end
   
-  	redirect_to '/tunes/3'
+  	redirect_to params[:redirect]
   
   end
   
