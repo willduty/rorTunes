@@ -10,6 +10,7 @@ function editableItem(elem, options, callback, callbackParam){
 	this.callback = callback; 
 	this.callbackParam = callbackParam;
 	this.editBox = null;
+	this.textAreaRows = 15;
 	
 	if(typeof(options) == 'undefined')
 		this.mode = MODE_INPUT;
@@ -25,7 +26,8 @@ function editableItem(elem, options, callback, callbackParam){
 		this.editBox = document.createElement("div");
 		var ta = document.createElement("textarea");
 		ta.style.width = "95%";
-		ta.style.height= "100";
+		ta.setAttribute('rows', this.textAreaRows)
+		
 		
 		if(this.mode & MODE_INCLUDE_ORIGINAL_TEXT){
 			// replace brs with newlines

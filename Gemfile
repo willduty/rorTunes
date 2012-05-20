@@ -13,6 +13,10 @@ gem "httparty"
 
 gem "nokogiri"
 
+
+gem "aws-sdk"
+gem "aws-s3"
+
 #gem "gruff"
 
 group :production do

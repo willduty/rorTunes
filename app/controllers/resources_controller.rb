@@ -35,10 +35,21 @@ respond_to :html, :json
   	# delete upload file if exists
   	localfile = res.local_file
 
+	
   	begin
-  		File.delete Rails.root.join('public', res.local_file)
+
+		#File.delete Rails.root.join('public', res.local_file)
+		AWS.config(
+			:access_key_id => ENV['AWS_ACCESS_KEY_ID'], 
+			:secret_access_key => ENV['AWS_SECRET_ACCESS_KEY']
+		)
+		s3 = AWS::S3.new
+
+		s3.buckets['rorTunes-assets'].objects[Pathname.new(localfile).basename].delete	
+	
   	rescue
   		#file not found	
+  		flash[:error] = 'resource file delete failed'
   	end
   	
   	res.destroy
@@ -63,8 +74,8 @@ respond_to :html, :json
   end
   
   
-  def upload_sheetmusic
-  
+  def upload
+
   	@user_id = session[:user_cookie]
   	if @user_id.nil?
   		return
@@ -74,11 +85,15 @@ respond_to :html, :json
   	@savename = make_rand_token(20) + '_'+ File.basename(@upload_file.original_filename)
   	
   	@resource = Resource.new
-  	@resource.title = 'testing'
+  	
+  	# @resource.title = params[:resource][:title] 
+  	@resource.title = 'sheetmusic'
+  	
   	@resource.resource_type = Resource::RESOURCE_TYPE_SHEETMUSIC
   	@resource.url = '[user upload] ' + File.basename(@upload_file.original_filename)
   	
-	  	
+  	
+  	  	
 	#begin
 	#	Dir::mkdir(Rails.root.join('public', 'uploads'))
 	#	Dir::mkdir(Rails.root.join('public', 'uploads', @user_id.to_s))
@@ -88,28 +103,53 @@ respond_to :html, :json
 	
 	
   	#@resource.local_file = '/uploads/' + (@user_id.to_s) + '/' + @savename
-  	@resource.local_file = 'http://www.google.com/images/srpr/logo3w.png'
+  	@resource.local_file = 'https://s3.amazonaws.com/rorTunes-assets/' + @savename 
   	
   	
   	@resource.tunes << Tune.find_by_id(params[:resource][:tune][:id])
   	
   	
-  	#replace with write to amazon s3
+  	#replaced with write to amazon s3
   	#File.open Rails.root.join('public', 'uploads', @user_id.to_s, @savename), 'wb' do |file|
   	#	file.write(@upload_file.read)
   	#end
   	
-  	begin
-	  	if @resource.save
- 			Item.create(:itemable_id=>@resource.id, :itemable_type=>'Resource', :user_id=>session[:user_cookie])
- 			
-	  	end
+  	AWS.config(
+	  :access_key_id => ENV['AWS_ACCESS_KEY_ID'], 
+	  :secret_access_key => ENV['AWS_SECRET_ACCESS_KEY']
+	)
+  	s3 = AWS::S3.new
+	
+	
+	#render :text=>@upload_file.tempfile
+	#return
+	
+	s3.buckets['rorTunes-assets'].objects[@savename].write(:data => @upload_file.tempfile) 	
 	  	
+	
+  	begin
+	  	@resource.save
 	rescue
-		flash[:error] = 'problem here'
+		flash[:error] = "Could not save resource"
+		
+		if params.has_key? :redirect 
+			redirect_to params[:redirect]
+		end
+		return
   	end
-  
-  	redirect_to params[:redirect]
+
+	begin  		 
+		Item.create(:itemable_id=>@resource.id, :itemable_type=>'Resource', :user_id=>session[:user_cookie])
+		flash[:notice] = 'new sheetmusic uploaded'
+		
+		params.has_key?(:redirect) ? (redirect_to params[:redirect]) : (render :json => @resource)
+  		
+  		return
+  	rescue 
+  		@resource.destroy
+  		flash[:error] = "Could not complete resource save"
+  	end
+	  	
   
   end
   

@@ -205,7 +205,7 @@ function fillTuneProps(){
 				commentsElem.innerHTML = str;
 				var options = (gTune.comments == "" || typeof(gTune.comments) == "undefined" ) ? 
 					MODE_TEXTAREA : (MODE_TEXTAREA | MODE_INCLUDE_ORIGINAL_TEXT);
-				new editableItem(commentsElem, options, fieldUpdate, commentsElem);
+				var ei = new editableItem(commentsElem, options, fieldUpdate, commentsElem);
 				
 				break;
 				
@@ -401,12 +401,10 @@ window.onload = function(){
 			</table>		
 			
 			
-						
-			
 
 			<br>
 			<div class=infohdr>Belongs To</div>
-
+<%= ENV['APPLICATION_ENV'] %>
 			<table>
 				<tr>
 					<td valign=top>

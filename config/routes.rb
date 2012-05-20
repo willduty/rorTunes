@@ -9,7 +9,7 @@ get "resources/search_youtube"
 get "resources/generic_search"
 get "resources/new_sheetmusic"
 get "resources/show_comhaltas_video"
-post "resources/upload_sheetmusic"
+post "resources/upload"
 resources :resources
 
 put 'tune_sets/toggle_status/:id/:status_bit', :to=>'tune_sets#toggle_status'

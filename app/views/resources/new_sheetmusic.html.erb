@@ -36,7 +36,7 @@
 			}
 			
 			
-		     	this.ajax.open("post", "/resources/upload_sheetmusic", true);
+		     	this.ajax.open("post", "/resources/upload", true);
 			this.ajax.send(fd)
 		}
 
@@ -98,7 +98,7 @@
 
 begin
 
-	form = form_for @resource, {:url=>{:action=>:upload_sheetmusic}, :html=>{:id=>'UploadSheetmusicForm'}} do |f| %>
+	form = form_for @resource, {:url=>{:action=>:upload}, :html=>{:id=>'UploadSheetmusicForm'}} do |f| %>
 		<%= f.fields_for @resource.tunes do |t| %>
 			<%= t.hidden_field :id %>
 		<% end %>

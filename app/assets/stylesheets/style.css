@@ -47,8 +47,8 @@ option {color:#333;
 .item {color:#640; text-decoration:none; font:normal 12px arial; margin:0px; padding: 0px 2px 0px 2px;}
 .item:hover {color:#310; cursor:pointer;}
 
-.itemTunePage {color:white; text-decoration:none; font:normal 12px arial; }
-.itemTunePage:hover {color:#eee; cursor:pointer;}
+.itemTunePage {color:#eee; text-decoration:none; font:normal 13px arial; }
+.itemTunePage:hover {color:white; cursor:pointer;}
 
 .itemselected {color:#750; background-color:#ddd; text-decoration:none; font:normal 12px arial; padding: 0px 2px 0px 2px;}
 
