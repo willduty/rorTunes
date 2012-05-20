@@ -66,13 +66,12 @@ function showGrid(){
 			else
 				title = res.title;
 				
-			var elem = grid.addItem(GRID_OPTIONS_SINGLE_ROW_CALLBACK, 
-									title, 
-									res.getLabel(), 
-									res.url,
-									res.entryDate, 
-									showResource, 
-									res);
+			var elem = grid.addRow( 
+					title, 
+					res.getLabel(), 
+					res.url,
+					res.entryDate, 
+					{rowCallback:showResource, rowCallbackParam:res, id:res});
 			addResourceContextMenu(elem, res);
 		
 		}catch(e){

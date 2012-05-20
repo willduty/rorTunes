@@ -43,28 +43,26 @@ function addToNewSet(paramStr){
 
 
 
+
+
 // user has clicked on a filter button
 function filterClicked(elem, event){
 	var innerElem = document.getElementById(elem.getAttribute("innerElem"));
-	var padType = elem.getAttribute("padType");
-	
 	if(!innerElem.innerHTML.length){
-		var pad = showPad(padType, innerElem, filterSelectedCallback, event)
-		pad.oncancel = function(){
-			if(innerElem.innerHTML == ''){
-				var btnObj = gBtnMgr.getButtonObjFromElement(elem);
-				btnObj.switchOff();
-				
-			}
+		var pad = showPad(elem.getAttribute("padType"), innerElem, filterSelectedCallback, event)
+		pad.oncancel = function(){	
+			if(!innerElem.innerHTML.length)
+				gBtnMgr.getButtonObjFromElement(elem).switchOff();
 		}
-	
 	}
 	else{
-		innerElem.innerHTML = "";
-		innerElem.value = "";
+		$(innerElem).html('').val('');
 		showTunes();
 	}
 }
+
+
+
 
 
 // callback for floating selection pad: handles tune filter buttons
@@ -202,24 +200,25 @@ function showGrid(){
 		try{typeTitle = typesArr[tune.typeId].title;}
 		catch(e){typeTitle = "[not set]";}
 			
-		var tuneElem = gTuneList.addItem(GRID_OPTIONS_SINGLE_ROW_CALLBACK,
-										tune.title, 
-										typeTitle, 
-										keyTitle, 
-										tune.parts, 
-										tune.entryDate, 
-										tune.lastUpdate, 
-										goToTunePage,
-										tune.id);
-		addTuneContextMenu(tuneElem, tune);
+		var row = gTuneList.addRow(
+					tune.title, 
+					typeTitle, 
+					keyTitle, 
+					tune.parts, 
+					tune.entryDate, 
+					tune.lastUpdate, 
+					{rowCallback:goToTunePage, 
+						rowCallbackParam:tune.id, id:tune.id});
+
+		addTuneContextMenu(row, tune);
 		
 		// if tune is being show under a group
 		if(filters.group){
-			tuneElem.setAttribute("groupId", filters.group.id);
+			row.setAttribute("groupId", filters.group.id);
 		}
 		// set selection in list
 		if (i == selectedTuneIdx)
-			tuneElem.setAttribute("selected", "");
+			row.setAttribute("selected", "");
 	
 		
 	}

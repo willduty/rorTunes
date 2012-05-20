@@ -14,9 +14,6 @@ var DIRECTION_DOWN = 2;
 var SORT_DESC = 1;
 var SORT_ASC = 2;
 
-var GRID_OPTIONS_SINGLE_ROW_CALLBACK = 1;
-var GRID_OPTIONS_ITEMS_CALLBACK = 2;
-
 // up/down arrows &#8593; &#8595;   &#8744; &#8743
 var upIcon = " <span class=gridUpIcon>&#8743;</span>"
 var downIcon = " <span class=gridDownIcon>&#8744;</span>"
@@ -270,22 +267,26 @@ function Grid(container, options){
 		
 
 	
-	// args in threes per column: item, id, focuscallback
-	this.addItem = function(options){
-	
+	// function(args+, options{})
+	// args: string or object {string, callback, editable, editcallback, style}
+	// options: {rowCallback, rowCallbackParam, rowId}		
+	this.addRow = function(){
+		
+		var options = arguments[arguments.length - 1];
+
 		var row = this.makeRow();
 		this.rowsArr.push(new gridRow(row));
 		
 		// if callback is by row add callback now
-		var args = arguments;
-		if(options & GRID_OPTIONS_SINGLE_ROW_CALLBACK){
+		
+		if(options.rowCallback){
 			row.ondblclick = function(event){
-				args[args.length - 2]((args[args.length - 1]), event);
+				options.rowCallback(options.rowCallbackParam, event);
 			}
 		}
 		
 		row.setAttribute("index", this.rowsArr.length - 1); // for reverse searching
-		row.setAttribute("id", (args[args.length - 1])); // todo need this?
+		row.setAttribute("id", options.id); // todo need this?
 		
 		// todo: do only if GRID_OPTIONS_ITEMS_CALLBACK
 		CBAddEventListener(row, "click", function(e){
@@ -300,29 +301,13 @@ function Grid(container, options){
 		
 		var colIdx;
 		
-		for(var i=1; i<arguments.length;){
-			if(options & GRID_OPTIONS_SINGLE_ROW_CALLBACK){
-				
-				if(i >= arguments.length-2)
-					break;
-				var item = makeCell(arguments[i], null, null);
-				i++;
-				colIdx = i - 2;
-				item.style.width = this.columnsArr[colIdx].width  + 'px';
-				
-				row.appendChild(item);
-			}
-			else{
-				
-				var item = makeCell(arguments[i], arguments[i+1], arguments[i+2]);
-				i+=3;
-				colIdx = (i/3) - 1;
-				item.style.width = this.columnsArr[colIdx].width + 'px';
-				row.appendChild(item);
-			}
-			
-			if(i>=arguments.length)
-				break;
+		for(var i=0; i<this.columnsArr.length; i++){	
+			var value = typeof arguments[i] != 'object' ?
+				 arguments[i] : arguments[i].value;
+			var item = makeCell(value, null, null);
+			item.style.width = this.columnsArr[i].width  + 'px';		
+			row.appendChild(item);
+		
 		}
 		
 		return row;	
@@ -339,10 +324,10 @@ function Grid(container, options){
 				_this.selectItem(CBParentElement(CBEventSrcElement(e)));},
 				false);
 				
-			item.ondblclick = function(){
-				if(callback)
-					callback(this);
-			}
+			if(callback)
+				item.ondblclick = function(){			
+						callback(this);
+				}
 			
 			return item;
 		}

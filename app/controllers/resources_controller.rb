@@ -74,6 +74,7 @@ respond_to :html, :json
   end
   
   
+  # for resource with a file attachment
   def upload
 
   	@user_id = session[:user_cookie]
@@ -86,47 +87,27 @@ respond_to :html, :json
   	
   	@resource = Resource.new
   	
+	# todo, problem with saving incoming form value, unicode/ascii issue?
   	# @resource.title = params[:resource][:title] 
   	@resource.title = 'sheetmusic'
   	
   	@resource.resource_type = Resource::RESOURCE_TYPE_SHEETMUSIC
   	@resource.url = '[user upload] ' + File.basename(@upload_file.original_filename)
-  	
-  	
-  	  	
-	#begin
-	#	Dir::mkdir(Rails.root.join('public', 'uploads'))
-	#	Dir::mkdir(Rails.root.join('public', 'uploads', @user_id.to_s))
-	#rescue
-	#
-	#end 
-	
-	
-  	#@resource.local_file = '/uploads/' + (@user_id.to_s) + '/' + @savename
+ 
   	@resource.local_file = 'https://s3.amazonaws.com/rorTunes-assets/' + @savename 
-  	
   	
   	@resource.tunes << Tune.find_by_id(params[:resource][:tune][:id])
   	
   	
-  	#replaced with write to amazon s3
-  	#File.open Rails.root.join('public', 'uploads', @user_id.to_s, @savename), 'wb' do |file|
-  	#	file.write(@upload_file.read)
-  	#end
-  	
+  	# write file to amazon s3 storage
   	AWS.config(
 	  :access_key_id => ENV['AWS_ACCESS_KEY_ID'], 
 	  :secret_access_key => ENV['AWS_SECRET_ACCESS_KEY']
 	)
-  	s3 = AWS::S3.new
-	
-	
-	#render :text=>@upload_file.tempfile
-	#return
-	
+  	s3 = AWS::S3.new	
 	s3.buckets['rorTunes-assets'].objects[@savename].write(@upload_file.tempfile, :acl=>:public_read) 	
-	  	
 	
+	# save the resource and associated item
   	begin
 	  	@resource.save
 	rescue
