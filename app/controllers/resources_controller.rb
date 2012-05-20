@@ -124,7 +124,7 @@ respond_to :html, :json
 	#render :text=>@upload_file.tempfile
 	#return
 	
-	s3.buckets['rorTunes-assets'].objects[@savename].write(:data => @upload_file.tempfile) 	
+	s3.buckets['rorTunes-assets'].objects[@savename].write(@upload_file.tempfile, :acl=>:public_read) 	
 	  	
 	
   	begin
