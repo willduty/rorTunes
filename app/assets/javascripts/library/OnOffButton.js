@@ -16,10 +16,10 @@ When page loads iterate through items with name=onOffButton in document and crea
 
 	var buttons = document.getElementsByName("onOffButton");
 	for(i in buttons){
-		var button = new onOffButton(buttons[i], "someclass", "someclass");
+		var button = new OnOffButton(buttons[i], "someclass", "someclass");
 		
 		//add callback if callback is desired
-		var button = new onOffButton(someElement, "someclass", "someclass");
+		var button = new OnOffButton(someElement, "someclass", "someclass");
 		button.callback = myCallbackFunc;
 	}
 	
@@ -91,7 +91,7 @@ ButtonManager.prototype.setUpButtons = function(arrOnBtns){
 	for(i=0; i<buttons.length; i++){
 		
 		// create the button obj
-		var btn = new onOffButton(buttons[i], "onOffBtnOn", "onOffBtnOff");
+		var btn = new OnOffButton(buttons[i], "onOffBtnOn", "onOffBtnOff");
 		this.buttons.push(btn);
 		
 		// organize all grouped buttons into assoc array arrGroups where 
@@ -148,7 +148,7 @@ ButtonManager.prototype.getButtonObjFromElement = function(elem){
 
 
 
-function onOffButton(elem, onClass, offClass){ // todo get rid of class params and put in style sheet
+function OnOffButton(elem, onClass, offClass){ // todo get rid of class params and put in style sheet
 
 	var _this = this;
 	this.elem = elem;

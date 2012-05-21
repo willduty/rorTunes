@@ -1,5 +1,5 @@
 
-function objAutoSuggest(elem, fnSearchCallback, fnSuggestionClickedCallback){
+function AutoSuggest(elem, fnSearchCallback, fnSuggestionClickedCallback){
 
 	var _this = this;
 	

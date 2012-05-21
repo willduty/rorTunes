@@ -116,7 +116,7 @@ function setUpPadSwitches(){
 function showPad(padtype, targetElem, callback, event){
 
 	// send the targetElem through as callback param
-	var pad = new floatingSelectPad(callback, targetElem); 
+	var pad = new FloatingSelectPad(callback, targetElem); 
 
 	switch(padtype)
 	{
@@ -196,7 +196,7 @@ function padItemSelected(originElem, padItemValue, padItemText){
 // AutoSuggest Callback 
 
 
-// callback from objAutoSuggest when the user types in the box. returns array of tune suggestions
+// callback from AutoSuggest when the user types in the box. returns array of tune suggestions
 function autoSuggestCallback(str, type){
 	
 	if(typeof(type) == 'undefined')
@@ -433,8 +433,8 @@ function addGroupSubHdrContextMenu(elem){
 					
 				}
 				
-				// launch setDeveloper tool
-				var developer = new setDeveloper(setDevCallback, _this.getAttribute("groupId"));
+				// launch SetDeveloper tool
+				var developer = new SetDeveloper(setDevCallback, _this.getAttribute("groupId"));
 				$(tunesDiv).find('div[itemId][itemType='+ITEM_TYPE_TUNE+']').each(function(){
 					developer.addTune(tunesArr[$(this).attr("itemId")])
 					})
@@ -643,7 +643,7 @@ function groupTunesIntoSet(containerElem){
 			a string of tune ids: 6,8,43
 			array of tune ids,
 			array of tune item elements
-			object of type objList
+			object of type List
 			selection list with option values => tune ids
 */
 
@@ -657,7 +657,7 @@ function saveNewSet(obj){
 		case String:
 			tuneIds = setElem;
 			break;
-		case objList:
+		case List:
 			var ids = setElem.getItemIds();
 			setElem.clearList();
 			tuneIds = ids.join(",");
@@ -1008,7 +1008,7 @@ function showSelectTuneDlg(callback, callbackParam){
 	fc.addContentElement(div);
 	fc.show(window.event);
 	
-	var auto = new objAutoSuggest(inputBox, autoSuggestCallback, suggestionClickedCallback);
+	var auto = new AutoSuggest(inputBox, autoSuggestCallback, suggestionClickedCallback);
 	
 	function flCallback(itemId){
 		var selectedItemId = inputBox.getAttribute("tuneId")
@@ -1293,7 +1293,7 @@ function setEditCallback(obj){
 
 function setEditDlg(id, event){
 	try{
-		var ro = new objReorder();
+		var ro = new Reorder();
 		var fl = new FloatingContainer(setEditCallback, null, ro);
 		
 		for(var i in setsArr[id].tunesArr){
@@ -1302,7 +1302,7 @@ function setEditDlg(id, event){
 		ro.addAddItemButton();
 		ro.assemble();
 		ro.allowRemove = true;
-		objReorder.prototype.setId;
+		Reorder.prototype.setId;
 		ro.setId = id;
 		
 		fl.setTitle("Edit Set");

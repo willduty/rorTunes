@@ -7,7 +7,7 @@ var ES_STATE_COLLAPSED = 2;
 // id: any id value desired for reference. set to null if not needed
 // initialState: either ES_STATE_OPEN or ES_STATE_COLLAPSED
 
-function expandableSection(titleElem, id, initialState){
+function ExpandableSection(titleElem, id, initialState){
 	
 	var _this = this;
 	this.id = id;

@@ -173,7 +173,7 @@ function fillTuneProps(){
 					str = "<span class='info gray' name=placeholder>&nbsp;[no additional titles have been added.]</span>";
 					
 				var elem =document.getElementById('addNewTitle');
-				new editableItem(elem, MODE_INPUT, addTitle, elem);
+				new EditableItem(elem, MODE_INPUT, addTitle, elem);
 				
 				tunePropElems[i].innerHTML = str;
 				
@@ -205,7 +205,7 @@ function fillTuneProps(){
 				commentsElem.innerHTML = str;
 				var options = (gTune.comments == "" || typeof(gTune.comments) == "undefined" ) ? 
 					MODE_TEXTAREA : (MODE_TEXTAREA | MODE_INCLUDE_ORIGINAL_TEXT);
-				var ei = new editableItem(commentsElem, options, fieldUpdate, commentsElem);
+				var ei = new EditableItem(commentsElem, options, fieldUpdate, commentsElem);
 				
 				break;
 				
@@ -240,7 +240,7 @@ function fillTuneProps(){
 			case "title":
 				str = gTune.title;
 				var titleElem = document.getElementById("tunetitle");
-				new editableItem(titleElem, MODE_INPUT | MODE_INCLUDE_ORIGINAL_TEXT, fieldUpdate, titleElem);
+				new EditableItem(titleElem, MODE_INPUT | MODE_INCLUDE_ORIGINAL_TEXT, fieldUpdate, titleElem);
 				tunePropElems[i].innerHTML = str;
 				break;
 			

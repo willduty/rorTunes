@@ -114,7 +114,7 @@ function makeGroupElement(group){
 	groupTitleDiv.setAttribute("status", group.status);
 	if(group.status & STATUS_BIT_ARCHIVED)
 		groupTitleDiv.innerHTML += " <span style='color:#772200;'>[archived]</span>";
-	var es = new expandableSection(groupTitleDiv, group.id, ES_STATE_COLLAPSED);
+	var es = new ExpandableSection(groupTitleDiv, group.id, ES_STATE_COLLAPSED);
 	
 	es.setBodyClass('bubbleSection');
 				

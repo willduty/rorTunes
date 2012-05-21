@@ -247,7 +247,7 @@ function expandAll(){
 
 function reorderGroups(event){
 	// create a reorder widget and add each set
-	var ro = new objReorder(); 
+	var ro = new Reorder(); 
 	ro.allowRemove = false; // no remove. makes save complicated, tool on main page ctx menu
 
 	var copyArr = getSortedArrayCopy(groupsArr, sortByPriority); 
@@ -300,7 +300,7 @@ window.onload = function(){
 	
 	document.getElementById("searchGroupsEntryBox").onfocus = function(){
 		if(!gSearchAutoList)
-			gSearchAutoList = new objAutoSuggest(this, callbackSelectAutosuggType, searchSuggestionClickedCallback);
+			gSearchAutoList = new AutoSuggest(this, callbackSelectAutosuggType, searchSuggestionClickedCallback);
 	}
 	
 	showGroups();

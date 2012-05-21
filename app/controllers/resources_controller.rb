@@ -34,7 +34,6 @@ respond_to :html, :json
   	
   	# delete upload file if exists
   	localfile = res.local_file
-
 	
   	begin
 

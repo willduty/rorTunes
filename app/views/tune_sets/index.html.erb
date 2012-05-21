@@ -48,17 +48,17 @@ function newTuneCallback(){
 
 var gWidgetMgr = new WidgetManager();
 
-// callback from objAutoSuggest when the user selects a suggestion. 
+// callback from AutoSuggest when the user selects a suggestion. 
 function suggestionClicked(str, id, tuneSelectionBox){
 	tuneSelectionBox.value = "";
 	tuneSelectionBox.setAttribute("tuneId", id);
 	
 	var newsetbox = document.getElementById("manualSetResultBox");
 	
-	newSetList = gWidgetMgr.widgetFromElem(newsetbox, objList);
+	newSetList = gWidgetMgr.widgetFromElem(newsetbox, List);
 	
 	if(!newSetList){
-		newSetList = new objList(newsetbox, LIST_VIEW_SCROLLBOX);
+		newSetList = new List(newsetbox, LIST_VIEW_SCROLLBOX);
 		gWidgetMgr.newWidget(newsetbox, newSetList);
 		newSetList.useMinimumNeededWidth = true;
 		newSetList.width = 200;
@@ -249,7 +249,7 @@ function showSetsByGroup(){
 			
 			// show the sets in a "reorder" object so user can
 			// reorder right on the page
-			var ro = new objReorder();
+			var ro = new Reorder();
 			for(var k in sets){	
 			try{	
 				inGroupArr.push(sets[k].id);
@@ -372,7 +372,7 @@ function appendSet(setObj, groupId, targetElem, className){
 
 function showSaveToGroupMenu(event){
 try{
-	newSetList = gWidgetMgr.widgetFromElem(document.getElementById("manualSetResultBox"), objList)
+	newSetList = gWidgetMgr.widgetFromElem(document.getElementById("manualSetResultBox"), ObjList)
 	var ctx = new ContextMenu(event);
 	for(var i in groupsArr){
 		var ss = {setElem: newSetList, groupId: groupsArr[i].id};
@@ -409,13 +409,13 @@ window.onload = function(){
 	
 	// set up autosuggest
 	var box = document.getElementById("manualSetEntryBox");
-	gWidgetMgr.newWidget(box, new objAutoSuggest(box, autoSuggestCallback, suggestionClicked));
+	gWidgetMgr.newWidget(box, new AutoSuggest(box, autoSuggestCallback, suggestionClicked));
 	
 	box = document.getElementById("setSearchEntryBox");
-	gWidgetMgr.newWidget(box, new objAutoSuggest(box, autoSuggestCallback, searchSuggestionClicked));
+	gWidgetMgr.newWidget(box, new AutoSuggest(box, autoSuggestCallback, searchSuggestionClicked));
 	
 	box = document.getElementById("randomSetRequiredTune");
-	gWidgetMgr.newWidget(box, new objAutoSuggest(box, autoSuggestCallback, randomSuggestionClicked));
+	gWidgetMgr.newWidget(box, new AutoSuggest(box, autoSuggestCallback, randomSuggestionClicked));
 	
 	// add the newly selected tune to the new set 
 	scrollContentArea();

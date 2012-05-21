@@ -4,7 +4,7 @@
 // DESCRIPTION
 // creates a box of items which can be reordered by drag and drop.
 
-function objReorder(id){
+function Reorder(id){
 	var _this = this;
 	this.box = document.createElement("div");
 	this.reorderBox = document.createElement("div");
@@ -287,7 +287,7 @@ function objReorder(id){
 			
 			// set up the autosuggest
 			input.onfocus = function(){
-				var auto = new objAutoSuggest(this, autoSuggestCallback, callback);
+				var auto = new AutoSuggest(this, autoSuggestCallback, callback);
 			}
 			
 			input.onblur = function(){

@@ -24,7 +24,7 @@ todo...
 // the callback will send back the callback param and the value and innerHTML of the 
 // selected pad item 
 
-function floatingSelectPad(fnItemSelectedCallback, callbackParam){
+function FloatingSelectPad(fnItemSelectedCallback, callbackParam){
 	var _this = this;
 	this.hide = function(){};
 	this.cols = 5; // number of buttons across in the grid

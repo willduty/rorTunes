@@ -12,7 +12,7 @@ var DIRECTION_DOWN = 2;
 // todo handle return key
 // pointer and hover classes 
  
-function objList(container, options){
+function List(container, options){
 	var _this = this;
 	this.container = container;
 	this.options = (typeof(options) == 'undefined') ?

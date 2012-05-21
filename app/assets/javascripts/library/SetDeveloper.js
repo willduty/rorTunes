@@ -1,5 +1,5 @@
 
-function setDeveloper(submitCallback, callbackParam){
+function SetDeveloper(submitCallback, callbackParam){
 	
 	var _this = this;
 	this.submitCallback = submitCallback; 

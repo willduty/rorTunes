@@ -10,6 +10,11 @@ class TuneSetsController < ApplicationController
   	newTuneSet = TuneSet.create(params[:tune_set])
   	newTuneSet.save
   	newItem = Item.create(:itemable_id=>newTuneSet.id, :itemable_type=>'TuneSet', :user_id=>session[:user_cookie])
+  	
+  	if params.has_key?(:group_id)
+  		GroupItem.create(:group_id=>params[:group_id], :itemable_id=>newTuneSet.id, :itemable_type=>'TuneSet', :priority =>0)	
+  	end
+  	
   	redirect_to "/tune_sets"
   end
 

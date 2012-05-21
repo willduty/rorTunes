@@ -4,7 +4,7 @@ var MODE_TEXTAREA = 2;
 var MODE_INCLUDE_ORIGINAL_TEXT = 4;
 
 
-function editableItem(elem, options, callback, callbackParam){	
+function EditableItem(elem, options, callback, callbackParam){	
 	var _this = this;
 	this.elem = elem;
 	this.callback = callback; 
@@ -74,7 +74,7 @@ function editableItem(elem, options, callback, callbackParam){
 	}
 	
 	this.editBox.onclick = function(e){
-		// todo other instances of editableItem don't close because of this
+		// todo other instances of EditableItem don't close because of this
 		e ? e.stopPropagation() : (window.event.cancelBubble = true); 
 	}
 	
