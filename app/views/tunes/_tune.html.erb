@@ -1,7 +1,7 @@
 
 var gTune = new TuneItem(<%= @tune.id %>,  "<%= @tune.title %>", <%= @tune.tune_types.first.id %>,
 				<%= @tune.keys.first.id %>, <%= @tune.status %>, <%= @tune.parts %>,
-				"<%= @tune.comments.nil? ? '' : @tune.comments.gsub(/\r\n/, '<br>').gsub(/\n/, '<br>').gsub(/\"/, '\\\"') %>", 
+				"<%= @tune.comments.nil? ? '' : @tune.comments %>", 
 				"<%= @tune.entryDate %>", "<%= @tune.lastUpdate %>",
 				
 				[
