@@ -10,7 +10,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20120510200853) do
+ActiveRecord::Schema.define(:version => 20120521213629) do
 
   create_table "abcs", :force => true do |t|
     t.binary "data"
@@ -97,7 +97,7 @@ ActiveRecord::Schema.define(:version => 20120510200853) do
   end
 
   create_table "tunes", :force => true do |t|
-    t.string  "title"
+    t.text    "title"
     t.binary  "comments"
     t.integer "parts"
     t.boolean "isActive"
