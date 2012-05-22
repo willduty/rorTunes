@@ -1,4 +1,13 @@
 
+/**
+ * ExpandableSection 0.0
+ * 2011 Will Duty
+ *
+ * ExpandableSection is freely distributable under the terms of an MIT-style license.
+ *
+ */
+
+
 var ES_STATE_OPEN = 1;
 var ES_STATE_COLLAPSED = 2;
 

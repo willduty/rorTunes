@@ -1,9 +1,26 @@
 
-var MODE_INPUT = 1;
+/**
+ * EditableItem 0.0
+ * 2011 Will Duty
+ *
+ * EditableItem is freely distributable under the terms of an MIT-style license.
+ *
+ */
+
+
+
+var MODE_INPUT = 1; 
 var MODE_TEXTAREA = 2;
 var MODE_INCLUDE_ORIGINAL_TEXT = 4;
 
 
+/*
+elem: the html element which will become editable 
+options: bitwise values
+callback: callback on user concluding editing (or clicking outside)
+callbackParam: pass-through val
+placeHolder: text or html to place in event of blank value
+*/
 function EditableItem(elem, options, callback, callbackParam, placeHolder){	
 	var _this = this;
 	this.elem = elem;
@@ -65,6 +82,9 @@ function EditableItem(elem, options, callback, callbackParam, placeHolder){
 		}
 	}
 	
+	
+	// make the element 'editable' by 
+	// replacing with a text input element
 	elem.onclick = function(e){
 		e = e ? e : window.event;
 		e.stopPropagation ? e.stopPropagation() : e.cancelBubble = true;
@@ -79,11 +99,15 @@ function EditableItem(elem, options, callback, callbackParam, placeHolder){
 		parent.removeChild(this);
 	}
 	
+	
 	this.editBox.onclick = function(e){
 		// todo other instances of EditableItem don't close because of this
 		e ? e.stopPropagation() : (window.event.cancelBubble = true); 
 	}
 	
+	
+	// check for return key if regular input text field 
+	// with no explicit submit button 
 	this.editBox.onkeyup = function(e){
 		e = e ? e : window.event;
 		if(_this.mode & MODE_INPUT){
@@ -92,7 +116,7 @@ function EditableItem(elem, options, callback, callbackParam, placeHolder){
 				_this.elem.innerHTML = _this.editBox.value;
 				// if callback returns false, restore the original text
 				if(false == _this.callback(_this.elem, _this.callbackParam)){
-					_this.elem.innerHTML = origVal
+					_this.elem.innerHTML = origVal;
 				}
 				_this.close();
 				
@@ -102,6 +126,8 @@ function EditableItem(elem, options, callback, callbackParam, placeHolder){
 	}
 	
 
+	// gets value of the editable field... which may not be
+	// the actual html element's innerHTML if a placeholder is in use
 	this.getValue = function(){
 		if(this.isBlank)
 			return '';
@@ -119,12 +145,11 @@ function EditableItem(elem, options, callback, callbackParam, placeHolder){
 				this.isBlank = true;
 			}
 			this.editBox.value = "";
-			parent.removeChild(this.editBox);
-			
-			
+			parent.removeChild(this.editBox);	
 		}
 	}
 	
+	// close on outside click
 	CBAddEventListener(document.body, "click", function(){_this.close();}, false);
 }
 

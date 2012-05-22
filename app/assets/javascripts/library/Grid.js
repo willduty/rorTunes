@@ -1,4 +1,23 @@
 
+/**
+ * Grid 0.0
+ * 2011 Will Duty
+ *
+ * Grid is freely distributable under the terms of an MIT-style license.
+ *
+ *
+
+DESCRIPTION:
+Spreadsheet-style grid. Variable no. of width-adjustable, reorderable columns. 
+Data sortable by column.
+
+
+USAGE: 
+
+todo
+
+*/
+
 
 // full list is shown, though possibly in a scrollable div
 var LIST_VIEW_FULL = 1; 
@@ -984,7 +1003,6 @@ function Grid(container, options){
 	
 }
 
-// apparently firefox doesn't allow functions inside functions..
 function isVisible(elem, box){
 	var b = ((elem.offsetTop > box.scrollTop) && 
 		(elem.offsetTop + elem.offsetHeight < box.offsetHeight + box.scrollTop))

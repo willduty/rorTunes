@@ -1346,7 +1346,7 @@ function showSetSheetmusic(obj){
 	for(var idx in set.tunesArr){
 		var tuneId = set.tunesArr[idx];
 		var title = document.createElement("div");
-		title.className = "infoHdr";
+		title.className = "info black";
 		title.innerHTML = tunesArr[tuneId].title;
 		div.appendChild(title);
 		
@@ -1384,6 +1384,7 @@ function showSetSheetmusic(obj){
 		for(var j in resourcesArr){
 			var res = resourcesArr[j];
 			if(res.belongsTo(tuneId) && res.resourceType == RESOURCE_SHEETMUSIC){
+				
 				return res;
 			}
 		}

@@ -1,21 +1,20 @@
-/*
 
-
-Floating Select Pad
+/**
+ * FloatingSelectPad 0.0
+ * 2011 Will Duty
+ *
+ * FloatingSelectPad is freely distributable under the terms of an MIT-style license.
+ *
+ *
 
 DESCRIPTION:
 
-Creates a "pad" of buttons to select a value. buttons 
-are arranged in a grid of adjustable dimensions. 
+Creates a "pad" of buttons to select a value. buttons are arranged in a grid 
+of adjustable dimensions as an easier to use alternative to a select dropdown. 
 
+USAGE: 
 
-USAGE:
-
-Include the stylesheet and script files:
-
-todo...
-
-
+todo
 
 */
 

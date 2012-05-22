@@ -1,4 +1,12 @@
 
+/**
+ * AutoSuggest 0.0
+ * 2011 Will Duty
+ *
+ * AutoSuggest is freely distributable under the terms of an MIT-style license.
+ *
+ */
+
 function AutoSuggest(elem, fnSearchCallback, fnSuggestionClickedCallback){
 
 	var _this = this;

@@ -1,4 +1,13 @@
 
+/**
+ * FloatingContainer 0.0
+ * 2011 Will Duty
+ *
+ * FloatingContainer is freely distributable under the terms of an MIT-style license.
+ *
+ */
+
+
 FC_AUTO_POSITION_CENTER = 1;
 FC_AUTO_POSITION_MOUSE = 2;
 FC_CLOSE_ON_OUTSIDE_CLICK = 4;
@@ -65,8 +74,8 @@ function FloatingContainer(submitCallback, cancelCallback, callbackParam){
 			e = e ? e : window.event;
 			document.onselectstart = function(){return false;};
 			_this.box.onselectstart = function(){return false;};
-			_this.box.style.left = getMouseX(e) - _this.dragOffsetX;
-			_this.box.style.top = getMouseY(e) - _this.dragOffsetY;
+			_this.box.style.left = getMouseX(e) - _this.dragOffsetX + 'px';
+			_this.box.style.top = getMouseY(e) - _this.dragOffsetY + 'px';
 		};
 	
 	CBAddEventListener(this.box, "mousedown", function(e){

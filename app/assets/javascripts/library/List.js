@@ -1,4 +1,23 @@
 
+/**
+ * List 0.0
+ * 2011 Will Duty
+ *
+ * List is freely distributable under the terms of an MIT-style license.
+ *
+ *
+
+DESCRIPTION:
+
+todo
+
+USAGE: 
+
+todo
+
+*/
+
+
 
 
 var LIST_VIEW_FULL = 1;

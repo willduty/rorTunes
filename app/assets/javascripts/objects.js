@@ -342,9 +342,7 @@ function ResourceItem(nId, resourceType, title,
 	
 	this.belongsTo = function(tuneId){
 		for(var i in this.associatedItemsArr){
-			// alert(this.associatedItemsArr[i].id + "," + tuneId)
 			if(this.associatedItemsArr[i].id == tuneId){
-				// alert("true")
 				return true;
 			}
 		}

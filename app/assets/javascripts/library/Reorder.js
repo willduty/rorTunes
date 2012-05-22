@@ -1,8 +1,27 @@
 
+/**
+ * Reorder 0.0
+ * 2011 Will Duty
+ *
+ * Reorder is freely distributable under the terms of an MIT-style license.
+ *
+ *
+ 
+DESCRIPTION
+
+creates a list of items which can be reordered by drag and drop. Items can be removed
+and new ones added (interacts with ContextMenu and AutoSuggest)
+
+USAGE: 
+
+todo
+
+*/
 
 
-// DESCRIPTION
-// creates a box of items which can be reordered by drag and drop.
+
+
+
 
 function Reorder(id){
 	var _this = this;

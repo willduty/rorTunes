@@ -1,4 +1,23 @@
 
+
+/**
+ * SetDeveloper 0.0
+ * 2011 Will Duty
+ *
+ * SetDeveloper is freely distributable under the terms of an MIT-style license.
+ *
+ *
+ 
+DESCRIPTION
+todo
+
+USAGE: 
+
+todo
+
+*/
+
+
 function SetDeveloper(submitCallback, callbackParam){
 	
 	var _this = this;

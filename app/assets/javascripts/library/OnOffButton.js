@@ -1,4 +1,11 @@
-/*
+
+/**
+ * OnOffButton 0.0
+ * 2011 Will Duty
+ *
+ * OnOffButton is freely distributable under the terms of an MIT-style license.
+ *
+ *
 
 DESCRIPTION:
 creates an on/off button out of any element(s) on a page. typically a span or div is appropriate. 

@@ -97,11 +97,17 @@ resources.each do |r|
 
 %>
 
-resourcesArr[<%= r.id %>] = new ResourceItem(<%= r.id %>, <%= r.resource_type %>, "<%= r.title %>",
+	resourcesArr[<%= r.id %>] = new ResourceItem(<%= r.id %>, <%= r.resource_type %>, "<%= r.title %>",
 					"<%= r.url %>", "<%= r.local_file %>",
 					 "<%= r.comments %>", "<%= r.entryDate %>", "<%= r.priority %>");					 	
+	<% if r.tunes.length %>
+			resourcesArr[<%= r.id %>].associatedItemsArr = 
+			[<%= r.tunes.map{|t| 'new groupItem('+t.id.to_s+', ITEM_TYPE_TUNE, 0)'}.join(',') %>];
+	<% end %>
 <%
 end
+
+
 
 groups = user.groups
 groups.each do |g|

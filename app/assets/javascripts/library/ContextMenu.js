@@ -1,3 +1,11 @@
+/**
+ * ContextMenu 0.0
+ * 2011 Will Duty
+ *
+ * ContextMenu is freely distributable under the terms of an MIT-style license.
+ *
+ */
+
 
 // menu item object, used internally
 function menuItem(div, parent, sub){
