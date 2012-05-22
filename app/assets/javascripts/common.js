@@ -1061,7 +1061,9 @@ function trim(str){
 }
 
 function validateTitleStr(str, itemType){
-	str = trim(str);
+	try{
+		str = trim(str);
+	}catch(e){str = '';}
 	if(!str.length)
 		return false;
 	

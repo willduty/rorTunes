@@ -43,6 +43,16 @@ function saveProperty(property, value){
 
 function fieldUpdate(elem, newValue, newText){
 
+	if(elem.id == 'tunetitle'){
+		
+		if(!(title = validateTitleStr(elem.innerHTML))){
+			alert('invalid title')
+			return false;
+		}
+	}
+	
+	
+
 	if(typeof(newValue) != 'undefined'){
 		if(elem.id == "status"){
 			// turn off both active and inactive bits
@@ -58,14 +68,17 @@ function fieldUpdate(elem, newValue, newText){
 	if(typeof(newText) != 'undefined') 
 		elem.innerHTML = newText;
 	document.getElementById("saveChangesDiv").style.display = "";
+	return true;
 }
 
 
 function saveTuneChanges(){
 	var comments = document.getElementById("tunecomments").innerHTML;
-	if(comments == commentsPlaceholder)
-		comments = '';
+	
 	comments = comments.replace(/<br>/g, "\n");
+	
+	ei = gWidgetMgr.widgetFromElem(document.getElementById("tunecomments"), EditableItem)
+	comments = ei.getValue().length ? ei.getValue() : '';
 	
 	doRorLink('/tunes/' + gTune.id, 'put',
 		{name:"tune[id]", value:gTune.id},
@@ -201,16 +214,10 @@ function fillTuneProps(){
 				break;
 		
 			case "comments":
-			
-				str = (!gTune.comments) ?
-					 commentsPlaceholder : gTune.comments;
 				var commentsElem = document.getElementById("tunecomments");
-				
-				commentsElem.innerHTML = str;
-				var options = (gTune.comments == "" || typeof(gTune.comments) == "undefined" ) ? 
-					MODE_TEXTAREA : (MODE_TEXTAREA | MODE_INCLUDE_ORIGINAL_TEXT);
-				var ei = new EditableItem(commentsElem, options, fieldUpdate, commentsElem);
-				
+				commentsElem.innerHTML = gTune.comments;
+				gWidgetMgr.newWidget(commentsElem, new EditableItem(commentsElem, MODE_TEXTAREA, fieldUpdate, commentsElem, commentsPlaceholder));
+	
 				break;
 				
 			case "typeId":
@@ -265,6 +272,7 @@ function fillTuneProps(){
 
 
 
+var gWidgetMgr = new WidgetManager();
 
 window.onload = function(){
 	

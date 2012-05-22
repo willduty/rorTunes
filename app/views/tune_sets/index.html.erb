@@ -372,7 +372,7 @@ function appendSet(setObj, groupId, targetElem, className){
 
 function showSaveToGroupMenu(event){
 try{
-	newSetList = gWidgetMgr.widgetFromElem(document.getElementById("manualSetResultBox"), ObjList)
+	newSetList = gWidgetMgr.widgetFromElem(document.getElementById("manualSetResultBox"), List)
 	var ctx = new ContextMenu(event);
 	for(var i in groupsArr){
 		var ss = {setElem: newSetList, groupId: groupsArr[i].id};

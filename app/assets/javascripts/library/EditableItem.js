@@ -4,14 +4,20 @@ var MODE_TEXTAREA = 2;
 var MODE_INCLUDE_ORIGINAL_TEXT = 4;
 
 
-function EditableItem(elem, options, callback, callbackParam){	
+function EditableItem(elem, options, callback, callbackParam, placeHolder){	
 	var _this = this;
 	this.elem = elem;
 	this.callback = callback; 
 	this.callbackParam = callbackParam;
 	this.editBox = null;
 	this.textAreaRows = 15;
+	this.placeHolder = placeHolder;
+	this.isBlank = elem.innerHTML.length ? false : true;
 	
+	if(typeof this.placeHolder != 'undefined' && !elem.innerHTML.length){
+		this.elem.innerHTML = this.placeHolder
+	}		
+			
 	if(typeof(options) == 'undefined')
 		this.mode = MODE_INPUT;
 	else
@@ -82,13 +88,26 @@ function EditableItem(elem, options, callback, callbackParam){
 		e = e ? e : window.event;
 		if(_this.mode & MODE_INPUT){
 			if(e.keyCode == 13){
-				_this.elem.innerHTML = _this.editBox.value
-				_this.callback(_this.elem, _this.callbackParam);
+				var origVal = _this.elem.innerHTML;
+				_this.elem.innerHTML = _this.editBox.value;
+				// if callback returns false, restore the original text
+				if(false == _this.callback(_this.elem, _this.callbackParam)){
+					_this.elem.innerHTML = origVal
+				}
 				_this.close();
+				
+				// todo check if modified
 			}
 		}	
 	}
 	
+
+	this.getValue = function(){
+		if(this.isBlank)
+			return '';
+		else
+			return this.elem.innerHTML;
+	}
 	
 	// removes the edit box and puts the original (possibly updated)
 	// element back in place
@@ -96,8 +115,13 @@ function EditableItem(elem, options, callback, callbackParam){
 		var parent = CBParentElement(this.editBox);
 		if(parent){
 			parent.insertBefore(this.elem, this.editBox)
+			if(this.editBox.value == ''){
+				this.isBlank = true;
+			}
 			this.editBox.value = "";
 			parent.removeChild(this.editBox);
+			
+			
 		}
 	}
 	
