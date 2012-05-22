@@ -48,21 +48,21 @@
 				div.className = "info pointer ltcopper";
 				div.innerHTML = "&#8226; " + srcArr[i][0];
 				
-				var loc = {action:srcArr[i][1], params:[]}
+				var options = {action:srcArr[i][1], params:[]}
 				
 				if(tuneId){
-					loc.params.push({name:"tune_id", value:tuneId});
+					options.params.push({name:"tune_id", value:tuneId});
 				}
 				
 				for(var j=2; j < srcArr[i].length; j++){
-					loc.params.push({name:srcArr[i][j].split('=')[0],
+					options.params.push({name:srcArr[i][j].split('=')[0],
 							value:srcArr[i][j].split('=')[1]});
 				}
 				
 				// beware... for loop closure...
 				div.onmouseup =  (function(val){
 					return function(e){doResourceSearch(this, val);}	
-				})(loc);
+				})(options);
 			}	
 		}
 		

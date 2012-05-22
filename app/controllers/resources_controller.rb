@@ -36,16 +36,16 @@ respond_to :html, :json
   	localfile = res.local_file
 	
   	begin
+		unless localfile.nil?
+			#File.delete Rails.root.join('public', res.local_file)
+			AWS.config(
+				:access_key_id => ENV['AWS_ACCESS_KEY_ID'], 
+				:secret_access_key => ENV['AWS_SECRET_ACCESS_KEY']
+			)
+			s3 = AWS::S3.new
 
-		#File.delete Rails.root.join('public', res.local_file)
-		AWS.config(
-			:access_key_id => ENV['AWS_ACCESS_KEY_ID'], 
-			:secret_access_key => ENV['AWS_SECRET_ACCESS_KEY']
-		)
-		s3 = AWS::S3.new
-
-		s3.buckets['rorTunes-assets'].objects[Pathname.new(localfile).basename].delete	
-	
+			s3.buckets['rorTunes-assets'].objects[Pathname.new(localfile).basename].delete	
+		end
   	rescue
   		#file not found	
   		flash[:error] = 'resource file delete failed'

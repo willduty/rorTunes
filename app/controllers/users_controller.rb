@@ -8,7 +8,6 @@ class UsersController < ApplicationController
 		userId = params[:id];
 	end
   	@user = User.find(userId)
-	@user.password.strip!
 	@title = @user.email
   end
 

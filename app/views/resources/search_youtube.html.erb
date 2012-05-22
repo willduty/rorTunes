@@ -45,6 +45,13 @@
 	
 </div>
 
+
+<!--
+<input type=text id=youtubeSearchVals value="<%= params[:keywords].gsub("\"", "&quot;").gsub("+", " ") %>" > <button onclick='redo();'>redo search</button>
+-->
+<div class='info copper' style='background:lightgray;padding:5px;'><span class='black'>Results for search: </span><%= params[:keywords].gsub("\"", "&quot;").gsub("+", " ") %></div>
+
+
 <%
 require "rexml/document"
 require 'rexml/xpath'
@@ -57,8 +64,10 @@ youtube_response = HTTParty.get(youtube_url)
 
 # parse the xml and list video thumbnails etc
 begin
-	concat Time.now.to_s 
-	concat '<br>'.html_safe
+	
+	
+	
+	concat tag 'br'
 
 	parser = REXML::Document.new youtube_response
 
@@ -76,8 +85,7 @@ begin
 			concat f.hidden_field :url, {:value=>'http://www.youtube.com/embed/' + youtube_id}
 			concat f.hidden_field :resource_type, {:value=>11} # todo get this value into config as RESOURCE_TYPE_YOUTUBE
 			
-			concat simple_format(entry.elements['title'].text, {:class=>'info black', :name=>'title'})
-	
+		
 			concat tag('div', :name=>'showBoxContainer')
 			REXML::XPath.each(entry, 'media:group/media:thumbnail') do |tn| 
 				if(tn.attributes['yt:name'] == 'default')
@@ -85,6 +93,8 @@ begin
 						{:onclick=>'showClip(this)', :name=>'thumbnail', :class=>'pointer'}
 				end
 			end
+		
+			concat simple_format(entry.elements['title'].text, {:class=>'info black', :name=>'title'})
 	
 	
 			REXML::XPath.each(entry, 'media:group/media:description') do |desc| 
