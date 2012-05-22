@@ -7,6 +7,8 @@
 
 var tuneId = gTune.id;
 
+var commentsPlaceholder = "<div class='info gray' name=placeholder>&nbsp;[no notes have been added]</div>";
+
 function ctxDisassociateCallback(param){
 	var objResource = resourcesArr[param];
 	var str = "This will not delete the resource but it will no longer appear on this tune page. ";
@@ -61,6 +63,8 @@ function fieldUpdate(elem, newValue, newText){
 
 function saveTuneChanges(){
 	var comments = document.getElementById("tunecomments").innerHTML;
+	if(comments == commentsPlaceholder)
+		comments = '';
 	comments = comments.replace(/<br>/g, "\n");
 	
 	doRorLink('/tunes/' + gTune.id, 'put',
@@ -199,7 +203,7 @@ function fillTuneProps(){
 			case "comments":
 			
 				str = (!gTune.comments) ?
-					 "<div class='info gray' name=placeholder>&nbsp;[no notes have been added]</div>" : gTune.comments;
+					 commentsPlaceholder : gTune.comments;
 				var commentsElem = document.getElementById("tunecomments");
 				
 				commentsElem.innerHTML = str;
