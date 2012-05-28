@@ -36,7 +36,8 @@ respond_to :html, :json
   	localfile = res.local_file
 	
   	begin
-		unless localfile.nil?
+		if !!localfile && !localfile.empty?
+			
 			#File.delete Rails.root.join('public', res.local_file)
 			AWS.config(
 				:access_key_id => ENV['AWS_ACCESS_KEY_ID'], 
@@ -54,6 +55,8 @@ respond_to :html, :json
   	res.destroy
   	item.destroy unless item.nil? 
   		
+  	flash[:notice] = 'resource deleted'
+  	
   	if(params[:redirect])	
 		redirect_to params[:redirect]
 	else

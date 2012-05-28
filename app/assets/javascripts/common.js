@@ -491,9 +491,8 @@ function gridSelectionsCallback(rows, event, itemType){
 		groupsMenu.addSeparator()
 		groupsMenu.addItem('Add to New Group...', addMultipleToGroup, {ids:ids})
 	
-	try{
-	c.addItem('Add All to New Set', addToSet, ids);
-	}catch(e){}
+	if(addToNewSet)
+		c.addItem('Add All to New Set', addToNewSet, ids);
 	
 	c.addSeparator();
 	
@@ -1047,10 +1046,9 @@ function showResource(res){
 			break;
 		
 		default:
-			iframe.style.width = '300px';
-			iframe.style.height = '300px';
-			iframe.src = res.url;
-			res.resizeElemForResource(iframe);
+			//alert(res.url)
+			var iframe = $('<iframe width="420" height="200" src="'+res.url+'" frameborder="0" allowfullscreen></iframe>')
+			fl.addContentElement(iframe.get(0));
 			fl.show(window.event);
 		}
 	

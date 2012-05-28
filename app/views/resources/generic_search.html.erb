@@ -10,15 +10,15 @@
 			return true;
 		
 		var rl = new RorLink();
-		var form = rl.getRorLinkForm('/resources/add', 'post', 
+		var form = rl.getRorLinkForm('/resources', 'post', 
 					{name:'tune_id', value:tuneId},
 					{name:'resource[title]', value:elem.innerHTML},
 					{name:'resource[url]', value:elem.getAttribute('href')},
-					{name:'resource[resource_type]', value:11}
+					{name:'resource[resource_type]', value:RESOURCE_LINK_AUDIO_FILE}
 					)
 		var ser_form = $(form).serialize();
 		
-		$.post('/resources/add', ser_form, function(resp){
+		$.post('/resources', ser_form, function(resp){
 			alert( (!isNaN(resp.id)) ? 'resource saved' : 'save failed');
 		})
 		return false;

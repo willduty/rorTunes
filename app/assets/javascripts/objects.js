@@ -395,6 +395,10 @@ ResourceItem.prototype.getLabel = function(bold, colon){
 }
 
 ResourceItem.prototype.resizeElemForResource = function(elem){
+	console.log('elem:'+elem)
+	if(!elem)
+		return;
+	
 	switch(this.resourceType){
 		case RESOURCE_SHEETMUSIC:
 			elem.onload = function(){

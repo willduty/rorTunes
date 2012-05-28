@@ -8,13 +8,21 @@
  *
 
 DESCRIPTION:
-Spreadsheet-style grid. Variable no. of width-adjustable, reorderable columns. 
+Spreadsheet-style grid. Variable number of width-adjustable, reorderable columns. 
 Data sortable by column.
 
 
 USAGE: 
 
-todo
+// create Grid obj
+
+// add rows
+
+// add columns
+
+// get the selected rows
+
+// delete a row
 
 */
 
@@ -1059,12 +1067,16 @@ function Grid(container, options){
 		this.rowsBox.scrollTop = pos;
 	}
 	
-	this.getSelectedRowId = function(colName){
-		for(var i in this.columnsArr){
-			if(this.columnsArr[i].title == colName){
-				return this.rowsArr[this.selectedItem.getAttribute("index")].cells[i].id;
-			}
-		}
+	this.getSelectedIds = function(){
+		var arr = [];
+		try{
+			if(this.selections.length)
+				for(var i in this.selections)
+					arr.push(this.selections[i].id);
+			else
+				arr.push(this.selectedItem.id)
+		}catch(e){}
+		return arr;
 	}
 	
 }

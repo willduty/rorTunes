@@ -1,7 +1,4 @@
 
-
-<%= @whichcontroller %>
-
 <script type="text/javascript">
 
 // user settings
@@ -31,14 +28,23 @@ function saveCurrentView(){
 }
 
 
+
+
  
-function addToNewSet(paramStr){
-	var arr = paramStr.split(",");
-	var tuneId = arr[0];
+function addToNewSet(param){
+	
+	if(!param)
+		param = gTuneList.getSelectedIds();
+	
+	var arr = (param instanceof Array) ? param : param.split(",");
 	switchOnToolByButton("newSetBtn");
 	var bl = document.getElementById("newSetList");
-	var op = new Option(tunesArr[tuneId].title, tuneId);
-	bl.options[bl.options.length] = op;
+	for(var i in arr){
+		var op = new Option(tunesArr[arr[i]].title, arr[i]);
+		bl.options[bl.options.length] = op;
+	}
+	if(bl.getAttribute('size') < bl.options.length)
+		bl.setAttribute('size', bl.options.length + 1 );
 }
 
 
@@ -270,16 +276,6 @@ function getFilters(){
 
 
 
-function addToSet(arr){
-	// if no array of ids, use selected from list
-	if(!arr) arr = [gTuneList.selectedItem.id];
-		
-	var bl = document.getElementById("newSetList");
-	for(var i in arr){
-		var op = new Option(tunesArr[arr[i]].title, arr[i]);
-		bl.options[bl.options.length] = op;
-	}
-}
 
 
 function saveNewSetToGroup(e){
@@ -578,7 +574,7 @@ try{
 							<td valign=top>
 								<table width=100%>
 									<tr>
-										<td><button onclick="addToSet(); return false;">=></button></td>
+										<td><button onclick="addToNewSet(); return false;">=></button></td>
 										<td>
 											<select multiple size=5 id=newSetList clearOnCancel></select><br>
 											<span class="info white pointer" onclick="clearList('newSetList'); return false;">clear</span>
