@@ -33,18 +33,33 @@ class GroupItemsController < ApplicationController
   
   end
 
+
+
   def add
+  	
   	# if group title specified, saving item to a new group. create it
   	if params.has_key?('group') && params['group'].has_key?('title')
   		group = Group.create(params['group'])	
   		Item.create(:itemable_id=>group.id, :itemable_type=>'Group', :user_id=>session[:user_cookie])
-  		params['group_item']['group_id'] = group.id
   	end
-  	
-  	# create the group item
-	GroupItem.create(params[:group_item])
+  
+  	# create the group item(s)
+ 	if(params[:group_items])
+ 		json = JSON.parse params[:group_items]
+ 		if group 
+ 			json.each { |gi| gi[:group_id] = group.id }
+ 		end
+ 		GroupItem.create(json)	
+	else		  	
+		if group 
+ 			params['group_item']['group_id'] = group.id
+ 		end
+	  	GroupItem.create(params[:group_item])
+	end
+	
   	redirect_to params[:redirect]
   end
+
 
   def delete
   

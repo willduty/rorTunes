@@ -41,13 +41,20 @@ function showList(){
 
 
 
+function gridRowCtxCallback(row, event){
+	resourceContextMenu(row, resourcesArr[row.id], event);
+}
+
+
 // show all the resources
 function showGrid(){
 	clearContentArea();
 	
 	// create tune list
 	var ca = getContentArea();
-	var grid = new Grid(ca, LIST_VIEW_FULL); // LIST_VIEW_SCROLLBOX
+	var grid = new Grid(ca, {listViewStyle:LIST_VIEW_FULL, 
+					selectionsCallback:gridSelectionsCallback, 
+					selectionsCallbackParam:ITEM_TYPE_RESOURCE}); 
 	
 	grid.addColumn("Title", 240);
 	grid.addColumn("Type", 90);
@@ -71,8 +78,11 @@ function showGrid(){
 					res.getLabel(), 
 					res.url,
 					res.entryDate, 
-					{rowCallback:showResource, rowCallbackParam:res, id:res});
-			addResourceContextMenu(elem, res);
+					{rowCallback:showResource, rowCallbackParam:res, 
+					rowCtxCallback:gridRowCtxCallback,
+					rowCtxCallbackParam:res.id,
+					id:res.id});
+	//		addResourceContextMenu(elem, res);
 		
 		}catch(e){
 			alert(e.message + "\r\n\r\ntuneId:" +  

@@ -26,11 +26,11 @@ function createItemElement(itemObj, itemType, groupId, useLabel, tag){
 		case ITEM_TYPE_SET:
 			
 			// set up the element text and value
-			elem.innerHTML += itemObj.getSetAsString();
+			elem.innerHTML += itemObj.getSetAsHTML();
 			
 			// if functions are available attach handlers
-			if(typeof(makeSetContextMenu) != 'undefined')
-				elem.oncontextmenu = function(e){return makeSetContextMenu(e);}
+			if(typeof(tuneSetContextMenu) != 'undefined')
+				elem.oncontextmenu = function(e){return tuneSetContextMenu(e);}
 				
 			if(typeof(setEditDlg) != 'undefined')
 				elem.ondblclick = function(e){setEditDlg(itemObj.id, e); }

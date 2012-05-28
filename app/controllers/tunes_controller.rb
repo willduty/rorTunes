@@ -50,8 +50,19 @@ class TunesController < ApplicationController
 
 
   def destroy
-  	tune = Tune.find_by_id(params[:id])
-  	item = Item.find_by_itemable_id_and_itemable_type(params[:id], 'Tune')
+  	params[:id].split(',').uniq.each {|id| destroy_tune(id)}
+  	redirect_to '/tunes'
+  end
+  
+  
+  def destroy_tune(id)
+  	tune = Tune.find_by_id(id)
+  	item = Item.find_by_itemable_id_and_itemable_type(id, 'Tune')
+  	
+  	if tune.nil? || item.nil?
+  		flash[:error] = 'delete failed'
+  		return
+  	end
   	
   	fav = Favorite.find_by_item_id(item.id, 'Favorite')
   	unless fav.nil?
@@ -62,9 +73,8 @@ class TunesController < ApplicationController
   	
   	tune.destroy
   	item.destroy
-  	
-  	redirect_to '/tunes'
   end
+  
   
   
   def delete_other_title

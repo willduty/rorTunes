@@ -140,13 +140,18 @@
 .gridRowSelected li{
 	background:lightgray;
 	color:black;
+	
+}
+
+.gridRowSelected li img, .gridRow li img{
+	display:block;
 }
 
 
 
 .gridRow:hover li{
 	cursor:pointer;
-	background: lightgray;
+	background: #eee;
 }
 
 .gridCell{
@@ -159,13 +164,9 @@
 }
 
 
-
-
 .gridUpIcon  {color:white; background-color:gray; opacity:0.4; border-width:1px;}
 .gridDownIcon  {color:white; background-color:gray; opacity:0.4; border-width:1px;}
 .gridCheckIcon  {color:#000; font-size:11px; border-width:1px;}
-
-
 
 
 ul.expandableSectionHdr {

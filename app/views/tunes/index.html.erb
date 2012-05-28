@@ -139,6 +139,12 @@ function showTunes(){
 			showTunesList(); break;
 	}
 }
+
+
+function gridRowCtxCallback(row, event){
+	tuneContextMenu(row, tunesArr[row.id], event);
+}
+
 	
 function showGrid(){	
 	
@@ -149,7 +155,9 @@ function showGrid(){
 	CBDisableSelect(contentArea);
 		
 	// clear out tunelist before we (re)populate
-	gTuneList = new Grid(contentArea, LIST_VIEW_FULL); // LIST_VIEW_SCROLLBOX
+	gTuneList = new Grid(contentArea, {listViewStyle:LIST_VIEW_FULL, 
+					selectionsCallback:gridSelectionsCallback, 
+					selectionsCallbackParam:ITEM_TYPE_TUNE}); 
 
 	gTuneList.returnKeyCallback = goToTunePage;
 	gTuneList.addColumn("Title", 200);
@@ -159,23 +167,8 @@ function showGrid(){
 	gTuneList.addColumn("Entry Date", 80);
 	gTuneList.addColumn("Last Updated", 100);		
 	
-
-	// set filters if any from page qstring 
-	// has to be called before showing the list
-	var reqArr = getAllRequestParams();
-	for(var i in reqArr){
-		var pair = reqArr[i].split("=");
-		if(pair[0].indexOf("filter") == 0){
-			var useArr;
-			switch(pair[0]){
-				case "filterKey": useArr = keysArr; break;
-				case "filterType": useArr = typesArr; break;
-				case "filterGroup": useArr = groupsArr; break;
-			}
-			filterSelectedCallback(document.getElementById(pair[0]).firstChild.nextSibling, 
-									pair[1], useArr[pair[1]].title);
-		}
-	}
+	
+	// todo, set view state filters here 
 	
 	
 	var filters = getFilters();
@@ -208,9 +201,11 @@ function showGrid(){
 					tune.entryDate, 
 					tune.lastUpdate, 
 					{rowCallback:goToTunePage, 
-						rowCallbackParam:tune.id, id:tune.id});
+						rowCallbackParam:tune.id, id:tune.id,
+						rowCtxCallback:gridRowCtxCallback,
+						rowCtxCallbackParam:tune.id});
 
-		addTuneContextMenu(row, tune);
+		//addTuneContextMenu(row, tune);
 		
 		// if tune is being show under a group
 		if(filters.group){
@@ -250,11 +245,11 @@ function showGrid(){
 
 function getFilters(){
 	// filter ids for keys types etc.
-	var keyId = document.getElementById("filterKeySlot").value;
-	var typeId = document.getElementById("filterTypeSlot").value;
+	var keyId = document.getElementById("filterKeysSlot").value;
+	var typeId = document.getElementById("filterTypesSlot").value;
 	
 	var group = null;
-	var groupId = document.getElementById("filterGroupSlot").value;
+	var groupId = document.getElementById("filterGroupsSlot").value;
 	if(groupId)
 		group = groupsArr[groupId];
 	
@@ -275,12 +270,15 @@ function getFilters(){
 
 
 
-function addToSet(){
-	
+function addToSet(arr){
+	// if no array of ids, use selected from list
+	if(!arr) arr = [gTuneList.selectedItem.id];
+		
 	var bl = document.getElementById("newSetList");
-	var op = new Option(tunesArr[gTuneList.selectedItem.id].title, gTuneList.selectedItem.id);
-	bl.options[bl.options.length] = op;
-	
+	for(var i in arr){
+		var op = new Option(tunesArr[arr[i]].title, arr[i]);
+		bl.options[bl.options.length] = op;
+	}
 }
 
 
@@ -440,13 +438,13 @@ try{
 						&nbsp;&nbsp;<span class="info gray">Filter by:</span> 
 						
 						<span onOff='off' name=onOffButton id=filterActivity callback=filterClicked padType=activity innerElem=filterActivitySlot class=onOffBtnOff>
-							<span>tune activity &nbsp;</span><span id=filterActivitySlot></span></span>
-						<span onOff='off' name=onOffButton id=filterKey callback=filterClicked padType=key innerElem=filterKeySlot class=onOffBtnOff>
-							<span>key &nbsp;</span><span id=filterKeySlot></span></span>
-						<span onOff='off' name=onOffButton id=filterType callback=filterClicked padType=type innerElem=filterTypeSlot class=onOffBtnOff>
-							<span>type &nbsp;</span><span id=filterTypeSlot></span></span> 
-						<span onOff='off' name=onOffButton id=filterGroup callback=filterClicked padType=group innerElem=filterGroupSlot class=onOffBtnOff>
-							<span>group&nbsp;</span><span id=filterGroupSlot></span></span>
+							<span>know/to learn&nbsp;</span><span id=filterActivitySlot></span></span>
+						<span onOff='off' name=onOffButton id=filterKeys callback=filterClicked padType=key innerElem=filterKeysSlot class=onOffBtnOff>
+							<span>key &nbsp;</span><span id=filterKeysSlot></span></span>
+						<span onOff='off' name=onOffButton id=filterTypes callback=filterClicked padType=type innerElem=filterTypesSlot class=onOffBtnOff>
+							<span>type &nbsp;</span><span id=filterTypesSlot></span></span> 
+						<span onOff='off' name=onOffButton id=filterGroups callback=filterClicked padType=group innerElem=filterGroupsSlot class=onOffBtnOff>
+							<span>group&nbsp;</span><span id=filterGroupsSlot></span></span>
 					
 					</td>
 				</tr>

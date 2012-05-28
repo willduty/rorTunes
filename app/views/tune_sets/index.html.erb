@@ -181,6 +181,10 @@ function shuffleArray(v){
 
 
 
+function gridRowCtxCallback(row, event){
+	tuneSetContextMenu(event);
+}
+
 
 function showAllSets(){
 
@@ -191,7 +195,9 @@ function showAllSets(){
 	function func(){
 	}
 	
-	var grid = new Grid(document.getElementById('contentarea'), LIST_VIEW_FULL);
+	var grid = new Grid(document.getElementById('contentarea'), {listViewStyle:LIST_VIEW_FULL, 
+					selectionsCallback:gridSelectionsCallback, 
+					selectionsCallbackParam:ITEM_TYPE_SET});
 	
 	grid.returnKeyCallback = func;
 	grid.addColumn("Set", 400);
@@ -201,14 +207,17 @@ function showAllSets(){
 	for(var i in copyArr){
 			var set = copyArr[i];
 			var row = grid.addRow(
-					set.getSetAsString(false), 
+					set.getSetAsHTML(false), 
 					set.getTypeAsString(), 
 					set.entryDate,
 					{rowCallback:setEditDlg,rowCallbackParam:set.id, 
-						id:set.id});	
+						id:set.id,
+						rowCtxCallback:gridRowCtxCallback,
+						rowCtxCallbackParam:set.id
+						});
 			row.setAttribute('itemId', set.id)
 			row.setAttribute('itemType', ITEM_TYPE_SET)
-			row.oncontextmenu = function(e){return makeSetContextMenu(e)}
+			//row.oncontextmenu = function(e){return tuneSetContextMenu(e)}
 	}
 	try{
 	

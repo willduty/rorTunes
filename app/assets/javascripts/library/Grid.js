@@ -38,12 +38,19 @@ var upIcon = " <span class=gridUpIcon>&#8743;</span>"
 var downIcon = " <span class=gridDownIcon>&#8744;</span>"
 var checkIcon = "<span class=gridCheckIcon>&#8730;&nbsp;&nbsp;</span>"
 
+
+// container: page element
+// options: {listViewStyle, selectionsCallback, selectionsCallbackParam}
 function Grid(container, options){
 	var _this = this;
 	this.options = (typeof(options) == 'undefined') ?
-		LIST_VIEW_SCROLLBOX : options;
+		LIST_VIEW_SCROLLBOX : options.listViewStyle;
 	
 	this.returnKeyCallback;
+	
+	this.selectionsCallback = options.selectionsCallback || null;
+	this.selectionsCallbackParam = options.selectionsCallbackParam || null;
+	
 	
 	// the page element to put the grid in
 	this.container = container;
@@ -68,6 +75,11 @@ function Grid(container, options){
 	
 	// the html element (div) holding selected row
 	this.selectedItem = null;
+	
+	
+	// multiple selected items
+	this.selections = [];
+	
 	
 	// the header cell being dragged, null unless drag in progress
 	this.draggedHeader = null; 
@@ -153,27 +165,6 @@ function Grid(container, options){
 		
 	}
 	
-	// turn off hover class
-	this.turnOffHoverHilite = function(){
-		var len = _this.rowsArr.length;
-		for(var i=0; i<len; i++){
-			_this.rowsArr[i].elem.className = 'gridRowNoHover';
-		}
-	}
-	
-	
-	// turn off hover class
-	this.turnOnHoverHilite = function(){
-		var len = _this.rowsArr.length;
-		for(var i=0; i<len; i++){
-			
-			var elem = _this.rowsArr[i].elem;
-			if(_this.selectedItem != elem)
-				elem.className = 'gridRow';
-		}
-	}
-	
-	
 	
 	// handle keys
 	document.onkeydown = function(event){
@@ -222,7 +213,7 @@ function Grid(container, options){
 						
 						// select row and scroll to view
 						if(LIST_VIEW_FULL){
-							_this.selectItem(row.elem);
+							_this.selectItem(row.elem, event);
 							_this.rowsBox.scrollTop = row.elem.offsetTop - row.elem.offsetHeight;
 						}
 						else{						
@@ -239,21 +230,17 @@ function Grid(container, options){
 			// handle various keys for list functionality
 			switch(event.keyCode){
 				case KEY_UPARROW:
-					_this.turnOffHoverHilite();
 					dir = DIRECTION_UP;
 					break;
 				case KEY_DOWNARROW:
-					_this.turnOffHoverHilite();
 					dir = DIRECTION_DOWN;
 					break;
 				case KEY_PAGEUP:
-					_this.turnOffHoverHilite();
-					_this.scrollByPage(DIRECTION_UP);
+					_this.scrollByPage(DIRECTION_UP, event);
 					break;
 				case KEY_PAGEDOWN:
-					_this.turnOffHoverHilite();
 					CBStopEventPropagation(event);
-					_this.scrollByPage(DIRECTION_DOWN);
+					_this.scrollByPage(DIRECTION_DOWN, event);
 					return false;
 				case KEY_HOME:
 					CBStopEventPropagation(event);
@@ -274,8 +261,11 @@ function Grid(container, options){
 			}
 			CBStopEventPropagation(event);
 			
+			if(!event.shiftKey && !event.ctrlKey)
+				_this.clearSelections();
+				
 			if(dir){
-				_this.goToNextItem(dir, event.ctrlKey ? true : false);
+				_this.goToNextItem(dir, event);
 			}
 			return false;
 		}
@@ -288,7 +278,7 @@ function Grid(container, options){
 	
 	// function(args+, options{})
 	// args: string or object {string, callback, editable, editcallback, style}
-	// options: {rowCallback, rowCallbackParam, rowId}		
+	// options: {rowCallback, rowCallbackParam, rowId, rowCtxCallback, rowCtxCallbackParam}		
 	this.addRow = function(){
 		
 		var options = arguments[arguments.length - 1];
@@ -304,6 +294,17 @@ function Grid(container, options){
 			}
 		}
 		
+		row.oncontextmenu = function(event){
+			if(_this.selectionsCallback && _this.selections.length){
+				var arr = _this.selections.slice(0)
+				_this.selectionsCallback(arr, event, _this.selectionsCallbackParam);
+			}
+			else if(options.rowCtxCallback){
+				options.rowCtxCallback(this, event)
+			}
+			return false;
+		}
+		
 		row.setAttribute("index", this.rowsArr.length - 1); // for reverse searching
 		row.setAttribute("id", options.id); // todo need this?
 		
@@ -311,9 +312,11 @@ function Grid(container, options){
 		CBAddEventListener(row, "click", function(e){
 			e = e ? e : window.event;
 			CBStopEventPropagation(e);
+			
 			if(_this.selectedItem != row)
-				_this.selectItem(row);
-			else{ // row is already selected, focus in on subitem
+				_this.selectItem(row, e);
+			else{ 
+				// row is already selected, focus in on subitem
 				// e.srcElement.onclick();
 			}
 		}, true);
@@ -324,6 +327,7 @@ function Grid(container, options){
 			var value = typeof arguments[i] != 'object' ?
 				 arguments[i] : arguments[i].value;
 			var item = makeCell(value, null, null);
+			
 			item.style.width = this.columnsArr[i].width  + 'px';		
 			row.appendChild(item);
 		
@@ -340,8 +344,9 @@ function Grid(container, options){
 			item.className = "gridCell";
 			
 			CBAddEventListener(item, "contextmenu", function(e){
-				_this.selectItem(CBParentElement(CBEventSrcElement(e)));},
-				false);
+				if(_this.selections.length == 0)
+					_this.selectItem(CBParentElement(CBEventSrcElement(e)), e);
+			}, false);
 				
 			if(callback)
 				item.ondblclick = function(){			
@@ -361,25 +366,87 @@ function Grid(container, options){
 	}
 	
 	
+	this.clearSelections = function(){
+		for(var i=0; i<this.selections.length; i++){	
+			this.selections[i].className = "gridRow";
+		}
+		this.selections.length = 0;
+	}
 	
-	this.selectItem = function(item){
-		// elem is the element to select
-		// but if a string or number is passed assume it's the index
+	
+	
+	// select an item (row) on the grid
+	// event: mouse or keyboard event
+	// item: the element to select of if string or number passed, 
+	//       the index (index attr on row == this.rowsArr array index)	
+	this.selectItem = function(item, event){
+	
 		if(typeof(item) == 'string' || typeof(item) == 'number' ){		
 			item = this.rowsArr[item].elem;
 		}
-			
-		if(_this.selectedItem){
-			this.selectedItem.className = "gridRow";
-		}
-		this.selectedItem = item;
 		
-		item.className = "gridRowSelected";
+		// no modifier keys 
+		if(!event.ctrlKey && !event.shiftKey){
+			this.clearSelections();
+		
+			if(this.selectedItem)
+				this.selectedItem.className = "gridRow";
+			
+			this.selectedItem = item;
+			item.className = "gridRowSelected";
+		
+		}
+		// yes modifier keys, multiple selections
+		else if(this.selectedItem){
+		
+			if(event.ctrlKey){
+				if(!this.selections.length)
+					this.selections.push(this.selectedItem);
+			
+				// if already selected, unselect
+				var count = this.selections.length, b = false;
+				if(count){
+					for(var i=0; i<count; i++)
+						if(this.selections[i].id == item.id){
+							item.className = "gridRow";
+							this.selections.splice(i, 1);
+							return;
+						}
+				}				
+				
+				this.selections.push(item);
+					
+				// set new selection
+				item.className = "gridRowSelected";
+				this.selectedItem = item;
+				
+			}
+			
+			if(event.shiftKey){
+				this.clearSelections();
+				var idx = this.selectedItem.getAttribute("index");
+				var dir = (this.selectedItem.offsetTop < item.offsetTop) ? DIRECTION_DOWN : DIRECTION_UP;
+				while(true){
+					
+					var nextItem = this.rowsArr[dir == DIRECTION_DOWN ? idx++ : idx--].elem;
+					this.selections.push(nextItem);
+					nextItem.className = "gridRowSelected";
+					
+					if(nextItem.id == item.id || this.selections.length > this.rowsArr.length){		
+						break;
+					}
+					
+				}
+				// return so a new selectedItem won't be set
+			}
+			return;
+		}
+		
 		
 	}
 	
 	
-	this.scrollByPage = function(direction){
+	this.scrollByPage = function(direction, event){
 		var UP = (direction == DIRECTION_UP);
 		var DOWN = (direction == DIRECTION_DOWN);
 
@@ -483,7 +550,7 @@ function Grid(container, options){
 		return;	
 	}
 	
-	this.goToNextItem = function(direction, fast){
+	this.goToNextItem = function(direction, event){
 		
 		var UP = (direction == DIRECTION_UP);
 		var DOWN = (direction == DIRECTION_DOWN);
@@ -495,8 +562,8 @@ function Grid(container, options){
 				return;
 			}
 		}
-	
-		var step = fast ? 5 : 1; // todo (optional) finish this
+		
+		var step = event.ctrlKey ? 5 : 1; // todo (optional) finish this
 		var i = this.selectedItem.getAttribute("index");
 		var nextItem = this.rowsArr[(UP) ? i - step : Number(i) + step].elem;
 	
@@ -529,7 +596,7 @@ function Grid(container, options){
 			}
 		}
 	
-		this.selectItem(nextItem);
+		this.selectItem(nextItem, event);
 	}
 	
 	
@@ -627,7 +694,7 @@ function Grid(container, options){
 			}
 		}
 		// set vars and new selection
-		this.selectItem(this.rowsArr[selIdx].elem);
+		this.selectItem(this.rowsArr[selIdx].elem, event);
 	}
 	
 	
@@ -705,12 +772,16 @@ function Grid(container, options){
 				cell.oncontextmenu = function(){return false;}
 			CBAddEventListener(cell, "contextmenu", function(e){
 				e = e ? e : window.event;
-				var cm = new ContextMenu();
-				for(var i in _this.columnsArr){
-					var str = _this.columnsArr[i].show ? checkIcon : "&nbsp;&nbsp;&nbsp;&nbsp;";
-					cm.addItem(str + _this.columnsArr[i].title, addRemoveColumn, i);
+				try{
+					var cm = new ContextMenu();
+					for(var i in _this.columnsArr){
+						var str = _this.columnsArr[i].show ? checkIcon : "&nbsp;&nbsp;&nbsp;&nbsp;";
+						cm.addItem(str + _this.columnsArr[i].title, addRemoveColumn, i);
+					}
+					cm.show(e);
+				}catch(e){
+					// no ContextMenu	
 				}
-				cm.show(e);
 				return false;
 			},
 			false);
@@ -798,7 +869,6 @@ function Grid(container, options){
 	
 	
 	// check for header being dropped for column reorder
-	//document.addEventListener("mouseup", function(e){
 	document.body.onmouseup = function(e){
 		
 		e = e ? e : window.event;
@@ -836,15 +906,11 @@ function Grid(container, options){
 		// drag complete (drop or not), set member to null
 		_this.draggedHeader = null; 
 		
-	}//, false);
-	
+	}
 	
 	
 	// monitor mouse movement for column reorder or resize
 	document.onmousemove = function(e){
-			
-		
-		_this.turnOnHoverHilite();
 			
 		// event and mouse vars
 		e = e ? e : window.event;	

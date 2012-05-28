@@ -54,7 +54,12 @@ respond_to :html, :json
   	res.destroy
   	item.destroy unless item.nil? 
   		
-	redirect_to params[:redirect]
+  	if(params[:redirect])	
+		redirect_to params[:redirect]
+	else
+		# for ajax delete
+		render :json => { :resource => res, :success => true}		
+	end
   end
   
   

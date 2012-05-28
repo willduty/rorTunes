@@ -131,6 +131,7 @@ TuneItem.prototype.constructor = TuneItem;
 
 
 
+
 function TuneSetItem(nId, arrTunesArr, setString, flagged, status, entryDate){
 	
 	this.id = nId;
@@ -138,77 +139,95 @@ function TuneSetItem(nId, arrTunesArr, setString, flagged, status, entryDate){
 	this.setAsString = setString; // convenience property to not have to reassemble the names from ids
 	this.flagged = flagged;
 	this.status = status;
-	this.itemType = ITEM_TYPE_SET;
 	this.entryDate = entryDate;
 	
-	this.getTuneIdsAsString = function(){
-		return this.tunesArr.join(",");
-	}
-	
-
-	this.getSetAsString = function(colorCode){
-		
-		if(typeof(colorCode) == 'undefined') colorCode = true;
-		if(!this.tunesArr.length)
-			return '[empty set]';
-		
-		var arr = new Array();
-		var color, title;
-		for(var i=0; i<this.tunesArr.length; i++){
-			try{
-				color = getColorCode(tunesArr[this.tunesArr[i]].typeId);
-			}catch(e){color = '';}
-			try{
-				title =  tunesArr[this.tunesArr[i]].title;
-			}catch(e){
-			
-			title = '[no title]';}
-			
-			arr.push(colorCode?('<span style="color:'+color+'">' + title + '</span>') : title )
-		}
-		return arr.join("/") + ((this.status & 1 ) ? "<b style='color:red'> * </b>" : "");
-	}
-	
-	
-	this.hasTune = function(tuneId){
-		for(var i in this.tunesArr){
-			if(tuneId == this.tunesArr[i])
-				return true;
-		}
-		return false;
-	}
-	
-	this.getType = function(){
-		// todo handle mixed set
-		try{
-			return tunesArr[this.tunesArr[0]].typeId;
-		}catch(e){
-			return null;
-		}
-	}
-	
-	this.getTypeAsString = function(){
-		try{
-			return typesArr[this.getType()].title;
-		}catch(e){return '[empty set]';}
-	}
-	
+	this.itemType = ITEM_TYPE_SET;
 	this.label = 'Set';
 	
-	this.getLabel = function(bold, colon){
-		if(!typesArr)
-			return Item.prototype.getLabel.call(this, bold, colon); 
-		
-		// get title by tune type 
-		var title = typesArr[this.getType()].title;
-		(title == "waltz" || title == "march") ? title += "es" : title += "s";
-		title = title.charAt(0).toUpperCase() + title.substring(1, title.length)
-		return "<b>"+title+":</b> ";
-	}	
 }
 
 TuneSetItem.prototype = new Item
 TuneSetItem.prototype.constructor = TuneSetItem
+
+
+TuneSetItem.prototype.getTuneIdsAsString = function(){
+	return this.tunesArr.join(",");
+}
+
+
+TuneSetItem.prototype.getSetAsString = function(){
+	var arr = [];
+	for(var i=0; i<this.tunesArr.length; i++){
+		try{
+		arr.push(tunesArr[this.tunesArr[i]].title)
+		}catch(e){arr.push('[deleted]')}
+	}
+	return arr.join('/')
+}
+
+
+TuneSetItem.prototype.getSetAsHTML = function(colorCode){
+	
+	if(typeof(colorCode) == 'undefined') colorCode = true;
+	if(!this.tunesArr.length)
+		return '[empty set]';
+	
+	var arr = new Array();
+	var color, title;
+	for(var i=0; i<this.tunesArr.length; i++){
+		try{
+			color = getColorCode(tunesArr[this.tunesArr[i]].typeId);
+		}catch(e){color = '';}
+		try{
+			title =  tunesArr[this.tunesArr[i]].title;
+		}catch(e){
+		
+		title = '[deleted]';}
+		
+		arr.push(colorCode?('<span style="color:'+color+'">' + title + '</span>') : title )
+	}
+	return arr.join("/") + ((this.status & 1 ) ? "<b style='color:red'> * </b>" : "");
+}
+
+
+TuneSetItem.prototype.hasTune = function(tuneId){
+	for(var i in this.tunesArr){
+		if(tuneId == this.tunesArr[i])
+			return true;
+	}
+	return false;
+}
+
+TuneSetItem.prototype.getType = function(){
+	// todo handle mixed set
+	try{
+		return tunesArr[this.tunesArr[0]].typeId;
+	}catch(e){
+		return null;
+	}
+}
+
+TuneSetItem.prototype.getTypeAsString = function(){
+	try{
+		return typesArr[this.getType()].title;
+	}catch(e){return '[empty set]';}
+}
+
+
+TuneSetItem.prototype.getLabel = function(bold, colon){
+	if(!typesArr)
+		return Item.prototype.getLabel.call(this, bold, colon); 
+	
+	// get title by tune type 
+	var title = typesArr[this.getType()].title;
+	(title == "waltz" || title == "march") ? title += "es" : title += "s";
+	title = title.charAt(0).toUpperCase() + title.substring(1, title.length)
+	return "<b>"+title+":</b> ";
+}	
+
+
+
+
 
 
 // an item that can be grouped (a tune, a set, etc)
@@ -275,39 +294,6 @@ function GroupItem(nId, strTitle, status, priority, entryDate){
 	}
 	
 	
-	this.getItemsByType = function(type){
-		
-		var arr = new Array();
-		
-		this.itemsArr = getSortedArrayCopy(this.itemsArr, sortByPriority); 
-		
-		for(var i in this.itemsArr){
-			var item = this.itemsArr[i];
-			
-			var objArr;
-			if(item.type == type){
-				switch(item.type){
-					case ITEM_TYPE_TUNE: objArr = tunesArr; break;
-					case ITEM_TYPE_SET: objArr = setsArr; break;
-					case ITEM_TYPE_RESOURCE: objArr = resourcesArr; break;
-					case ITEM_TYPE_GROUP: objArr = groupsArr; break;
-					default: return null;
-				}
-				
-				var obj = objArr[item.id];
-				if(typeof(obj) == 'undefined' || obj == null){
-					// alert("error, obj doesn't exist: " + item.id + " type: " + type + " group: " + this.id);
-				} else {
-					arr.push(obj);
-				}
-			}
-		}
-		
-		return arr.length ? arr : null;	
-		
-		
-	}
-	
 	// checks if group has any items of a  
 	// particular type (tunes, sets, etc)
 	this.containsType = function(type){
@@ -323,6 +309,59 @@ function GroupItem(nId, strTitle, status, priority, entryDate){
 }
 GroupItem.prototype = new Item;
 GroupItem.prototype.constructor = GroupItem;
+
+// returns array of tune ids
+GroupItem.prototype.getTunesNotInSets = function(){
+	try{
+		var tunes = this.getItemsByType(ITEM_TYPE_TUNE);
+		var sets = this.getItemsByType(ITEM_TYPE_SET);
+		for(var i in sets){
+			for(var j in sets[i].tunesArr){
+				for(var k in tunes)
+					if(tunes[k].id == sets[i].tunesArr[j]){
+						tunes.splice(k, 1)
+						break;		
+					}
+			}
+		}
+	}catch(e){alert(e)}
+	return tunes;
+}
+
+
+GroupItem.prototype.getItemsByType = function(type){
+	
+	var arr = new Array();
+	
+	this.itemsArr = getSortedArrayCopy(this.itemsArr, sortByPriority); 
+	
+	for(var i in this.itemsArr){
+		var item = this.itemsArr[i];
+		
+		var objArr;
+		if(item.type == type){
+			switch(item.type){
+				case ITEM_TYPE_TUNE: objArr = tunesArr; break;
+				case ITEM_TYPE_SET: objArr = setsArr; break;
+				case ITEM_TYPE_RESOURCE: objArr = resourcesArr; break;
+				case ITEM_TYPE_GROUP: objArr = groupsArr; break;
+				default: return null;
+			}
+			
+			var obj = objArr[item.id];
+			if(typeof(obj) == 'undefined' || obj == null){
+				// alert("error, obj doesn't exist: " + item.id + " type: " + type + " group: " + this.id);
+			} else {
+				arr.push(obj);
+			}
+		}
+	}
+	
+	return arr.length ? arr : null;	
+	
+	
+}
+
 
 
 // a resource (link, sheetmusic file, video, audio files etc) associated with a tune.  
@@ -340,50 +379,53 @@ function ResourceItem(nId, resourceType, title,
 	this.itemType = ITEM_TYPE_RESOURCE;
 	this.associatedItemsArr = new Array(); // takes objects of type groupItem
 	
-	this.belongsTo = function(tuneId){
-		for(var i in this.associatedItemsArr){
-			if(this.associatedItemsArr[i].id == tuneId){
-				return true;
-			}
+}
+
+ResourceItem.prototype.belongsTo = function(tuneId){
+	for(var i in this.associatedItemsArr){
+		if(this.associatedItemsArr[i].id == tuneId){
+			return true;
 		}
-		return false;
 	}
-	
-	this.getLabel = function(bold, colon){
-		return getResourceLabel(this.resourceType, bold, colon);
-	}
-	
-	this.resizeElemForResource = function(elem){
-		switch(this.resourceType){
-			case RESOURCE_SHEETMUSIC:
-				elem.onload = function(){
-					// alert(this.offsetHeight)
-					this.style.width = this.offsetWidth;
-					this.style.height = this.offsetHeight;
-					
-					}
-				break;
-			case RESOURCE_VIDEO:
-				break;
-			case RESOURCE_AUDIO:
-				break;
-			case RESOURCE_LINK_VIDEO:
-				break;
+	return false;
+}
+
+ResourceItem.prototype.getLabel = function(bold, colon){
+	return getResourceLabel(this.resourceType, bold, colon);
+}
+
+ResourceItem.prototype.resizeElemForResource = function(elem){
+	switch(this.resourceType){
+		case RESOURCE_SHEETMUSIC:
+			elem.onload = function(){
+				// alert(this.offsetHeight)
+				this.style.width = this.offsetWidth;
+				this.style.height = this.offsetHeight;
 				
-			case RESOURCE_LINK_YOUTUBE:
-				elem.style.width = "425px";
-				elem.style.height = "349px";
-				break;
-				
-			case RESOURCE_LINK_AUDIO_FILE:
-				elem.style.width = "425px";
-				elem.style.height = "150px";
-				break;
-			default:
-				return "";
-		}
+				}
+			break;
+		case RESOURCE_VIDEO:
+			break;
+		case RESOURCE_AUDIO:
+			break;
+		case RESOURCE_LINK_VIDEO:
+			break;
+			
+		case RESOURCE_LINK_YOUTUBE:
+			elem.style.width = "425px";
+			elem.style.height = "349px";
+			break;
+			
+		case RESOURCE_LINK_AUDIO_FILE:
+			elem.style.width = "425px";
+			elem.style.height = "150px";
+			break;
+		default:
+			return "";
 	}
 }
+
+
 
 
 

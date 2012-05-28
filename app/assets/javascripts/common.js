@@ -209,7 +209,7 @@ function autoSuggestCallback(str, type){
 			break;
 		case ITEM_TYPE_SET:
 			populateFromArr = setsArr;
-			prop = "getSetAsString()";
+			prop = "getSetAsHTML()";
 			break;
 		case ITEM_TYPE_RESOURCE:
 			populateFromArr = resourcesArr;
@@ -308,13 +308,8 @@ function getTunesByType(type){
 
 
 
-
-
-
-function addTuneContextMenu(elem, tuneObj){
+function tuneContextMenu(elem, tuneObj, event){
 	
-	elem.oncontextmenu = function(event){
-
 		try{
 		var ctxMenu = new ContextMenu();
 
@@ -356,6 +351,15 @@ function addTuneContextMenu(elem, tuneObj){
 		ctxMenu.addItem("Delete", deleteTune, tuneObj.id);	
 		ctxMenu.show(event);
 		}catch(e){alert(e)}
+		return false;
+
+}
+
+
+function addTuneContextMenu(elem, tuneObj){
+	
+	elem.oncontextmenu = function(event){
+		tuneContextMenu(elem, tuneObj, event);
 		return false;
 	}	
 
@@ -416,31 +420,36 @@ function addGroupSubHdrContextMenu(elem){
 		
 		if(type == ITEM_TYPE_TUNE){
 		
-			var groupId = this.getAttribute('itemId');
-			ctxMenu.addItem("Add Tune...", addTuneToGroupCallback, this.getAttribute("groupId"));
+			var groupId = this.getAttribute('groupId');
+			var group = groupsArr[groupId];
+			ctxMenu.addItem("Add Tune...", addTuneToGroupCallback, groupId);
 		
 			ctxMenu.addItem("Make selected tunes into set", groupTunesIntoSet, this.nextSibling);
 			var _this = this;
-			ctxMenu.addItem("Develop sets from these tunes...", function(tunesDiv){
-				function setDevCallback(setsArr, groupId){
+			
+			function setDevCallback(setsArr, groupId){
+			
+				var arr = ['/tune_sets/add_new_sets_to_group', 'post']
+				for(var i in setsArr)	
+					arr.push({name:"set[][tuneIds]", value:setsArr[i]})
 				
-					var arr = ['/tune_sets/add_new_sets_to_group', 'post']
-					for(var i in setsArr)	
-						arr.push({name:"set[][tuneIds]", value:setsArr[i]})
-					
-					arr.push({name:"group[id]", value:groupId})
-					doRorLink.apply(this, arr )
-					
-				}
+				arr.push({name:"group[id]", value:groupId})
+				doRorLink.apply(this, arr )
 				
-				// launch SetDeveloper tool
-				var developer = new SetDeveloper(setDevCallback, _this.getAttribute("groupId"));
-				$(tunesDiv).find('div[itemId][itemType='+ITEM_TYPE_TUNE+']').each(function(){
-					developer.addTune(tunesArr[$(this).attr("itemId")])
-					})
+			}
+			
+			// launch SetDeveloper tool
+			ctxMenu.addItem("Develop sets from these tunes...", function(group){
+				var developer = new SetDeveloper(setDevCallback, groupId, group);
+				developer.addTunes(group.getItemsByType(ITEM_TYPE_TUNE))
 				developer.show();
-				
-			}, CBParentElement(this));
+			}, group);
+			
+			ctxMenu.addItem("Develop sets from tunes not in sets...", function(group){
+				var developer = new SetDeveloper(setDevCallback, groupId, group);
+				developer.addTunes(group.getTunesNotInSets())
+				developer.show();
+			}, group);
 		}
 		
 		
@@ -463,6 +472,44 @@ function addGroupSubHdrContextMenu(elem){
 
 
 
+// obj {ids:[], groupId, itemType}
+function addMultipleToGroup(obj){
+	var itemsArr = $.map(obj.ids, function(id, idx){return {itemId:id, itemType:obj.itemType}})
+	var param = {items:itemsArr, groupId:obj.groupId}
+	addItemToGroup(param)
+	//{items:[{itemId, itemType, groupId}+], newGroupName}
+}
+
+
+function gridSelectionsCallback(rows, event, itemType){
+
+	var ids = $.map(rows, function(rows, idx){return rows.getAttribute('id')});
+	var c = new ContextMenu();
+	var groupsMenu = c.addSubMenu('Add All to Group');
+	for(var i in groupsArr)
+		groupsMenu.addItem(groupsArr[i].title, addMultipleToGroup, {ids:ids, groupId:groupsArr[i].id, itemType:itemType});
+		groupsMenu.addSeparator()
+		groupsMenu.addItem('Add to New Group...', addMultipleToGroup, {ids:ids})
+	
+	try{
+	c.addItem('Add All to New Set', addToSet, ids);
+	}catch(e){}
+	
+	c.addSeparator();
+	
+	var deleteFunc = null;
+	switch(itemType){
+		case ITEM_TYPE_TUNE: deleteFunc = deleteTune; break;
+		case ITEM_TYPE_RESOURCE: deleteFunc = deleteResource; break;
+		case ITEM_TYPE_SET: deleteFunc = deleteSet; break;
+
+	}
+	if(deleteFunc)
+		c.addItem('Delete All', deleteFunc, ids);
+	
+	c.show(event);
+}	
+
 
 
 
@@ -484,7 +531,7 @@ function sortByResourceType(a, b){
 }
 
 function sortBySetAsString(a, b){
-	return (a.getSetAsString(false) > b.getSetAsString(false)) ? 1 : -1;
+	return (a.getSetAsHTML(false) > b.getSetAsHTML(false)) ? 1 : -1;
 }
 
 function sortByEntryDate(a, b){
@@ -514,20 +561,60 @@ function getSortedArrayCopy(arr, sortFunc){
 
 
 
-
-
 function deleteResource(id){
+	
+	// multiple deletes. via ajax to avoid server overload
+	if(id instanceof Array){	
+		var titles = $.map(id, function(id, idx){return '  '+resourcesArr[id].title})
+		if(!confirm('WARNING! \r\n\r\nYou are about to delete multiple resources.\r\n' + titles.join('\r\n') + 
+			'\r\n\r\n This cannot be undone. Proceed?' )){
+			return;	
+		}
+	
+		var ctr = 0;
+		
+		function ajaxDelete(ids){
+			if(!ids.length){
+				alert('Done. '+ ctr + ' items deleted');
+				return;
+			}
+				
+			id = ids.pop();
+			var rl = new RorLink();
+			var url = '/resources/' + id;
+			var form = rl.getRorLinkForm(url, 'delete', {name:"id", value:id});
+			
+			$.post(url, $(form).serialize(), function(resp){
+				if(resp.success == true)
+					ctr++;
+				ajaxDelete(ids);
+			});
+		}
+		
+		
+		ajaxDelete(id);		
+		
+	}
+	else
 	if(confirm("Are you sure? This cannot be undone..."))	
 		doRorLink('/resources/' + id, 'delete', {name:"id", value:id});
 }
 
 
 function deleteTune(tuneId){
-	if(!confirm("Are you sure? \n\n\""+tunesArr[tuneId].title+
+	if(tuneId instanceof Array){	
+		var titles = $.map(tuneId, function(id, idx){return '  '+tunesArr[id].title})
+		if(!confirm('WARNING! \r\n\r\nYou are about to delete multiple tunes.\r\n' + titles.join('\r\n') + 
+			'\r\n\r\n This cannot be undone. Proceed?' )){
+			return;	
+		}
+		tuneId = tuneId.join(',')
+	}
+	else if(!confirm("Are you sure? \n\n\""+tunesArr[tuneId].title+
 		"\" will be deleted. This cannot be undone.")){
 		return;
 	}
-		
+	
 	doRorLink('/tunes/'+tuneId, 'delete')
 }
 
@@ -813,12 +900,13 @@ function unflagGroupItems(obj){
 
 // RESOURCE CONTEXT MENU AND CALLBACKS
 
-function addResourceContextMenu(elem, objResource){
+
+function resourceContextMenu(elem, objResource, event){
 
 	// add context menu to resource (including sheetmusic images)
 	elem.setAttribute("itemId", objResource.id);
 	elem.oncontextmenu = function(event){
-	try{
+		try{
 		var resourceId = this.getAttribute("itemId");
 		var ctxMenu = new ContextMenu();
 		
@@ -890,6 +978,14 @@ function addResourceContextMenu(elem, objResource){
 		}catch(e){alert(e.message)}
 	
 		return false;
+	}
+}
+
+
+
+function addResourceContextMenu(elem, objResource){
+	elem.oncontextmenu = function(event){
+		resourceContextMenu(elem, objResource, event);
 	}
 }
 
@@ -1071,8 +1167,10 @@ function validateTitleStr(str, itemType){
 }
 
 
+
+
 // create context menu for set item
-function makeSetContextMenu(event){
+function tuneSetContextMenu(event){
 
 	event = event ? event : window.event;
 	
@@ -1210,51 +1308,62 @@ function itemableTypeFromItemType(itemType, asPathName){
 }
 
 
-// obj: {itemId, itemType, groupId, newGroupName}
+// obj: {itemId, itemType, groupId, removeFromGroupId}
+// obj: {items:[{itemId, itemType}+], groupId, removeFromGroupId}
+
 function addItemToGroup(obj){
 
-	var itemId = obj.itemId; // id of the item (tune, set, etc)
-	var itemType = obj.itemType;
-	var groupId = parseInt(obj.groupId); // id of group we're adding the set to (if 0 means it's a group to be created
-	
+	var groupId = parseInt(obj.groupId);
 	var removeFromGroupId = parseInt(obj.removeFromGroupId); // means we're moving a set (if not 0)
+	
+	if(obj.items){
+		var jsonArr = []
+		for(var i in obj.items){
+			var item = obj.items[i];
+			var temp = [];
+			temp.push(json_format_pair('group_id', groupId));
+			temp.push(json_format_pair('itemable_id', item.itemId));
+			temp.push(json_format_pair('itemable_type', itemableTypeFromItemType(item.itemType)));
+			jsonArr.push("{"+temp.join(',')+"}")
+		}
+		
+		var argGroupItems = "["+jsonArr.join(',')+"]";
+		
+	}
+	else{
+		var argId = {name:'group_item[itemable_id]', value:obj.itemId}; 
+		var argType ={name:'group_item[itemable_type]', value:itemableTypeFromItemType(obj.itemType)};
+		var argGroupId = {name:'group_item[group_id]', value:groupId};
+		var argRmGroupId = {name:'group_item[group_id]', value:removeFromGroupId};
+	}
+	
+	var args = [];
 	
 	// add to existing group
 	if(!isNaN(groupId) && isNaN(removeFromGroupId)){
-	
-		doRorLink('group_items/add', 
-			'post', 
-			{name:'group_item[itemable_id]', value:itemId}, 
-			{name:'group_item[itemable_type]', value:itemableTypeFromItemType(itemType)},
-			{name:'group_item[group_id]', value:groupId}
-			);
+		if(obj.items)	
+			args = ['group_items/add', 'post', {name:'group_items', value:argGroupItems}];
+		else
+			args = ['group_items/add', 'post', argId, argType, argGroupId];
 	}
-	
 	
 	// add to new group
 	if(isNaN(groupId) && isNaN(removeFromGroupId)){
 		var newGroupName = prompt("New Group Name...");
 		if(newGroupName == null)
 			return false;
-			
-		doRorLink("group_items/add", 
-				'post',
-				{name:'group_item[itemable_id]', value:itemId}, 
-				{name:'group_item[itemable_type]', value:itemableTypeFromItemType(itemType)},
-				{name:'group[title]', value:newGroupName}
-				);
+		if(obj.items)	
+			args = ["group_items/add", 'post', {name:'group_items', value:argGroupItems}, {name:'group[title]', value:newGroupName}];
+		else	
+			args = ["group_items/add", 'post', argId, argType, {name:'group[title]', value:newGroupName}];
 	}
 	
 	// move to existing group
 	if(!isNaN(groupId) && !isNaN(removeFromGroupId)){
 		
-		doRorLink("group_items/update", 
-			'put',
-			{name:'group_item[itemable_id]', value:itemId}, 
-			{name:'group_item[itemable_type]', value:itemableTypeFromItemType(itemType)},
-			{name:'group_item[group_id]', value:removeFromGroupId},
-			{name:'to_group_id', value:groupId}
-			);
+		if(obj.items){}
+		else
+			args = ["group_items/update", 'put', argId, argType, argRmGroupId, {name:'to_group_id', value:groupId}];
 	}
 	
 	// move to new group
@@ -1263,16 +1372,20 @@ function addItemToGroup(obj){
 		if(newGroupName == null)
 			return false;
 		
-		doRorLink("group_items/update", 
-			'put',
-			{name:'group_item[itemable_id]', value:itemId}, 
-			{name:'group_item[itemable_type]', value:itemableTypeFromItemType(itemType)},
-			{name:'group_item[group_id]', value:removeFromGroupId},
-			{name:'new_group_title', value:newGroupName}
-			);
+		if(obj.items){}
+		else
+			args = ["group_items/update", 'put', argId, argType, argRmGroupId, {name:'new_group_title', value:newGroupName}];
 		
 	}
+	
+	doRorLink.apply(this, args);
+	
 }
+
+
+
+
+
 
 //obj {itemId: , itemType:, groupId:}
 function removeItemFromGroup(obj){
@@ -1316,9 +1429,23 @@ function setEditDlg(id, event){
 
 
 function deleteSet(id){
-	if(confirm("Are you sure you want to delete set "+id+"? This cannot be undone."))	
-	
-	doRorLink('/tune_sets/'+id, 'delete');
+
+	if(id instanceof Array){	
+		var titles = $.map(id, function(id, idx){return '  ' + setsArr[id].getSetAsString()})
+		if(!confirm('WARNING! \r\n\r\nYou are about to delete multiple sets:\r\n\r\n' + titles.join('\r\n') + 
+			'\r\n\r\n This cannot be undone. Proceed?' )){
+			return;	
+		}
+		
+	}
+	else{ 
+		id = [id];
+		if(!confirm("Are you sure you want to delete set \r\n\r\n" + 
+			setsArr[id].getSetAsString() + "? \r\n\r\nThis cannot be undone."))	
+		return;
+	}
+	doRorLink('/tune_sets/'+id.join(','), 'delete');
+		
 }
 
 
@@ -1398,7 +1525,7 @@ function showSetSheetmusic(obj){
 		if(loaded >= arrImgs.length){
 			var fl = new FloatingContainer(null, null, div);
 			fl.addContentElement(div);
-			fl.setTitle("<span style='color:lightgray'>Sheetmusic: </span>" + set.getSetAsString());
+			fl.setTitle("<span style='color:lightgray'>Sheetmusic: </span>" + set.getSetAsHTML());
 			fl.setCancelButtonText('close');
 			fl.show(event, 150, 100, FC_CLOSE_ON_OUTSIDE_CLICK | FC_AUTO_POSITION_CENTER | FC_CLOSE_ON_ESC);
 		}
