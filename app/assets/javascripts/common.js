@@ -575,6 +575,7 @@ function deleteResource(id){
 		function ajaxDelete(ids){
 			if(!ids.length){
 				alert('Done. '+ ctr + ' items deleted');
+				location = location; // todo, remove from grid instead of reload
 				return;
 			}
 				
