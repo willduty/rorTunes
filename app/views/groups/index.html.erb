@@ -282,6 +282,18 @@ function showArchived(){
 var newSetList = null;
 var gSearchAutoList = null;
 
+window.onunload = function(){
+	// cookies:
+	// open groups
+	var arr = [];
+	for(var i in gGroupSections)
+		if(gGroupSections[i].getState() == ES_STATE_OPEN)
+			arr.push(i);
+		
+	setCookie('groups_open', arr.join(','), 1)
+}
+
+
 window.onload = function(){
 	
 	sizeContentArea();	
@@ -305,11 +317,14 @@ window.onload = function(){
 	
 	showGroups();
 	
-	if(ex = getRequestParam("expandedSections")){
+	// "view state"
+	if(ex = getCookie('groups_open')){
 		var arr = ex.split(",");
 		for(var i in arr)
 			gGroupSections[arr[i]].expand()
 	}
+	
+	
 	
 	var btnMgr = new ButtonManager();
 	btnMgr.setUpButtons();
