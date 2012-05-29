@@ -491,7 +491,7 @@ function gridSelectionsCallback(rows, event, itemType){
 		groupsMenu.addSeparator()
 		groupsMenu.addItem('Add to New Group...', addMultipleToGroup, {ids:ids})
 	
-	if(addToNewSet)
+	if(typeof addToNewSet != 'undefined')
 		c.addItem('Add All to New Set', addToNewSet, ids);
 	
 	c.addSeparator();
