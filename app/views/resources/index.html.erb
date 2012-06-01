@@ -45,21 +45,21 @@ function gridRowCtxCallback(row, event){
 	resourceContextMenu(row, resourcesArr[row.id], event);
 }
 
-
+var gGrid = null;
 // show all the resources
 function showGrid(){
 	clearContentArea();
 	
 	// create tune list
 	var ca = getContentArea();
-	var grid = new Grid(ca, {listViewStyle:LIST_VIEW_FULL, 
+	gGrid = new Grid(ca, {listViewStyle:LIST_VIEW_FULL, 
 					selectionsCallback:gridSelectionsCallback, 
 					selectionsCallbackParam:ITEM_TYPE_RESOURCE}); 
 	
-	grid.addColumn("Title", 240);
-	grid.addColumn("Type", 90);
-	grid.addColumn("Source", 150);
-	grid.addColumn("Entry Date", 80);
+	gGrid.addColumn("Title", 240);
+	gGrid.addColumn("Type", 90);
+	gGrid.addColumn("Source", 150);
+	gGrid.addColumn("Entry Date", 80);
 	
 	var resArr = getSortedArrayCopy(resourcesArr, sortByResourceType);
 	var sheetMusicArr = new Array();
@@ -73,7 +73,7 @@ function showGrid(){
 			else
 				title = res.title;
 				
-			var elem = grid.addRow( 
+			var elem = gGrid.addRow( 
 					title, 
 					res.getLabel(), 
 					res.url,
@@ -93,8 +93,14 @@ function showGrid(){
 					)
 		}
 	}
-	grid.show();
-	grid.sortByColumn(3, SORT_DESC);
+	gGrid.show();
+	gGrid.sortByColumn(3, SORT_DESC);
+	
+	var scroll = 0;
+	if(scroll = getCookie('resources_grid_scroll'))
+		gGrid.scrollToPos(scroll);
+	
+	
 }
 
 
@@ -175,6 +181,16 @@ function clearContentArea(){
 	while(contentArea.hasChildNodes())
 		contentArea.removeChild(contentArea.firstChild)
 }
+
+
+
+window.onunload = function(){
+	// cookies:
+	if(gGrid){
+		setCookie('resources_grid_scroll', gGrid.getScrollPos(), 1);
+	}
+}
+
 
 window.onload = function (){
 	try{	

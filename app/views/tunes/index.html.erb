@@ -232,10 +232,9 @@ function showGrid(){
 	//show the tunes
 	// if querystring values, reset. else show from start 
 	try{
-		var listFirst = null;
-		var listSel = null;
-		if(listFirst = getRequestParam("listFirst"))
-			gTuneList.scrollToPos(listFirst);
+		var listSel = null, scroll = 0;
+		if(scroll = getCookie('tunes_grid_scroll'))
+			gTuneList.scrollToPos(scroll);
 		
 		// set list selection
 		if(listSel = getRequestParam("listSel"))
@@ -372,6 +371,15 @@ var gTuneList, gBtnMgr;
 
 var invalidTitleMsg = 'Invalid Title. Title must have length and '+
 				'cannot include non alpha-numeric characters other than basic punctuation (\' \" ! & ? - _ etc)';
+				
+
+window.onunload = function(){
+	// cookies:
+	setCookie('tunes_grid_scroll', gTuneList.getScrollPos(), 1)
+}
+
+				
+				
 window.onload = function (){
 try{
 	

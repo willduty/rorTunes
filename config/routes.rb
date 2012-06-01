@@ -9,6 +9,8 @@ get "resources/search_youtube"
 get "resources/generic_search"
 get "resources/new_sheetmusic"
 get "resources/show_comhaltas_video"
+get "resources/search_session_dot_org"
+post "resources/download"
 post "resources/upload"
 resources :resources
 

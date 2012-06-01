@@ -35,7 +35,7 @@
 					
 				case "newSheetMusic":
 					srcArr.push(["upload sheetmusic", "/resources/new_sheetmusic", "tune_title=" + tuneTitle]);
-					srcArr.push(["search thesession.org", "searchsessiondotorg.php", "url=http://thesession.org"]);
+					srcArr.push(["search thesession.org", "/resources/search_session_dot_org", "url=http://thesession.org"]);
 					srcArr.push(["search norbeck", "searchmp3page.php", "url=http://homepage.mac.com/douglowder/PloughRecordings/"]);
 					break;
 			}
@@ -71,9 +71,13 @@
 	
 	
 	function doResourceSearch(clickedElem, options){
+	
 		var arr = [options.action, 'get']
 		for(var i in options.params)
 			arr.push(options.params[i])
+		
+		arr.push({name:'redirect' , value:location.pathname})
+		
 	
 		var data = $(RorLink.prototype.getRorLinkForm.apply(this, arr)).serialize();
 	
