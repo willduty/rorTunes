@@ -1485,19 +1485,22 @@ function removePlaceholder(container){
 }
 
 
-
+// obj: {setId, event}
 function showSetSheetmusic(obj){
-	
+		
 	setId = obj.setId
 	event = obj.event
 	
 	var div = document.createElement("div");
+	var fl = new FloatingContainer(null, null, div);
+			
 	var arrImgs = [];
 	var loaded=0;
 
 	// find the set object
 	var set = setsArr[setId];
 	
+	// construct the content
 	// go through each tune in set and find img if exists
 	for(var idx in set.tunesArr){
 		var tuneId = set.tunesArr[idx];
@@ -1511,9 +1514,7 @@ function showSetSheetmusic(obj){
 		if(res){
 			var img = new Image();
 			img.style.margin = 5;
-			div.appendChild(img);
-			div.appendChild(document.createElement("br"));
-			div.appendChild(document.createElement("br"));
+			$(div).append(img).append('<br>').append('<br>')
 			
 			// set onload handler for image to callback (but don't set img src attr until 
 			// done with this img-finding loop: img attr begins load and total count must be known before any loading).
@@ -1528,13 +1529,24 @@ function showSetSheetmusic(obj){
 		}
 	}
 	
+	// add option to edit the set
+	var editSetBtn = document.createElement('span');
+	$(editSetBtn).html("edit set &raquo;").click(function(e){
+		setEditDlg(setId, e); 
+		fl.close();
+		return false;
+	})
+	editSetBtn.className = "info normal orange pointer";
+	
+	$(div).append($('<div><div>').append(editSetBtn))
+	
 	// if images exist for any tune, set src attribute which will start load
 	if(arrImgs.length)
 		for(var i in arrImgs){
 			arrImgs[i].img.src = arrImgs[i].res.localFile;
 		}
 	else
-		alert('no sheetmusic for tunes in this set');
+		loadCount();
 
 	function tuneHasImg(tuneId){
 		for(var j in resourcesArr){
@@ -1552,10 +1564,9 @@ function showSetSheetmusic(obj){
 	function loadCount(){
 		loaded++;
 		if(loaded >= arrImgs.length){
-			var fl = new FloatingContainer(null, null, div);
 			fl.addContentElement(div);
 			fl.setTitle("<span style='color:lightgray'>Sheetmusic: </span>" + set.getSetAsHTML());
-			fl.setCancelButtonText('close');
+			fl.setCancelButtonText('close');			
 			fl.show(event, 150, 100, FC_CLOSE_ON_OUTSIDE_CLICK | FC_AUTO_POSITION_CENTER | FC_CLOSE_ON_ESC);
 		}
 	}

@@ -185,6 +185,9 @@ function gridRowCtxCallback(row, event){
 	tuneSetContextMenu(event);
 }
 
+function gridRowDblClickCallback(setId, event){
+	showSetSheetmusic({setId:setId, event:event})
+}
 
 function showAllSets(){
 
@@ -210,7 +213,8 @@ function showAllSets(){
 					set.getSetAsHTML(false), 
 					set.getTypeAsString(), 
 					set.entryDate,
-					{rowCallback:setEditDlg,rowCallbackParam:set.id, 
+					{rowCallback:gridRowDblClickCallback, 
+						rowCallbackParam:set.id, 
 						id:set.id,
 						rowCtxCallback:gridRowCtxCallback,
 						rowCtxCallbackParam:set.id
