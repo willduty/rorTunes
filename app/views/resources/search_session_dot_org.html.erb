@@ -1,0 +1,65 @@
+
+
+<style type=text/css>
+	img {background:white;}
+</style>
+
+<%
+
+base = 'http://www.thesession.org'
+uri = URI(base + '/tunes/index/search?name=ashplant&type_id=&mode_id=')
+res = Net::HTTP.get(uri)
+
+hrefs = res.scan(/href="\/tunes\/display.*"/)
+
+links = Array.new
+hrefs.reverse_each do |h|
+	if h =~ /comments/
+		break
+	end
+	links.push base + (h.sub!(/href="/, '').sub! /"/, '')
+	
+end
+
+links.uniq!
+
+links.each do |link|
+	res = Net::HTTP.get(URI(link))
+	
+	imgs = res.scan(/<img.*>/)
+	
+	imgs.each do |img|
+		imgelem = img.sub(/\/tunes/, base + '/tunes')
+		
+		# get img src
+		
+		if imgelem =~ /src="(.*?)"/
+		
+			concat ('image' + tag('br')).html_safe
+			concat imgelem.html_safe
+			concat tag 'br'	
+			%>
+			
+			<%= form_tag '/resources/download' do %>
+				<%= hidden_field_tag :download_url, $1 %>
+				<%= hidden_field_tag :redirect, params[:redirect] %>
+				<%= hidden_field_tag :tune_id, params[:tune_id] %>
+				<%= submit_tag 'save image as new sheetmusic' %>
+			<% end %>
+			<%
+		end
+		
+		concat tag 'br'	
+		
+	end
+	concat tag 'br'	
+	
+	 
+end
+
+%>
+ 
+
+
+
+
