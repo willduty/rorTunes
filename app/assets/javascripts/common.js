@@ -1522,10 +1522,22 @@ function showSetSheetmusic(obj){
 			arrImgs.push({img:img, res:res});
 		}
 		else{
-			var placeHolder = document.createElement("div");
-			placeHolder.className = "info";
-			placeHolder.innerHTML = "[no sheetmusic]<br><br>";
-			div.appendChild(placeHolder);
+				
+			var placeHolder = $('<div></div>').addClass('info')
+				.html("[no sheetmusic] &nbsp;")
+				.append("<a name=newSheetmusicBtn class='normal copperdark pointer' tuneId="+tuneId+">add sheetmusic &raquo;</a>")
+				.append('<br>').append('<br>')
+			
+			placeHolder.find('[name=newSheetmusicBtn]').click(function(event){
+				// get resource search tool
+				addResourceOptions(tuneId);
+				var nsm = new FloatingContainer(null, null, $('#newSheetMusic').get(0));
+				nsm.addContentElement($('#newSheetMusic').css({'height':500}).get(0));
+				nsm.setTitle("<span style='color:lightgray'>Sheetmusic Search </span>");
+				nsm.show(event, 1000, 500, FC_CLOSE_ON_OUTSIDE_CLICK | FC_AUTO_POSITION_CENTER | FC_CLOSE_ON_ESC | FC_RESTORE_CONTENT_ELEM);
+				return false;
+			})
+			div.appendChild(placeHolder.get(0));
 		}
 	}
 	

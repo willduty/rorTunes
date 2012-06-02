@@ -145,14 +145,19 @@ respond_to :html, :json
   	
   	@resource.tunes << Tune.find_by_id(tune_id)
   	
-  	
-  	# write file to amazon s3 storage
-   	AWS.config(
-	  :access_key_id => ENV['AWS_ACCESS_KEY_ID'], 
-	  :secret_access_key => ENV['AWS_SECRET_ACCESS_KEY']
-	)
-  	s3 = AWS::S3.new	
-	s3.buckets['rorTunes-assets'].objects[@savename].write(file, :acl=>:public_read) 	
+  	begin
+	  	# write file to amazon s3 storage
+	   	AWS.config(
+		  :access_key_id => ENV['AWS_ACCESS_KEY_ID'], 
+		  :secret_access_key => ENV['AWS_SECRET_ACCESS_KEY']
+		)
+	  	s3 = AWS::S3.new	
+		s3.buckets['rorTunes-assets'].objects[@savename].write(file, :acl=>:public_read) 	
+	rescue
+		flash[:error] = "Could not write resource file"
+		return
+	end
+	
 	
 	# save the resource and associated item
   	begin

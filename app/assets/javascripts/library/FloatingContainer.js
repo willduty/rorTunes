@@ -12,6 +12,20 @@ FC_AUTO_POSITION_CENTER = 1;
 FC_AUTO_POSITION_MOUSE = 2;
 FC_CLOSE_ON_OUTSIDE_CLICK = 4;
 FC_CLOSE_ON_ESC = 8;
+FC_RESTORE_CONTENT_ELEM = 16;
+
+/*
+
+options {
+	submitCallback: fn, 
+	cancelCallback: fn, 
+	callbackParam,
+	position: FC_AUTO_POSITION_CENTER/FC_AUTO_POSITION_MOUSE
+	closeOn: FC_CLOSE_ON_OUTSIDE_CLICK, FC_CLOSE_ON_ESC
+	restoreContentElem: true/false	
+}
+
+*/
 
 
 // generic positionable div to hold widgets/elements etc.
@@ -105,12 +119,18 @@ function FloatingContainer(submitCallback, cancelCallback, callbackParam){
 	// to add whatever goes in the floating box
 	this.addContentElement = function(elem){
 		this.contentElem = elem;
+		
+		this.contentElemParent = CBParentElement(elem);
+		
 		this.container.appendChild(elem);
+		
 		if(this.box.offsetHeight + 150 > getWindowInnerHeight())
 		{	
 			this.container.style.height = getWindowInnerHeight() - 150;
 			this.container.style.overflow = "scroll";
 		}
+		elem.style.display = ''; 
+		
 	}
 	
 	this.setTitle = function(strTitle){
@@ -126,6 +146,8 @@ function FloatingContainer(submitCallback, cancelCallback, callbackParam){
 	}
 	
 	this.show = function(event, width, height, options){
+	
+		this.options = options;
 	
 		this.submitButton.value = this.submitButtonText;
 		this.cancelButton.value = this.cancelButtonText;
@@ -143,9 +165,9 @@ function FloatingContainer(submitCallback, cancelCallback, callbackParam){
 		}
 		
 		if(this.box.offsetWidth < width)
-			this.box.style.width = width + 'px';;
+			this.box.style.width = width + 'px';
 		if(this.box.offsetHeight < height)
-			this.box.style.height = height + 'px';;
+			this.box.style.height = height + 'px';
 			
 		ensureElemInView(this.box);
 		
@@ -174,14 +196,18 @@ function FloatingContainer(submitCallback, cancelCallback, callbackParam){
 	};
 	
 	this.cancel = function(){
-		if(_this.cancelCallback)
-			_this.cancelCallback(_this.callbackParam);
-		_this.close();
+		if(this.cancelCallback)
+			this.cancelCallback(this.callbackParam);
+		this.close();
 	}
 	
 	// final call
 	this.close = function(){
-		document.body.removeChild(_this.box);
+		if(this.options & FC_RESTORE_CONTENT_ELEM){
+			this.contentElemParent.appendChild(this.contentElem)
+		}
+		document.body.removeChild(this.box);
+		
 	}
 	
 }
