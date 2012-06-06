@@ -1487,7 +1487,7 @@ function removePlaceholder(container){
 
 // obj: {setId, event}
 function showSetSheetmusic(obj){
-		
+		alert(1)
 	setId = obj.setId
 	event = obj.event
 	
@@ -1499,7 +1499,7 @@ function showSetSheetmusic(obj){
 
 	// find the set object
 	var set = setsArr[setId];
-	
+	alert(2)
 	// construct the content
 	// go through each tune in set and find img if exists
 	for(var idx in set.tunesArr){
@@ -1512,6 +1512,7 @@ function showSetSheetmusic(obj){
 		// find img
 		var res = tuneHasImg(tuneId);
 		if(res){
+	alert(3)
 			var img = new Image();
 			img.style.margin = 5;
 			$(div).append(img).append('<br>').append('<br>')
@@ -1522,7 +1523,8 @@ function showSetSheetmusic(obj){
 			arrImgs.push({img:img, res:res});
 		}
 		else{
-				
+			alert(3a)
+		
 			var placeHolder = $('<div></div>').addClass('info')
 				.html("[no sheetmusic] &nbsp;")
 				.append("<a name=newSheetmusicBtn class='normal copperdark pointer' tuneId="+tuneId+">add sheetmusic &raquo;</a>")
@@ -1578,6 +1580,8 @@ function showSetSheetmusic(obj){
 	// callback for images onload event. when all images available have loaded, show the pop up window
 	// which will then size correctly
 	function loadCount(){
+	alert('loadCount')
+	
 		loaded++;
 		if(loaded >= arrImgs.length){
 			fl.addContentElement(div);

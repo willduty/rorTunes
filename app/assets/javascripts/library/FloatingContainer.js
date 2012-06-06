@@ -30,8 +30,6 @@ options {
 
 // generic positionable div to hold widgets/elements etc.
 function FloatingContainer(submitCallback, cancelCallback, callbackParam){
-	
-	alert(1)
 	var _this = this;
 	this.submitCallback = submitCallback;
 	this.callbackParam = callbackParam;
@@ -75,7 +73,6 @@ function FloatingContainer(submitCallback, cancelCallback, callbackParam){
 	this.box.style.top = Math.round((getWindowInnerHeight() - this.box.offsetHeight)/2)  + 'px';
 	
 	
-	alert(2)
 	// dragging stuff
 	this.drag = false;
 	this.dragOffsetX = 0;
