@@ -1523,7 +1523,7 @@ function showSetSheetmusic(obj){
 			arrImgs.push({img:img, res:res});
 		}
 		else{
-			alert(3a)
+			alert('3a')
 		
 			var placeHolder = $('<div></div>').addClass('info')
 				.html("[no sheetmusic] &nbsp;")
