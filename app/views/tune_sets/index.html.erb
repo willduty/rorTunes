@@ -182,12 +182,11 @@ function shuffleArray(v){
 
 
 function gridRowCtxCallback(row, event){
-	alert('gridRowCtxCallback: '+event)
 	tuneSetContextMenu(event);
 }
 
 function gridRowDblClickCallback(setId, event){
-	showSetSheetmusic({setId:setId, event:event})
+	showSetSheetmusic(setId, event);
 }
 
 function showAllSets(){

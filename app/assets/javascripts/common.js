@@ -1200,9 +1200,7 @@ function validateTitleStr(str, itemType){
 
 // create context menu for set item
 function tuneSetContextMenu(event){
-	alert('event1: '+event)
 	event = event ? event : window.event;
-	alert('event2: '+event)
 	
 	var srcElem = CBEventSrcElement(event);
 	if(!$(srcElem).attr('itemId'))
@@ -1219,7 +1217,7 @@ function tuneSetContextMenu(event){
 	
 	// most used options
 	
-	ctxMenu.addItem("Show Set Sheetmusic", showSetSheetmusic, {setId:setId, event:event});
+	ctxMenu.addItem("Show Set Sheetmusic", showSetSheetmusic, setId);
 	ctxMenu.addSeparator();
 	
 	ctxMenu.addItem("Flag/Unflag Set", flagUnflag, {itemId:setId, itemType:ITEM_TYPE_SET, bit:STATUS_BIT_FLAGGED});
@@ -1487,24 +1485,16 @@ function removePlaceholder(container){
 
 
 // obj: {setId, event}
-function showSetSheetmusic(obj){
-		alert(1)
-	setId = obj.setId
-	alert(11)
-	event = obj.event
-	alert(12)
+function showSetSheetmusic(setId, event){
+		
 	var div = document.createElement("div");
-	alert(13)
 	var fl = new FloatingContainer(null, null, div);
-	alert(14)		
 	var arrImgs = [];
-	alert(15)
 	var loaded=0;
-alert(16)
 	
 	// find the set object
 	var set = setsArr[setId];
-	alert(2)
+
 	// construct the content
 	// go through each tune in set and find img if exists
 	for(var idx in set.tunesArr){

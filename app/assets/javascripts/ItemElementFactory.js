@@ -33,7 +33,7 @@ function createItemElement(itemObj, itemType, groupId, useLabel, tag){
 				elem.oncontextmenu = function(e){return tuneSetContextMenu(e);}
 				
 			if(typeof(showSetSheetmusic) != 'undefined')
-				elem.ondblclick = function(e){showSetSheetmusic({setId:itemObj.id, event:e})}
+				elem.ondblclick = function(e){showSetSheetmusic(itemObj.id, e)}
 			
 			// other handlers
 			elem.onclick = function(){selectItem(this);}
