@@ -1507,7 +1507,7 @@ function showSetSheetmusic(setId, event){
 		// find img
 		var res = tuneHasImg(tuneId);
 		if(res){
-	alert(3)
+	
 			var img = new Image();
 			img.style.margin = 5;
 			$(div).append(img).append('<br>').append('<br>')
@@ -1518,7 +1518,6 @@ function showSetSheetmusic(setId, event){
 			arrImgs.push({img:img, res:res});
 		}
 		else{
-			alert('3a')
 		
 			var placeHolder = $('<div></div>').addClass('info')
 				.html("[no sheetmusic] &nbsp;")
@@ -1575,7 +1574,6 @@ function showSetSheetmusic(setId, event){
 	// callback for images onload event. when all images available have loaded, show the pop up window
 	// which will then size correctly
 	function loadCount(){
-	alert('loadCount')
 	
 		loaded++;
 		if(loaded >= arrImgs.length){
