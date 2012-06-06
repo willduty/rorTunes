@@ -1489,14 +1489,18 @@ function removePlaceholder(container){
 function showSetSheetmusic(obj){
 		alert(1)
 	setId = obj.setId
+	alert(11)
 	event = obj.event
-	
+	alert(12)
 	var div = document.createElement("div");
+	alert(13)
 	var fl = new FloatingContainer(null, null, div);
-			
+	alert(14)		
 	var arrImgs = [];
+	alert(15)
 	var loaded=0;
-
+alert(16)
+	
 	// find the set object
 	var set = setsArr[setId];
 	alert(2)
