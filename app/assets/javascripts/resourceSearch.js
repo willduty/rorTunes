@@ -1,78 +1,81 @@
 
-// add a list of clickable options to each box
-// within any page element where name=resourceOptionsBox
+var gSearches = {
+"newResource":[
+	{displayName:"youtube", action:"/resources/search_youtube"},
+	{displayName:"thesession.org", action:"/resources/generic_search", "url":"http://thesession.org"},
+	{displayName:"comhaltas.ie", action:"/resources/generic_search", "url":"http://comhaltas.ie"},
+	{displayName:"doug lowder's page", action:"/resources/generic_search", "url":"http://douglowder.com/PloughRecordings/"},
+	{displayName:"flute geezers", action:"/resources/generic_search", "url":"http://www.lafferty.ca/music/irish/flute-geezers/"},
+	{displayName:"irishflute.podbean.com", action:"/resources/generic_search", "url":"http://irishflute.podbean.com/"},
+	{displayName:"tradlessons", action:"/resources/generic_search", "url":"http://tradlessons.com/"},
+	{displayName:"tradschool", action:"/resources/generic_search", "url":"http://tradschool.com/"}
+	],
+	
+"newSheetMusic":[
+	{displayName:"upload sheetmusic", action:"/resources/new_sheetmusic"},
+	{displayName:"search thesession.org", action:"/resources/search_session_dot_org", "url":"http://thesession.org"},
+	{displayName:"search norbeck", action:"/resources/search_session_dot_org", "url":"http://thesession.org"}
+	]
+}
 
-// tuneId: a tuneId or null
-function addResourceOptions(tuneId){
+
+// add a list of clickable options to 
+// all page elements with name=resourceOptionsBox
+// tuneId: a tuneId, optional
+function fillResourceSearchTools(tuneId){
+	var tune = (typeof(gTune) != 'undefined') ? gTune : tunesArr[tuneId];
 	try{
-		$("[name=tuneTitleHdr]").html(gTune.title); 
+		$("[name=tuneTitleHdr]").html(tune.title); 
 	}catch(e){}
 	var searchFrameSrc = "";
 	var resourceOptionsBoxes = new Array();
 	$("[name=resourceOptionsBox]").each(function(){
-		
 		$(this).empty();
-		var tuneTitle = "";
-		try{
-			tuneTitle = (typeof(gTune) != 'undefined') ? gTune.title : tunesArr[tuneId].title;
-		}catch(e){}
-		
-		
 		var tool = $(this).parents('[name=toolContainer]').get(0);
-		var srcArr = new Array();
-		switch(tool.id){
-			case "newResource":
-				srcArr.push(["youtube", "/resources/search_youtube", "keywords=" + tuneTitle + "+irish+music"]);
-				srcArr.push(["thesession.org", "/resources/generic_search", "url=http://thesession.org"]);
-				srcArr.push(["comhaltas.ie", "/resources/generic_search", "url=http://comhaltas.ie"]);
-				srcArr.push(["doug lowder's page", "/resources/generic_search", "url=http://douglowder.com/PloughRecordings/"]);
-				srcArr.push(["flute geezers", "searchmp3page.php", "url=http://www.lafferty.ca/music/irish/flute-geezers/"]);
-				srcArr.push(["irishflute.podbean.com", "searchmp3page.php", "url=http://irishflute.podbean.com/"]);
-				srcArr.push(["tradlessons", "searchmp3page.php", "url=http://tradlessons.com/"]);
-				srcArr.push(["tradschool", "searchmp3page.php", "url=http://tradschool.com/"]);
-				break;
-				
-			case "newSheetMusic":
-				srcArr.push(["upload sheetmusic", "/resources/new_sheetmusic", "tune_title=" + tuneTitle]);
-				srcArr.push(["search thesession.org", "/resources/search_session_dot_org", "url=http://thesession.org", "tune_title=" + tuneTitle.replace(/\s/g, '+')]);
-				srcArr.push(["search norbeck", "searchmp3page.php", "url=http://homepage.mac.com/douglowder/PloughRecordings/"]);
-				break;
-		}
-			
-			
-		for(var i in srcArr){
-			
-			var searchFrameSrc;
-			var div = document.createElement("div");
-			$(this).append(div);
-			div.className = "info pointer ltcopper";
-			div.innerHTML = "&#8226; " + srcArr[i][0];
-			
-			var options = {action:srcArr[i][1], params:[]}
-			
-			if(tuneId){
-				options.params.push({name:"tune_id", value:tuneId});
-			}
-			
-			for(var j=2; j < srcArr[i].length; j++){
-				options.params.push({name:srcArr[i][j].split('=')[0],
-						value:srcArr[i][j].split('=')[1]});
-			}
-			
-			// beware... for loop closure...
-			div.onmouseup =  (function(val){
-				return function(e){doResourceSearch(this, val);}	
-			})(options);
+		var toolId = tool.id;
+		addSearchOptions(this, toolId, tune);
+	})	
+}
+
+
+// fills a page element with search options from category searchType
+// elem: html element to fill
+// searchType: string value, "newResource", "newSheetmusic"
+// tune: TuneItem object, optional
+function addSearchOptions(elem, searchType, tune){
+
+	for(var i in gSearches[searchType]){
+	
+		var searchOp = gSearches[searchType][i];
+	
+		var searchFrameSrc;
+		var div = document.createElement("div");
+		$(elem).append(div);
+		div.className = "info pointer ltcopper";
+		div.innerHTML = "&#8226; " + searchOp.displayName;
+	
+		var options = {action:searchOp.action, params:[]}
+		if(searchOp.url)
+			options.params.push({name:"url", value:searchOp.url});
+	
+		if(tune){
+			options.params.push({name:"tune_id", value:tune.id});
+			options.params.push({name:"tune_title", value:tune.title});
 		}
 	
-	})	
+		// beware... for loop closure...
+		div.onmouseup =  (function(val){
+			return function(e){doResourceSearch(this, val);}	
+		})(options);
+	
+	}
 }
 
 
 
 function doResourceSearch(clickedElem, options){
 
-	var arr = [options.action, 'get']
+	var arr = [options.action, 'get'];
 	for(var i in options.params)
 		arr.push(options.params[i])
 	
@@ -80,6 +83,11 @@ function doResourceSearch(clickedElem, options){
 	
 	var data = $(RorLink.prototype.getRorLinkForm.apply(this, arr)).serialize();
 
+	//doRorLink(options.action, 'get', options.params[0]);
+	//alert('options.action: '+options.action)
+	//alert('data: ' + data)
+	//return;
+	
 	// get search results via ajax
 	$.post(options.action, 
 		data,
@@ -131,5 +139,12 @@ function closeSearchTool(clickedElem){
 	closeTool(tool.id)
 }
 
+
+function navigateToPage(link){
+	
+	//doResourceSearch()
+	alert('navigateToPage: '+link)
+	return false;
+}
 
 

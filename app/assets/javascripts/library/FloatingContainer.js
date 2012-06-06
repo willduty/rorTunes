@@ -94,8 +94,12 @@ function FloatingContainer(submitCallback, cancelCallback, callbackParam){
 	
 	CBAddEventListener(this.box, "mousedown", function(e){
 		e = e ? e : window.event;
-			
+		
 		CBStopEventPropagation(e);
+			
+		if(isParent(_this.container, CBEventSrcElement(e)))
+			return false;
+		
 		
 		_this.box.style.cursor = "move";
 		CBAddEventListener(_this.box, "mouseup", _this.dragStop, false);

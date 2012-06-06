@@ -351,6 +351,16 @@ function Grid(container, options){
 			CBDisableSelect(item);
 			item.innerHTML = text;
 			item.id = id;
+			
+			if(navigator.userAgent.indexOf("MSIE") != -1)
+				item.style.styleFloat='left';
+			else
+				item.style.cssFloat="left";
+			
+			item.style.overflow="hidden";
+			item.style.whiteSpace="nowrap";
+			item.style.textOverflow="ellipsis";
+	
 			item.className = "gridCell";
 			
 			CBAddEventListener(item, "contextmenu", function(e){
@@ -371,6 +381,8 @@ function Grid(container, options){
 	this.makeRow = function(){
 		var row = document.createElement("ul");
 		CBDisableSelect(row);	
+		row.style.listStyle='none';
+		row.style.clear='both';
 		row.className = "gridRow";
 		return row;
 	}
@@ -403,6 +415,7 @@ function Grid(container, options){
 				this.selectedItem.className = "gridRow";
 			
 			this.selectedItem = item;
+			
 			item.className = "gridRowSelected";
 		
 		}
@@ -722,7 +735,7 @@ function Grid(container, options){
 	// grid header
 	this.createHeader = function(){
 		var row = this.makeRow();
-		row.className = "gridRowNoHover";
+		row.className = "gridRowHeader";
 		CBDisableSelect(row);
 		this.hdrBox.appendChild(row);
 		var rowsBoxWidth = this.actualRowsBoxWidth();
@@ -743,6 +756,11 @@ function Grid(container, options){
 			// create header cell
 			var cell = makeHdrCell();
 			row.appendChild(cell);
+			
+			row.style.listStyle='none';
+			row.style.clear='both';
+	
+			row.className = 'gridRowHeader';
 			
 			//cell.style.height = '100px'; // todo breaks everything?
 			cell.style.width = this.columnsArr[i].width + 'px';// - Number(this.hdrCellBorder*2);
@@ -777,7 +795,16 @@ function Grid(container, options){
 			var cell = document.createElement("li");
 			CBDisableSelect(cell);
 			cell.className = "gridRowHdrItem";
+			
+			if(navigator.userAgent.indexOf("MSIE") != -1)
+				cell.style.styleFloat='left';
+			else
+				cell.style.cssFloat='left';
+			
+			
 			cell.style.borderWidth = _this.hdrCellBorder + 'px';
+			
+			
 			if(navigator.userAgent.indexOf("MSIE") == -1)
 				cell.oncontextmenu = function(){return false;}
 			CBAddEventListener(cell, "contextmenu", function(e){

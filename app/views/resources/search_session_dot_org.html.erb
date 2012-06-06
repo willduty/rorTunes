@@ -4,11 +4,14 @@
 	img {background:white;}
 </style>
 
-<%= params[:tune_title] %>
+<% tune_title = params[:tune_title] %>
+
+<%= tune_title %>
+
 <%
 
 base = 'http://www.thesession.org'
-uri = URI(base + '/tunes/index/search?name='+params[:tune_title]+'&type_id=&mode_id=')
+uri = URI('http://www.thesession.org/tunes/index/search?name='+params[:tune_title].gsub(/ /, '+')+'&type_id=&mode_id=')
 res = Net::HTTP.get(uri)
 
 hrefs = res.scan(/href="\/tunes\/display.*"/)
@@ -19,7 +22,6 @@ hrefs.reverse_each do |h|
 		break
 	end
 	links.push base + (h.sub!(/href="/, '').sub! /"/, '')
-	
 end
 
 links.uniq!

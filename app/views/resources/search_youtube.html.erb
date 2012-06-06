@@ -45,11 +45,17 @@
 	
 </div>
 
+<%
+tune_title = params[:tune_title]
+keywords = "irish+music+" + tune_title.gsub(" ", "+")
+
+%>
+
 
 <!--
-<input type=text id=youtubeSearchVals value="<%= params[:keywords].gsub("\"", "&quot;").gsub("+", " ") %>" > <button onclick='redo();'>redo search</button>
+<input type=text id=youtubeSearchVals value="<%= keywords %>" > <button onclick='redo();'>redo search</button>
 -->
-<div class='info copper' style='background:lightgray;padding:5px;'><span class='black'>Results for search: </span><%= params[:keywords].gsub("\"", "&quot;").gsub("+", " ") %></div>
+<div class='info copper' style='background:lightgray;padding:5px;'><span class='black'>Results for search: </span><%= keywords.gsub("\"", "&quot;").gsub("+", " ") %></div>
 
 
 <%
@@ -58,7 +64,7 @@ require 'rexml/xpath'
 
 # get youtube videos xml
 youtube_url = "http://gdata.youtube.com/feeds/api/videos?orderby=published&start-index=1&max-results=30&v=2&q="
-youtube_url += params[:keywords].gsub(" ", "+")
+youtube_url += keywords
 youtube_response = HTTParty.get(youtube_url)
 
 

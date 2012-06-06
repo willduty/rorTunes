@@ -81,9 +81,7 @@ function showGrid(){
 					{rowCallback:showResource, rowCallbackParam:res, 
 					rowCtxCallback:gridRowCtxCallback,
 					rowCtxCallbackParam:res.id,
-					id:res.id});
-	//		addResourceContextMenu(elem, res);
-		
+					id:res.id});	
 		}catch(e){
 			alert(e.message + "\r\n\r\ntuneId:" +  
 					res.tuneId + 
@@ -201,7 +199,7 @@ window.onload = function (){
 		btnMgr.setUpButtons(); // this calls show resources
 		
 		scrollContentArea();
-		addResourceOptions();
+		fillResourceSearchTools();
 		
 		setCount();
 		
@@ -314,7 +312,7 @@ window.onload = function (){
 	<!-- BOTTOM SPACER ROW -->
 	<tr>
 		<td bgcolor=#555 height=10 colspan=2>
-			<div class='info pointer' onclick='saveCurrentView();'>save current page view</div>
+			<div class='info' id=status></div>
 		</td>
 	</tr>
 	

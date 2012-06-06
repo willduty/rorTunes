@@ -47,10 +47,36 @@ htmldoc = Nokogiri::HTML(open(params[:url]))
 
 as = htmldoc.css 'a'
 
+contentLinks = Array.new
+
 as.each do |a|
-	a['href'] = params[:url]  + a['href']
-	a['onclick'] = 'return saveResource(this);'
+	href = a['href']
+	
+	if(href =~ /.*\.mp3/)
+		# content links in summary array
+		contentLinks.push({:href=>href, :content=>a.content})	
+	
+		# resource links prompts option to save
+		a['href'] = params[:url]  + a['href']
+		a['onclick'] = 'return saveResource(this);'
+	else
+		# regular links back to this page
+		a['onclick'] = 'return navigateToPage(this);'
+	end
+	 
 end
+
+# show summary option
+if contentLinks.length
+	concat 'summary of media links'	
+	concat '<div style="display:none; background:red;">'.html_safe
+		contentLinks.each {|obj| concat (obj[:content] + tag('br')).html_safe}
+	concat '</div>'.html_safe
+		
+end
+
+# show possible link for search terms
+
 
 concat htmldoc.to_s.html_safe
 

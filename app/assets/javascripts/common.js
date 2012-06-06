@@ -1435,7 +1435,7 @@ function setEditCallback(obj){
 			);
 }
 
-function setEditDlg(id, event){
+function setEditDlg(id, event, position){
 	try{
 		var ro = new Reorder();
 		var fl = new FloatingContainer(setEditCallback, null, ro);
@@ -1451,7 +1451,7 @@ function setEditDlg(id, event){
 		
 		fl.setTitle("Edit Set");
 		fl.addContentElement(ro.getBox());
-		fl.show(event, 200, 100, FC_AUTO_POSITION_MOUSE);
+		fl.show(event, 200, 100, typeof position == 'undefined' ? FC_AUTO_POSITION_MOUSE : position);
 	}catch(e){alert(e.message)}
 	return false;
 }
@@ -1529,12 +1529,16 @@ function showSetSheetmusic(obj){
 				.append('<br>').append('<br>')
 			
 			placeHolder.find('[name=newSheetmusicBtn]').click(function(event){
+				
 				// get resource search tool
-				addResourceOptions(tuneId);
+				addSearchOptions($('#newSheetMusic').find('[name=resourceOptionsBox]'), 
+					'newSheetMusic', tunesArr[tuneId])
+				
 				var nsm = new FloatingContainer(null, null, $('#newSheetMusic').get(0));
 				nsm.addContentElement($('#newSheetMusic').css({'height':500}).get(0));
 				nsm.setTitle("<span style='color:lightgray'>Sheetmusic Search </span>");
-				nsm.show(event, 1000, 500, FC_CLOSE_ON_OUTSIDE_CLICK | FC_AUTO_POSITION_CENTER | FC_CLOSE_ON_ESC | FC_RESTORE_CONTENT_ELEM);
+				nsm.show(event, 1000, 500, 
+					FC_CLOSE_ON_OUTSIDE_CLICK | FC_AUTO_POSITION_CENTER | FC_CLOSE_ON_ESC | FC_RESTORE_CONTENT_ELEM);
 				return false;
 			})
 			div.appendChild(placeHolder.get(0));
@@ -1544,7 +1548,7 @@ function showSetSheetmusic(obj){
 	// add option to edit the set
 	var editSetBtn = document.createElement('span');
 	$(editSetBtn).html("edit set &raquo;").click(function(e){
-		setEditDlg(setId, e); 
+		setEditDlg(setId, e, FC_AUTO_POSITION_CENTER); 
 		fl.close();
 		return false;
 	})

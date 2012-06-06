@@ -100,25 +100,32 @@
 	color:black; 
 	font:normal 12px helvetica; }
 	
+	
 .gridRowHdrItem {
-	display:inline; 
-	float:left;
 	margin:0px;
 	padding:0px;
-	background-color:orange;
 	border-style:outset;
 	font:bold 12px helvetica;
+	background-color:orange;
 }
 
 .gridRowHdrItem:hover{
 	background-color:#fb4;
 	color:#310; 
 }
-			
-.gridRow, .gridRowNoHover{
+	
+.gridRowHeader{
 	color:#750; 
-	list-style:none;
-	clear:both;
+	margin:0px;
+	padding:0px;
+	border-width:1px;
+	border-bottom-color:lightgray;
+	border-bottom-style:solid;		
+	font: normal 12px helvetica;
+}
+			
+.gridRow{
+	color:#750; 
 	margin:0px;
 	padding:0px;
 	border-width:1px;
@@ -129,7 +136,6 @@
 
 
 .gridRowSelected {
-	clear:both;
 	margin:0px;
 	padding:0px;	
 	font: normal 12px helvetica;
@@ -155,12 +161,10 @@
 }
 
 .gridCell{
-	float:left;
+	
 	padding:1px;
 	width:100px;
-	overflow:hidden;
-	white-space:nowrap;
-	text-overflow:ellipsis;
+	
 }
 
 

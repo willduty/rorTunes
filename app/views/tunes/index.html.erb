@@ -3,33 +3,6 @@
 
 // user settings
 <%= render 'layouts/data' %>
-
-
-
-function saveCurrentView(){
-
-	var view = $('[name=onOffButton][btnGroup=view][onOff=on]').attr('id');
-	var page = getPageName();
-	var arrSettings = [];
-	arrSettings.push("{\"page\":\""+page+"\", \"name\":\"view\", \"value\":\""+view+"\"}");
-	
-	$("[name=onOffButton][onOff=on]").each(function(){
-		if($(this).get(0).hasAttribute('innerElem')){
-			var val = $('#'+$(this).attr('innerElem')).val();
-			arrSettings.push("{\"page\":\""+page+"\", \"name\":\""+$(this).attr('id')+"\", \"value\":\""+val+"\"}");
-		}	
-	});
-	
-	
-	var json = "{\"settings\":["+arrSettings.join()+"]}";
-	
-	doAction('saveUserSettings',
-		'settings', escape(json));
-}
-
-
-
-
  
 function addToNewSet(param){
 	
@@ -609,7 +582,7 @@ try{
 	<!-- BOTTOM SPACER ROW -->
 	<tr>
 		<td bgcolor=#555 height=10 colspan=2>
-			<div class='info pointer' onclick='saveCurrentView();'>save current page view</div>
+			<div class='info' id=status></div>
 		</td>
 	</tr>
 	
