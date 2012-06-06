@@ -1200,8 +1200,9 @@ function validateTitleStr(str, itemType){
 
 // create context menu for set item
 function tuneSetContextMenu(event){
-
+	alert('event1: '+event)
 	event = event ? event : window.event;
+	alert('event2: '+event)
 	
 	var srcElem = CBEventSrcElement(event);
 	if(!$(srcElem).attr('itemId'))

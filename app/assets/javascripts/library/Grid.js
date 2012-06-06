@@ -304,7 +304,9 @@ function Grid(container, options){
 			}
 		}
 		
-		row.oncontextmenu = function(event){
+		row.oncontextmenu = function(event){	
+			event = event ? event : window.event;
+			
 			if(_this.selectionsCallback && _this.selections.length){
 				var arr = _this.selections.slice(0)
 				_this.selectionsCallback(arr, event, _this.selectionsCallbackParam);
