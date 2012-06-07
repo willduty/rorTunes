@@ -152,7 +152,7 @@ window.onload = function(){
 							
 							<div class=info style="margin-top:5">username: <span class=item><%= @user.username %></span></div>
 							<div class=info>password: <span class=item><%= 
-								Array.new(@user.password.length, '&#8226;').to_s.html_safe %></span>
+								Array.new(@user.password.length, '&#8226;').join('').html_safe %></span>
 								<span onclick="showChangePassword();" class="info ltgray">[change password]</span>
 							</div>
 							<div class="info bubbleSection whiteBkgd" id=changePasswordBox style="display:none; width:90%; margin-bottom:10px;">
