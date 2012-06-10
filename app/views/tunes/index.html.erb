@@ -134,9 +134,12 @@ function showGrid(){
 	CBDisableSelect(contentArea);
 		
 	// clear out tunelist before we (re)populate
-	gTuneList = new Grid(contentArea, {listViewStyle:LIST_VIEW_FULL, 
+	gTuneList = new Grid(contentArea, {listViewStyle:LIST_VIEW_SCROLLBOX, 
 					selectionsCallback:gridSelectionsCallback, 
-					selectionsCallbackParam:ITEM_TYPE_TUNE}); 
+					selectionsCallbackParam:ITEM_TYPE_TUNE
+					,
+					textColor:'#750'
+					}); 
 
 	gTuneList.returnKeyCallback = goToTunePage;
 	gTuneList.addColumn("Title", 200);

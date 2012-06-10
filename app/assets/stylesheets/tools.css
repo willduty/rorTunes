@@ -100,13 +100,16 @@
 	color:black; 
 	font:normal 12px helvetica; }
 	
-	
+
+
+
 .gridRowHdrItem {
 	margin:0px;
-	padding:0px;
+	padding:0px 0px 0px 0px;
 	border-style:outset;
 	font:bold 12px helvetica;
 	background-color:orange;
+	color:#333;
 }
 
 .gridRowHdrItem:hover{
@@ -118,9 +121,6 @@
 	color:#750; 
 	margin:0px;
 	padding:0px;
-	border-width:1px;
-	border-bottom-color:lightgray;
-	border-bottom-style:solid;		
 	font: normal 12px helvetica;
 }
 			
@@ -128,25 +128,25 @@
 	color:#750; 
 	margin:0px;
 	padding:0px;
-	border-width:1px;
-	border-bottom-color:lightgray;
-	border-bottom-style:solid;		
 	font: normal 12px helvetica;
 }
 
+
+.gridRow:hover li{
+	cursor:pointer;
+	background: #f5f5f5;
+}
 
 .gridRowSelected {
 	margin:0px;
 	padding:0px;	
 	font: normal 12px helvetica;
-
 }
 
 
 .gridRowSelected li{
 	background:lightgray;
 	color:black;
-	
 }
 
 .gridRowSelected li img, .gridRow li img{
@@ -154,23 +154,21 @@
 }
 
 
-
-.gridRow:hover li{
-	cursor:pointer;
-	background: #eee;
-}
-
 .gridCell{
-	
-	padding:1px;
-	width:100px;
-	
+	background:white;
+	border-width:1px;
+	border-bottom-color:lightgray;
+	border-bottom-style:solid;
 }
 
 
 .gridUpIcon  {color:white; background-color:gray; opacity:0.4; border-width:1px;}
 .gridDownIcon  {color:white; background-color:gray; opacity:0.4; border-width:1px;}
 .gridCheckIcon  {color:#000; font-size:11px; border-width:1px;}
+
+	
+
+
 
 
 ul.expandableSectionHdr {

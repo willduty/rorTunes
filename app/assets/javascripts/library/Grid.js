@@ -11,31 +11,12 @@ DESCRIPTION:
 Spreadsheet-style grid. Variable number of width-adjustable, reorderable columns. 
 Data sortable by column.
 
-
-USAGE: 
-
-// create Grid obj
-
-// add rows
-
-// add columns
-
-// get the selected rows
-
-// delete a row
-
-
-
 */
 
 
-// full list is shown, though possibly in a scrollable div
-var LIST_VIEW_FULL = 1; 
-
-// hand implemented display, only visible rows actually shown
-// "scrolling" is actually add/remove of necessary rows to create
-// illusion of scroll
-var LIST_VIEW_SCROLLBOX = 2;
+// modes
+var LIST_VIEW_SCROLLBOX = 1; 
+var LIST_VIEW_FULL = 2;
 
 var DIRECTION_UP = 1;
 var DIRECTION_DOWN = 2;
@@ -50,17 +31,18 @@ var checkIcon = "<span class=gridCheckIcon>&#8730;&nbsp;&nbsp;</span>"
 
 
 // container: page element
-// options: {listViewStyle, selectionsCallback, selectionsCallbackParam}
+// options: {listViewStyle, selectionsCallback, selectionsCallbackParam
+//		,cellPaddingTop, cellPaddingRight, cellPaddingBottom, cellPaddingLeft
+//		,textColor, rowBackground
+// 		fontFamily
+//		}
 function Grid(container, options){
 	var _this = this;
 	this.options = (typeof(options) == 'undefined') ?
 		LIST_VIEW_SCROLLBOX : options.listViewStyle;
 	
-	this.returnKeyCallback;
-	
 	this.selectionsCallback = options.selectionsCallback || null;
 	this.selectionsCallbackParam = options.selectionsCallbackParam || null;
-	
 	
 	// the page element to put the grid in
 	this.container = container;
@@ -82,15 +64,12 @@ function Grid(container, options){
 	this.box.style.width = this.container.offsetWidth + "px";
 	
 	
-	
 	// the html element (div) holding selected row
 	this.selectedItem = null;
 	
-	
 	// multiple selected items
 	this.selections = [];
-	
-	
+		
 	// the header cell being dragged, null unless drag in progress
 	this.draggedHeader = null; 
 	
@@ -108,6 +87,20 @@ function Grid(container, options){
 	// the content rows in the grid, holds gridRow objs
 	this.rowsArr = new Array();
 	
+	// internal row id
+	this.iid = 0;
+
+	// style options
+	this.cellPadding = [(options.cellPaddingTop || 1),
+			(options.cellPaddingRight) || 1,
+			(options.cellPaddingBottom) || 1,
+			(options.cellPaddingLeft) || 1];
+	this.cellPaddingCss = this.cellPadding.join('px ') + 'px'; // todo need map 
+	
+	this.textColor = options.textColor || 'black';
+	this.rowBgColor = options.rowBgColor || 'white';
+	this.fontFamily = options.fontFamily || 'arial, helvetica, verdana';
+	 
 	
 	// column obj to go in columnsArr
 	function gridCol(title, width){
@@ -128,7 +121,16 @@ function Grid(container, options){
 		}
 	}
 	
+	// test ie vs others on margin/padding element creation
+	var test = document.createElement('div');
+	test.style.padding ='2px';
+	test.style.width = '20px';
+	document.body.appendChild(test);
+	this.widthIsAsSet = test.offsetWidth == 20;
+	document.body.removeChild(test);
+
 	
+	// method
 	this.addColumn = function(title, width){
 		this.columnsArr.push(new gridCol(title, width));
 	}
@@ -178,6 +180,7 @@ function Grid(container, options){
 	
 	// handle keys
 	document.onkeydown = function(event){
+		
 		var srcElemIsList = false;
 		var ie = false;
 		if(typeof(event) == 'undefined'){
@@ -187,7 +190,8 @@ function Grid(container, options){
 		
 		
 		// if keystroke is from list..
-		if(CBEventSrcElement(event) == _this.box){
+		var srcElem = CBEventSrcElement(event);
+		if(srcElem == _this.box || isParent(_this.box, srcElem)){
 		
 			// letter keys. scroll to first title with letter
 			if(event.keyCode > 64 && event.keyCode < 91){
@@ -222,13 +226,11 @@ function Grid(container, options){
 						} catch(e){}
 						
 						// select row and scroll to view
-						if(LIST_VIEW_FULL){
+						if(LIST_VIEW_SCROLLBOX){
 							_this.selectItem(row.elem, event);
 							_this.rowsBox.scrollTop = row.elem.offsetTop - row.elem.offsetHeight;
 						}
-						else{						
-							_this.showFrom(i, i);
-						}
+						
 						return false;
 					}
 				
@@ -254,11 +256,11 @@ function Grid(container, options){
 					return false;
 				case KEY_HOME:
 					CBStopEventPropagation(event);
-					_this.showFrom(0, 0);
+					_this.scrollToTop(true);
 					return false; 
 				case KEY_END:
 					var last = _this.rowsArr.length - 1;
-					_this.showFrom(last, last);
+					_this.scrollToBottom(true);
 					return false;
 				case KEY_RETURN:
 					// use same row callback as double click
@@ -297,7 +299,6 @@ function Grid(container, options){
 		this.rowsArr.push(new gridRow(row));
 		
 		// if callback is by row add callback now
-		
 		if(options.rowCallback){
 			row.ondblclick = function(event){
 				options.rowCallback(options.rowCallbackParam, event);
@@ -318,7 +319,9 @@ function Grid(container, options){
 		}
 		
 		row.setAttribute("index", this.rowsArr.length - 1); // for reverse searching
-		row.setAttribute("id", options.id); // todo need this?
+		row.setAttribute("id", options.id); 
+		row.setAttribute("iid", this.iid);
+		this.iid++;
 		
 		// todo: do only if GRID_OPTIONS_ITEMS_CALLBACK
 		CBAddEventListener(row, "click", function(e){
@@ -333,19 +336,16 @@ function Grid(container, options){
 			}
 		}, true);
 		
-		var colIdx;
-		
-		for(var i=0; i<this.columnsArr.length; i++){	
+		for(var i=0; i<this.columnsArr.length; i++){
 			var value = typeof arguments[i] != 'object' ?
 				 arguments[i] : arguments[i].value;
 			var item = makeCell(value, null, null);
+		//	item.style.width = this.columnsArr[i].width + (this.widthIsAsSet ? Number(this.cellPadding[1] + this.cellPadding[3]) : 0) +  'px';
 			
-			item.style.width = this.columnsArr[i].width  + 'px';		
 			row.appendChild(item);
-		
 		}
 		
-		return row;	
+		return row;
 		
 	
 		function makeCell(text, id, callback){
@@ -359,11 +359,15 @@ function Grid(container, options){
 			else
 				item.style.cssFloat="left";
 			
-			item.style.overflow="hidden";
-			item.style.whiteSpace="nowrap";
-			item.style.textOverflow="ellipsis";
-	
+			item.style.overflow = "hidden";
+			item.style.whiteSpace = "nowrap";
+			item.style.textOverflow = "ellipsis";
 			item.className = "gridCell";
+			//item.style.background = _this.rowBgColor;
+			
+			item.style.color = _this.textColor;
+			item.style.fontFamily = _this.fontFamily;
+			item.style.padding = _this.cellPaddingCss;
 			
 			CBAddEventListener(item, "contextmenu", function(e){
 				if(_this.selections.length == 0)
@@ -410,7 +414,7 @@ function Grid(container, options){
 		}
 		
 		// no modifier keys 
-		if(!event.ctrlKey && !event.shiftKey){
+		if(typeof event == 'undefined' || (!event.ctrlKey && !event.shiftKey)){
 			this.clearSelections();
 		
 			if(this.selectedItem)
@@ -432,12 +436,12 @@ function Grid(container, options){
 				var count = this.selections.length, b = false;
 				if(count){
 					for(var i=0; i<count; i++)
-						if(this.selections[i].id == item.id){
+						if(this.selections[i].getAttribute('iid') == item.getAttribute('iid')){
 							item.className = "gridRow";
 							this.selections.splice(i, 1);
 							return;
 						}
-				}				
+				}
 				
 				this.selections.push(item);
 					
@@ -445,9 +449,10 @@ function Grid(container, options){
 				item.className = "gridRowSelected";
 				this.selectedItem = item;
 				
+				
 			}
 			
-			if(event.shiftKey){
+			else if(event.shiftKey){
 				this.clearSelections();
 				var idx = this.selectedItem.getAttribute("index");
 				var dir = (this.selectedItem.offsetTop < item.offsetTop) ? DIRECTION_DOWN : DIRECTION_UP;
@@ -457,7 +462,8 @@ function Grid(container, options){
 					this.selections.push(nextItem);
 					nextItem.className = "gridRowSelected";
 					
-					if(nextItem.id == item.id || this.selections.length > this.rowsArr.length){		
+					if(nextItem.getAttribute('iid') == item.getAttribute('iid') || 
+						this.selections.length > this.rowsArr.length){		
 						break;
 					}
 					
@@ -475,10 +481,11 @@ function Grid(container, options){
 		var UP = (direction == DIRECTION_UP);
 		var DOWN = (direction == DIRECTION_DOWN);
 
-		if(this.options & LIST_VIEW_FULL){				
+		if(this.options & LIST_VIEW_SCROLLBOX){				
 		
 			var firstVis = null, firstVisIdx = 0, newTopElem = null, visCount = 0;
-			for(var i in this.rowsArr){
+			var len = this.rowsArr.length;
+			for(var i=0; i<len; i++){
 				if(isVisible(this.rowsArr[i].elem, this.rowsBox)){
 					if(!firstVis){
 						firstVisIdx = i;
@@ -495,13 +502,13 @@ function Grid(container, options){
 			}			
 	
 			var currSelIdx = this.selectedItem.getAttribute("index");
-			var newSelIdx = Number(currSelIdx) + (DOWN ? visCount : -visCount);
+			var newSelIdx = Number(currSelIdx) + (DOWN ? visCount + 1 : -visCount +1);
 			
 			if(newSelIdx > this.rowsArr.length -1)
-				newSelIdx = this.rowsArr.length -1;
+				newSelIdx = this.rowsArr.length - 1;
 			if(newSelIdx < 0)
 				newSelIdx = 0;
-				
+			
 			this.rowsBox.scrollTop = newTopElem.offsetTop - newTopElem.offsetHeight;
 			this.selectItem(this.rowsArr[newSelIdx].elem);
 			
@@ -517,64 +524,12 @@ function Grid(container, options){
 		}
 
 
-	
-		// if all items are visible don't scroll
-		var visibleCount = this.rowsBox.childNodes.length;
-		if(visibleCount >= this.rowsArr.length)
-			return;
-			
-
-		// first figure out the new starting indices
 		
-		// get new start index
-		var lastArrIdx = Number(this.rowsArr.length - 1);	
-		var newStartIdx;	 
-		newStartIdx = Number(this.rowsBox.firstChild.getAttribute("index")) +
-			Number(direction == DIRECTION_UP ? (-visibleCount) : visibleCount);
-		
-		// we will be at the first page 
-		if(newStartIdx < 0){
-			newStartIdx = 0;
-		}
-		
-		// we already are at the last page. just push selection to last item.
-		if(newStartIdx >= lastArrIdx){
-			this.selectItem(this.rowsBox.lastChild);
-			return;
-		}
-	
-		// if the page will be less items than fit into the box
-		if(lastArrIdx - newStartIdx < visibleCount && DIRECTION_DOWN){
-			newStartIdx = lastArrIdx - visibleCount + 1;
-		}
-
-		
-		// now figure out where the selection will go on new page
-		
-		//if no selection set one
-		if(!this.selectedItem)
-			this.selectItem(direction == DIRECTION_UP ? this.rowsBox.lastChild : this.rowsBox.firstChild);
-
-		// get item selection on new page
-		var curIdx = this.selectedItem.getAttribute("index");
-		var newSelIdx = Number(curIdx) + Number(direction == DIRECTION_UP ? (-visibleCount) : visibleCount);
-		
-		// we are at the beginning. just push selection to first item.
-		if(newSelIdx < 0){
-			this.selectItem(this.rowsBox.firstChild);	
-			return;
-		}
-		
-		// we are at the end. just select last item
-		if(newSelIdx > lastArrIdx)
-			newSelIdx = lastArrIdx;
-		
-		// finally, show the list
-		this.showFrom(newStartIdx, newSelIdx);
-		
-		return;	
 	}
 	
+	
+	// moves selection to next (or previous) item and scrolls box
+	// accordingly. for arrow key use mainly
 	this.goToNextItem = function(direction, event){
 		
 		var UP = (direction == DIRECTION_UP);
@@ -591,37 +546,49 @@ function Grid(container, options){
 		var step = event.ctrlKey ? 5 : 1; // todo (optional) finish this
 		var i = this.selectedItem.getAttribute("index");
 		var nextItem = this.rowsArr[(UP) ? i - step : Number(i) + step].elem;
-	
-		// if we're in a scrollable div, scroll height of next row
-		if(this.options & LIST_VIEW_FULL){
-			// a bit complicated but the box has to scroll flush to the bottom of the next item
-			if(DOWN && ((nextItem.offsetTop + nextItem.offsetHeight) > 
-					this.rowsBox.offsetHeight + this.rowsBox.scrollTop)){
-				this.rowsBox.scrollTop = nextItem.offsetTop + 
-					nextItem.offsetHeight - this.rowsBox.offsetHeight;
 				
-			}
-			if(UP && nextItem.offsetTop < this.rowsBox.scrollTop + 18){
-				this.rowsBox.scrollTop = nextItem.offsetTop - 
-					(this.selectedItem.offsetTop - nextItem.offsetTop);
-			}
-		}
-		else{
-		
-			// we are at bottom of visible list
-			if(this.rowsArr[i].elem == this.rowsBox.lastChild && DOWN){
-				this.rowsBox.removeChild(this.rowsBox.firstChild);
-				this.rowsBox.appendChild(nextItem);
-			}
+		// if we're in a scrollable div, scroll height of next row
+		if(this.options & LIST_VIEW_SCROLLBOX){
 			
-			// we are at top of visible list
-			if(this.rowsArr[i].elem == this.rowsBox.firstChild && UP){
-				this.rowsBox.removeChild(this.rowsBox.lastChild);
-				this.rowsBox.insertBefore(nextItem, this.rowsBox.firstChild);
+			
+			// a bit complicated but the box has to scroll flush to the bottom of the next item
+			if(DOWN){
+				if(Number(1) + Number(i) + step >= this.rowsArr.length){
+					// last row	
+					this.scrollToBottom();
+				}else{	
+					// unfortunately can't get offsetBottom on next row (floated lis in ul) so
+					// use workaround of offsetTop of item-after-next
+					// AND offsetTop includes the header row in chrome and ff but not ie  
+					// so subtract header row (last term)
+					var bottomOfNextItem = this.rowsArr[Number(1) + Number(i) + step].elem.offsetTop - this.rowsArr[0].elem.offsetTop;	
+					if(bottomOfNextItem > (this.rowsBox.offsetHeight + this.rowsBox.scrollTop)){
+						this.rowsBox.scrollTop = bottomOfNextItem - this.rowsBox.offsetHeight
+					}
+				}
+			}
+			else{
+				var hh = this.headerHeight(); // TODO: calculate this at show()
+			
+				if((nextItem.offsetTop <= this.rowsBox.scrollTop + hh)){
+					this.rowsBox.scrollTop = nextItem.offsetTop - hh;	 
+				}
 			}
 		}
 	
 		this.selectItem(nextItem, event);
+	}
+	
+	this.scrollToBottom = function(bSelect){
+		this.rowsBox.scrollTop = this.rowsBox.scrollHeight - this.rowsBox.offsetHeight;
+		if(bSelect)
+			this.selectItem(this.rowsArr[this.rowsArr.length - 1].elem);
+	}
+	
+	this.scrollToTop = function(bSelect){
+		this.rowsBox.scrollTop = 0;
+		if(bSelect)
+			this.selectItem(this.rowsArr[0].elem);
 	}
 	
 	
@@ -632,40 +599,34 @@ function Grid(container, options){
 		return (A.innerHTML.toLowerCase() < B.innerHTML.toLowerCase()) ? (d*-1) : (d*1);
 	}
 	
-	
+	// fill the box, header and rows // to be called when all data is added
 	this.show = function(){
 	
 		this.box.style.height = CBParentElement(this.box).offsetHeight + 'px';
-		if(this.options & LIST_VIEW_FULL){
+		if(this.options & LIST_VIEW_SCROLLBOX){
 			this.rowsBox.style.overflowY = "scroll";
 		}
-		
-		this.clearBox();
+		this.clearRowsBox();
 		
 		//create header if needed
 		if(!this.hdrBox.hasChildNodes()){
 			var hdrRow = this.createHeader();
 		}
-
-		// moz WILL NOT give the offsetHeight, use percent (inaccurate but close) instead
-		//this.rowsBox.style.height = 
-		//	this.container.offsetHeight - this.hdrBox.offsetHeight; 
-		this.rowsBox.style.height = '97%';
+		this.rowsBox.style.height = 
+			(this.container.offsetHeight - this.headerHeight()) + 'px'; 
 		
-			
-		// for a little performance boost, calculate col widths first
+		// calculate col widths
 		var arrWidths = new Array();
+		var padding = this.widthIsAsSet ? 0 : (this.cellPadding[1] + this.cellPadding[3]) ;
 		for(var n in this.columnsArr)
-			arrWidths.push(this.columnsArr[n].cell.offsetWidth - this.hdrCellBorder*2);
+			arrWidths.push(this.columnsArr[n].cell.offsetWidth - padding); 
 		
 		// var hdrWidth = this.hdrBox.offsetWidth;
 		var hdrWidth = this.actualRowsBoxWidth();
-		
-		
+
 		// create visible rows
 		for(var i in this.rowsArr){
 			var row = this.rowsArr[i];
-			row.elem.style.width = hdrWidth + 'px';
 			this.rowsBox.appendChild(row.elem);
 			var len = row.cells.length
 			for(var n=0; n < len; n++){
@@ -687,67 +648,40 @@ function Grid(container, options){
 	}
 	
 	
-	this.showFrom = function(newStartIdx, selIdx){
-		if(this.options & LIST_VIEW_FULL){
-			// todo: why does the hdr div affect offsetTop of elem in rowsBox?
-			this.rowsBox.scrollTop = 
-				this.rowsArr[newStartIdx].elem.offsetTop - this.hdrBox.offsetHeight;
-		}
-		else{
-			var visibleCount = this.rowsBox.childNodes.length
-			var lastArrIdx = Number(this.rowsArr.length - 1);	
-			// if the page will be less items than fit into the box
-			if(lastArrIdx - newStartIdx < visibleCount){
-				newStartIdx = lastArrIdx - visibleCount + 1;
-			}
-			
-			this.clearBox();
-			
-			// repopulate starting from elem visibleCount before/after
-			var i = newStartIdx;
-			while(i - newStartIdx < visibleCount){
-				this.rowsBox.appendChild(this.rowsArr[i].elem);
-				//this.rowsArr[i].elem.className = "listItem";
-				i++;
-							
-				if(i > lastArrIdx)
-					break;
-			}
-			
-			if(typeof(selIdx) == 'undefined'){
-				selIdx = newStartIdx;
-			}
-		}
-		// set vars and new selection
-		this.selectItem(this.rowsArr[selIdx].elem, event);
+	// moz will not give the offsetHeight of hdrBox because it contains float left elems 
+	// use offsetTop diff workaround to size the rowsBox
+	this.headerHeight = function(){
+		var pos = new objPos(this.hdrBox), pos2 = new objPos(this.rowsBox);
+		return pos2.top - pos.top;
 	}
-	
 	
 	this.actualRowsBoxWidth = function(){
 		// width of scroll bar		
 		var test = document.createElement("div");
 		test.innerHTML = "test";
+		test.style.border = '1px solid black'
 		this.rowsBox.appendChild(test)
 		var width = test.offsetWidth;
+		//alert(width)
 		this.rowsBox.removeChild(test);
 		return width;
 	}
 	
+
+
 	
+	// header funcs
+
 	// grid header
 	this.createHeader = function(){
 		var row = this.makeRow();
 		row.className = "gridRowHeader";
 		CBDisableSelect(row);
 		this.hdrBox.appendChild(row);
-		var rowsBoxWidth = this.actualRowsBoxWidth();
 		
 		var hdrWidth = 0;
-		for(var i=0; i<this.columnsArr.length; i++){
-			hdrWidth += this.columnsArr[i].width + Number(this.hdrCellBorder*2);
-		}
 		
-		
+		var rowsBoxWidth = this.actualRowsBoxWidth();
 		if(hdrWidth > rowsBoxWidth){
 			// todo auto adjust
 		}
@@ -759,13 +693,12 @@ function Grid(container, options){
 			var cell = makeHdrCell();
 			row.appendChild(cell);
 			
-			row.style.listStyle='none';
-			row.style.clear='both';
-	
+			row.style.listStyle = 'none';
+			row.style.clear = 'both';
 			row.className = 'gridRowHeader';
 			
-			//cell.style.height = '100px'; // todo breaks everything?
-			cell.style.width = this.columnsArr[i].width + 'px';// - Number(this.hdrCellBorder*2);
+			cell.style.width = this.columnsArr[i].width + 'px';
+			hdrWidth += cell.offsetWidth;
 			
 			// extend last if less than grid width
 			if((this.columnsArr.length - 1 == i) && hdrWidth < rowsBoxWidth){
@@ -787,7 +720,8 @@ function Grid(container, options){
 		// add blank cell over scroll bar
 		var blankCell = makeHdrCell();
 		blankCell.innerHTML = "&nbsp;";
-		blankCell.style.width = this.box.offsetWidth - rowsBoxWidth - 3 + 'px';
+		if(this.box.offsetWidth - rowsBoxWidth - 3 > 0)
+			blankCell.style.width = this.box.offsetWidth - rowsBoxWidth - 3 + 'px';
 		row.appendChild(blankCell);
 		
 		return row;
@@ -840,12 +774,12 @@ function Grid(container, options){
 	}
 	
 	
+
 	this.clearHeader = function(){
 		while(this.hdrBox.hasChildNodes())
 			this.hdrBox.removeChild(this.hdrBox.firstChild);
 	}
 	
-	// header funcs
 		
 	// sort by column
 	this.sortByColumn = function(hdr, direction){
@@ -1073,16 +1007,16 @@ function Grid(container, options){
 
 	
 	
-	// removes the visible list only
-	this.clearBox = function(){
+	// removes the visible rows, internal use
+	this.clearRowsBox = function(){
 		while(this.rowsBox.hasChildNodes()){
 			this.rowsBox.removeChild(this.rowsBox.firstChild);
 		}
 	}
 	
-	// clears out the visible list and empties internal array
+	// clears out the rows and empties internal array
 	this.clearList = function(){
-		this.clearBox();
+		this.clearRowsBox();
 		this.rowsArr.length = 0;
 	}
 	

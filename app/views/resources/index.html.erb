@@ -52,9 +52,10 @@ function showGrid(){
 	
 	// create tune list
 	var ca = getContentArea();
-	gGrid = new Grid(ca, {listViewStyle:LIST_VIEW_FULL, 
+	gGrid = new Grid(ca, {listViewStyle:LIST_VIEW_SCROLLBOX, 
 					selectionsCallback:gridSelectionsCallback, 
-					selectionsCallbackParam:ITEM_TYPE_RESOURCE}); 
+					selectionsCallbackParam:ITEM_TYPE_RESOURCE,
+					textColor:'#705000'}); 
 	
 	gGrid.addColumn("Title", 240);
 	gGrid.addColumn("Type", 90);

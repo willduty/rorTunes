@@ -198,9 +198,10 @@ function showAllSets(){
 	function func(){
 	}
 	
-	var grid = new Grid(document.getElementById('contentarea'), {listViewStyle:LIST_VIEW_FULL, 
+	var grid = new Grid(document.getElementById('contentarea'), {listViewStyle:LIST_VIEW_SCROLLBOX, 
 					selectionsCallback:gridSelectionsCallback, 
-					selectionsCallbackParam:ITEM_TYPE_SET});
+					selectionsCallbackParam:ITEM_TYPE_SET,
+					textColor:'#705000'});
 	
 	grid.returnKeyCallback = func;
 	grid.addColumn("Set", 400);
