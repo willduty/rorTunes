@@ -47,7 +47,7 @@
 
 <%
 tune_title = params[:tune_title]
-keywords = "irish+music+" + tune_title.gsub(" ", "+")
+keywords = "irish+music+" + (tune_title.nil? ? "" : tune_title .gsub(" ", "+"))
 
 %>
 
