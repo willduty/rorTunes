@@ -1442,7 +1442,10 @@ function setEditDlg(id, event, position){
 		for(var i in setsArr[id].tunesArr){
 			ro.addItem(tunesArr[setsArr[id].tunesArr[i]].title, setsArr[id].tunesArr[i]);
 		}
-		ro.addAddItemButton();
+
+		//alert(autoSuggestCallback);
+		//alert(callback)i
+		ro.addAddItemButton(autoSuggestCallback, null);
 		ro.assemble();
 		ro.allowRemove = true;
 		Reorder.prototype.setId;

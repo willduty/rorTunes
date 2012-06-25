@@ -264,15 +264,18 @@ function Reorder(id){
 		
 	}
 	
+	this.addItemButton = null;
+	this.addItemAutoSuggest = null;
 	
 	// add a button for user to add new items to the reorder
-	this.addAddItemButton = function(){
+	this.addAddItemButton = function(autoSuggCallback){
 		this.addItemButton = document.createElement("div");
 		this.addItemButton.className = "toolBtn white grayBkgd";
 		this.addItemButton.innerHTML = "&nbsp;Add Item...";
 	
 		var callback = this.addItemCallback; // for scope use below
 		
+
 		// add button which when clicked shows input box with autosuggest
 		this.addItemButton.onclick = function(){
 		
@@ -285,6 +288,7 @@ function Reorder(id){
 			// add the text input elem
 			var input = document.createElement("input");
 			input.setAttribute("type", "text");
+			input.setAttribute("name", "autoInput");
 			input.style.width = "10em";
 			this.appendChild(input);
 			if(input.offsetWidth > this.offsetWidth){
@@ -304,10 +308,9 @@ function Reorder(id){
 			input.onclick = function(e){CBStopEventPropagation(e);}
 			input.onmousedown = function(e){CBStopEventPropagation(e);}
 			
-			// set up the autosuggest
-			input.onfocus = function(){
-				var auto = new AutoSuggest(this, autoSuggestCallback, callback);
-			}
+			// set up autosuggest
+			if(autoSuggCallback)
+				this.addItemAutoSuggest = new AutoSuggest(input, autoSuggCallback, callback);
 			
 			input.onblur = function(){
 				CBParentElement(input).removeChild(this)
@@ -325,7 +328,11 @@ function Reorder(id){
 		_this.assemble();
 		
 		ensureElemInView(_this.box);
-	
+				
+		var arr = []
+	CBGetElementsByAttr('name', 'autoInput', _this.addItemButton, arr);
+		if(arr.length)
+			_this.addItemButton.removeChild(arr[0]);
 	}
 	
 	

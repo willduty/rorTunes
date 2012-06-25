@@ -38,7 +38,9 @@ var checkIcon = "<span class=gridCheckIcon>&#8730;&nbsp;&nbsp;</span>"
 //		}
 function Grid(container, options){
 	var _this = this;
-	this.options = (typeof(options) == 'undefined') ?
+	
+	this.options = options;
+	this.listViewStyle = (typeof options == 'undefined') ?
 		LIST_VIEW_SCROLLBOX : options.listViewStyle;
 	
 	this.selectionsCallback = options.selectionsCallback || null;
@@ -66,6 +68,9 @@ function Grid(container, options){
 	
 	// the html element (div) holding selected row
 	this.selectedItem = null;
+	
+	// edit box, if enabled
+	this.editBox = null;
 	
 	// multiple selected items
 	this.selections = [];
@@ -100,7 +105,11 @@ function Grid(container, options){
 	this.textColor = options.textColor || 'black';
 	this.rowBgColor = options.rowBgColor || 'white';
 	this.fontFamily = options.fontFamily || 'arial, helvetica, verdana';
-	 
+	
+	this.headerPadding = (this.options.headerPaddingTop || 1) + 'px 0px ' +  
+							(this.options.headerPaddingBottom || 1) + 'px 0px '
+	this.cellSideBorder = 1;
+	
 	
 	// column obj to go in columnsArr
 	function gridCol(title, width){
@@ -119,6 +128,7 @@ function Grid(container, options){
 			while(this.elem.hasChildNodes())
 				this.elem.removeChild(this.elem.firstChild);
 		}
+		this.cellCallbacks = [];
 	}
 	
 	// test ie vs others on margin/padding element creation
@@ -266,7 +276,13 @@ function Grid(container, options){
 					// use same row callback as double click
 					_this.selectedItem.ondblclick();
 					return false;
-					
+				case KEY_ESC:
+					if(_this.editBox){
+						document.body.removeChild(_this.editBox);
+						_this.editBox = null;
+					}	
+					return false;
+				
 				// any key from list, but not relevant, operates as usual
 				default:
 					return true;
@@ -289,14 +305,21 @@ function Grid(container, options){
 
 	
 	// function(args+, options{})
-	// args: string or object {string, callback, editable, editcallback, style}
+	// args: string or object {value, callback, editCallback, style}
 	// options: {rowCallback, rowCallbackParam, rowId, rowCtxCallback, rowCtxCallbackParam}		
 	this.addRow = function(){
+		
+		// not enough arguments
+		if(Number(arguments.length) < Number((Number(this.columnsArr.length) + Number(1)))){
+			return false;
+		}
 		
 		var options = arguments[arguments.length - 1];
 
 		var row = this.makeRow();
 		this.rowsArr.push(new gridRow(row));
+		
+		var rowsArrObj = this.rowsArr[this.rowsArr.length - 1];
 		
 		// if callback is by row add callback now
 		if(options.rowCallback){
@@ -323,45 +346,87 @@ function Grid(container, options){
 		row.setAttribute("iid", this.iid);
 		this.iid++;
 		
-		// todo: do only if GRID_OPTIONS_ITEMS_CALLBACK
-		CBAddEventListener(row, "click", function(e){
-			e = e ? e : window.event;
-			CBStopEventPropagation(e);
+		
+		// row select & edit functionality
+		CBAddEventListener(row, "click", function(event){
+		
+			event = event ? event : window.event;
+			CBStopEventPropagation(event);
 			
-			if(_this.selectedItem != row)
-				_this.selectItem(row, e);
-			else{ 
-				// row is already selected, focus in on subitem
-				// e.srcElement.onclick();
+			if(_this.selectedItem != row){
+				_this.selectItem(row, event);
+			}else{ 
+				// row is already selected and is editable, make cell editable
+				var src = CBEventSrcElement(event);
+				
+				if(!src.getAttribute('editable'))
+					return false;
+				
+				_this.editBox == null ? _this.editBox = document.createElement('input') : _this.editBox.value = '';
+				var pos = new objPos(src);
+				var selectedRow = CBParentElement(src);
+				_this.editBox.setAttribute('index', selectedRow.getAttribute('index'));
+				
+				for(var i in selectedRow.childNodes)
+					if(selectedRow.childNodes[i] == src) 
+						_this.editBox.setAttribute('cellIndex', i);
+				
+				_this.editBox.style.left = pos.left + 'px';
+				_this.editBox.style.top = pos.top + 'px';
+				_this.editBox.style.height = pos.height - 2 + 'px';
+				_this.editBox.value = src.innerHTML;
+				_this.editBox.style.position = 'absolute';
+				document.body.appendChild(_this.editBox);
+				_this.editBox.focus();
+				var editBox = _this.editBox;
+				
+				CBAddEventListener(editBox, "blur", function(event){
+					document.body.removeChild(editBox);
+					CBRemoveEventListener(document.body, "mousedown", arguments.callee, false)
+				}, false);
+				
+				CBAddEventListener(editBox, "keydown", function(event){		
+					if(event.keyCode == KEY_RETURN){
+						var src = CBEventSrcElement(event);
+						var rowIdx = editBox.getAttribute('index'), cellIdx = editBox.getAttribute('cellIndex');
+						var selectedRow = _this.rowsArr[rowIdx]
+						var cell = selectedRow.elem.childNodes[cellIdx];
+						if(typeof selectedRow.cellCallbacks[cellIdx] != 'undefined')
+							if(selectedRow.cellCallbacks[cellIdx](cell, editBox.value)){
+								cell.innerHTML = editBox.value;
+							}
+						document.body.removeChild(editBox);
+						_this.editBox = null;
+					}
+					CBRemoveEventListener(document.body, "keydown", arguments.callee, false);
+				}, false);
+			
 			}
 		}, true);
 		
+		// make row cells
 		for(var i=0; i<this.columnsArr.length; i++){
-			var value = typeof arguments[i] != 'object' ?
-				 arguments[i] : arguments[i].value;
-			var item = makeCell(value, null, null);
-		//	item.style.width = this.columnsArr[i].width + (this.widthIsAsSet ? Number(this.cellPadding[1] + this.cellPadding[3]) : 0) +  'px';
 			
-			row.appendChild(item);
-		}
-		
-		return row;
-		
-	
-		function makeCell(text, id, callback){
+			var callback;
+			if(typeof arguments[i] == 'object'){
+				value = arguments[i].value;
+				callback = arguments[i].editCallback || null ;
+			}
+			else
+				value = arguments[i] 
 			var item = document.createElement("li");
 			CBDisableSelect(item);
-			item.innerHTML = text;
-			item.id = id;
+			item.innerHTML = value;
+			if(callback){
+				item.setAttribute('editable', true);
+				rowsArrObj.cellCallbacks[i] = callback;
+			}
 			
 			if(navigator.userAgent.indexOf("MSIE") != -1)
 				item.style.styleFloat='left';
 			else
 				item.style.cssFloat="left";
 			
-			item.style.overflow = "hidden";
-			item.style.whiteSpace = "nowrap";
-			item.style.textOverflow = "ellipsis";
 			item.className = "gridCell";
 			//item.style.background = _this.rowBgColor;
 			
@@ -373,14 +438,12 @@ function Grid(container, options){
 				if(_this.selections.length == 0)
 					_this.selectItem(CBParentElement(CBEventSrcElement(e)), e);
 			}, false);
-				
-			if(callback)
-				item.ondblclick = function(){			
-						callback(this);
-				}
 			
-			return item;
+			row.appendChild(item);
 		}
+		
+		return row;
+		
 	}
 	
 
@@ -415,6 +478,7 @@ function Grid(container, options){
 		
 		// no modifier keys 
 		if(typeof event == 'undefined' || (!event.ctrlKey && !event.shiftKey)){
+
 			this.clearSelections();
 		
 			if(this.selectedItem)
@@ -423,7 +487,7 @@ function Grid(container, options){
 			this.selectedItem = item;
 			
 			item.className = "gridRowSelected";
-		
+
 		}
 		// yes modifier keys, multiple selections
 		else if(this.selectedItem){
@@ -481,7 +545,7 @@ function Grid(container, options){
 		var UP = (direction == DIRECTION_UP);
 		var DOWN = (direction == DIRECTION_DOWN);
 
-		if(this.options & LIST_VIEW_SCROLLBOX){				
+		if(this.listViewStyle & LIST_VIEW_SCROLLBOX){				
 		
 			var firstVis = null, firstVisIdx = 0, newTopElem = null, visCount = 0;
 			var len = this.rowsArr.length;
@@ -548,7 +612,7 @@ function Grid(container, options){
 		var nextItem = this.rowsArr[(UP) ? i - step : Number(i) + step].elem;
 				
 		// if we're in a scrollable div, scroll height of next row
-		if(this.options & LIST_VIEW_SCROLLBOX){
+		if(this.listViewStyle & LIST_VIEW_SCROLLBOX){
 			
 			
 			// a bit complicated but the box has to scroll flush to the bottom of the next item
@@ -569,9 +633,8 @@ function Grid(container, options){
 			}
 			else{
 				var hh = this.headerHeight(); // TODO: calculate this at show()
-			
-				if((nextItem.offsetTop <= this.rowsBox.scrollTop + hh)){
-					this.rowsBox.scrollTop = nextItem.offsetTop - hh;	 
+				if((nextItem.offsetTop - this.rowsBox.offsetTop  <= this.rowsBox.scrollTop )){
+					this.rowsBox.scrollTop = nextItem.offsetTop - this.rowsBox.offsetTop;	 
 				}
 			}
 		}
@@ -603,10 +666,12 @@ function Grid(container, options){
 	this.show = function(){
 	
 		this.box.style.height = CBParentElement(this.box).offsetHeight + 'px';
-		if(this.options & LIST_VIEW_SCROLLBOX){
+		if(this.listViewStyle & LIST_VIEW_SCROLLBOX){
 			this.rowsBox.style.overflowY = "scroll";
 		}
+		
 		this.clearRowsBox();
+		
 		
 		//create header if needed
 		if(!this.hdrBox.hasChildNodes()){
@@ -617,9 +682,10 @@ function Grid(container, options){
 		
 		// calculate col widths
 		var arrWidths = new Array();
-		var padding = this.widthIsAsSet ? 0 : (this.cellPadding[1] + this.cellPadding[3]) ;
+		var horzAdj = this.widthIsAsSet ? 0 : (this.cellPadding[1] + this.cellPadding[3] + this.cellSideBorder); // 1 for border
 		for(var n in this.columnsArr)
-			arrWidths.push(this.columnsArr[n].cell.offsetWidth - padding); 
+			arrWidths.push(this.columnsArr[n].cell.offsetWidth - horzAdj); 
+		
 		
 		// var hdrWidth = this.hdrBox.offsetWidth;
 		var hdrWidth = this.actualRowsBoxWidth();
@@ -633,6 +699,7 @@ function Grid(container, options){
 				row.cells[n].style.width = arrWidths[n] + 'px';
 			}
 		}
+		
 	}
 	
 	this.removeItem = function(id){
@@ -655,6 +722,7 @@ function Grid(container, options){
 		return pos2.top - pos.top;
 	}
 	
+	
 	this.actualRowsBoxWidth = function(){
 		// width of scroll bar		
 		var test = document.createElement("div");
@@ -662,13 +730,10 @@ function Grid(container, options){
 		test.style.border = '1px solid black'
 		this.rowsBox.appendChild(test)
 		var width = test.offsetWidth;
-		//alert(width)
 		this.rowsBox.removeChild(test);
 		return width;
 	}
 	
-
-
 	
 	// header funcs
 
@@ -681,11 +746,6 @@ function Grid(container, options){
 		
 		var hdrWidth = 0;
 		
-		var rowsBoxWidth = this.actualRowsBoxWidth();
-		if(hdrWidth > rowsBoxWidth){
-			// todo auto adjust
-		}
-			
 		// column headers
 		for(var i=0; i<this.columnsArr.length; i++){
 			
@@ -693,18 +753,25 @@ function Grid(container, options){
 			var cell = makeHdrCell();
 			row.appendChild(cell);
 			
-			row.style.listStyle = 'none';
-			row.style.clear = 'both';
 			row.className = 'gridRowHeader';
 			
 			cell.style.width = this.columnsArr[i].width + 'px';
 			hdrWidth += cell.offsetWidth;
 			
+			cell.style.padding = this.headerPadding;
+		
 			// extend last if less than grid width
-			if((this.columnsArr.length - 1 == i) && hdrWidth < rowsBoxWidth){
-				var last = this.columnsArr[i].width + rowsBoxWidth - hdrWidth
-				cell.style.width = last + 'px';
-				this.columnsArr[i].width = last;
+			if((this.columnsArr.length - 1 == i)){
+				var rowsBoxWidth = this.actualRowsBoxWidth();
+				if(hdrWidth > rowsBoxWidth){
+					// todo auto adjust
+				}
+
+				if(hdrWidth < rowsBoxWidth){
+					var last = this.columnsArr[i].width + rowsBoxWidth - hdrWidth
+					cell.style.width = last + 'px';
+					this.columnsArr[i].width = last;
+				}
 			}
 			
 			cell.innerHTML = this.columnsArr[i].title;
@@ -722,6 +789,7 @@ function Grid(container, options){
 		blankCell.innerHTML = "&nbsp;";
 		if(this.box.offsetWidth - rowsBoxWidth - 3 > 0)
 			blankCell.style.width = this.box.offsetWidth - rowsBoxWidth - 3 + 'px';
+		blankCell.style.padding = this.headerPadding;
 		row.appendChild(blankCell);
 		
 		return row;
@@ -953,8 +1021,8 @@ function Grid(container, options){
 				
 				// resize the row columns
 				for(var i in _this.rowsArr){
-					_this.rowsArr[i].cells[_this.resizeDragIdx].style.width = newWidth1  + 'px';
-					_this.rowsArr[i].cells[Number(_this.resizeDragIdx) + 1].style.width = newWidth2 + 'px';
+					_this.rowsArr[i].cells[_this.resizeDragIdx].style.width = newWidth1 - _this.cellSideBorder + 'px';
+					_this.rowsArr[i].cells[Number(_this.resizeDragIdx) + 1].style.width = newWidth2 - _this.cellSideBorder + 'px';
 				}
 			}
 			// if not set resize cursor if in range

@@ -60,8 +60,9 @@ function AutoSuggest(elem, fnSearchCallback, fnSuggestionClickedCallback){
 			if(keyPress && this.suggestionClickedCallback){
 				this.suggestionClickedCallback(this.sel.innerHTML, _this.sel.value, this.elem);
 			}
-			else
+			else{
 				this.suggestionClickedCallback(this.sel.innerHTML, this.sel.value, this.elem);
+			}
 		}
 		else // the click is from the box
 			this.suggestionClickedCallback(null, null, this.elem);
