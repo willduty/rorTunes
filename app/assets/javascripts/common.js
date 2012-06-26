@@ -1572,6 +1572,9 @@ function showSetSheetmusic(setId, event){
 		}
 		return null;
 	}
+		fl.addContentElement(div);
+	fl.setTitle("<span style='color:lightgray'>Sheetmusic: </span>" + set.getSetAsHTML());
+	fl.setCancelButtonText('close');			
 	
 	// callback for images onload event. when all images available have loaded, show the pop up window
 	// which will then size correctly
@@ -1579,14 +1582,11 @@ function showSetSheetmusic(setId, event){
 		
 		loaded++;
 		if(loaded >= arrImgs.length){
-			fl.show(event, 150, 100, FC_CLOSE_ON_OUTSIDE_CLICK | FC_AUTO_POSITION_CENTER | FC_CLOSE_ON_ESC);
+			fl.show(event, 300, 250, FC_CLOSE_ON_OUTSIDE_CLICK | FC_AUTO_POSITION_CENTER | FC_CLOSE_ON_ESC);
 		}
 	}
-	
-			fl.addContentElement(div);
-	fl.setTitle("<span style='color:lightgray'>Sheetmusic: </span>" + set.getSetAsHTML());
-	fl.setCancelButtonText('close');			
-	fl.show(event, 500, 250, FC_CLOSE_ON_OUTSIDE_CLICK | FC_AUTO_POSITION_CENTER | FC_CLOSE_ON_ESC);
+			
+//	fl.show(event, 500, 250, FC_CLOSE_ON_OUTSIDE_CLICK | FC_AUTO_POSITION_CENTER | FC_CLOSE_ON_ESC);
 }
 
 
