@@ -1510,7 +1510,7 @@ function showSetSheetmusic(setId, event){
 		// find img
 		var res = tuneHasImg(tuneId);
 		if(res){
-	
+			console.log('tune has img')
 			var img = new Image();
 			img.style.margin = 5;
 			$(div).append(img).append('<br>').append('<br>')
@@ -1522,6 +1522,7 @@ function showSetSheetmusic(setId, event){
 		}
 		else{
 		
+			console.log('tune no has img')
 			var placeHolder = $('<div></div>').addClass('info')
 				.html("[no sheetmusic] &nbsp;")
 				.append("<a name=newSheetmusicBtn class='normal copperdark pointer' tuneId="+tuneId+">add sheetmusic &raquo;</a>")
@@ -1576,17 +1577,21 @@ function showSetSheetmusic(setId, event){
 	
 	// callback for images onload event. when all images available have loaded, show the pop up window
 	// which will then size correctly
-	function loadCount(){
-	
+	function loadCount(){	
+		
 		loaded++;
+		console.log('loaded:'+loaded)
 		if(loaded >= arrImgs.length){
-			fl.addContentElement(div);
-			fl.setTitle("<span style='color:lightgray'>Sheetmusic: </span>" + set.getSetAsHTML());
-			fl.setCancelButtonText('close');			
 			fl.show(event, 150, 100, FC_CLOSE_ON_OUTSIDE_CLICK | FC_AUTO_POSITION_CENTER | FC_CLOSE_ON_ESC);
 		}
 	}
+	
+			fl.addContentElement(div);
+	fl.setTitle("<span style='color:lightgray'>Sheetmusic: </span>" + set.getSetAsHTML());
+	fl.setCancelButtonText('close');			
+	fl.show(event, 500, 250, FC_CLOSE_ON_OUTSIDE_CLICK | FC_AUTO_POSITION_CENTER | FC_CLOSE_ON_ESC);
 }
+
 
 
 
