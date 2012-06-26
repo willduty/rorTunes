@@ -51,7 +51,6 @@ function EditableItem(elem, options, callback, callbackParam, placeHolder){
 		ta.style.width = "95%";
 		ta.setAttribute('rows', this.textAreaRows)
 		
-		
 		if(this.mode & MODE_INCLUDE_ORIGINAL_TEXT){
 			// replace brs with newlines
 			ta.value = elem.innerHTML.replace(/<br>/g, "\n");
@@ -88,13 +87,12 @@ function EditableItem(elem, options, callback, callbackParam, placeHolder){
 	elem.onclick = function(e){
 		e = e ? e : window.event;
 		e.stopPropagation ? e.stopPropagation() : e.cancelBubble = true;
-		
 		// some juggling to replace 'in place'
 		var parent = CBParentElement(this);
 		parent.insertBefore(_this.editBox, this)
-		if(_this.mode & MODE_INCLUDE_ORIGINAL_TEXT){
-			_this.editBox.value = this.innerHTML;
-		}	
+		if(this.innerHTML != this.placeHolder){	
+			_this.setEditField(this.innerHTML);
+		}
 		_this.editBox.focus();
 		parent.removeChild(this);
 	}
@@ -133,6 +131,16 @@ function EditableItem(elem, options, callback, callbackParam, placeHolder){
 			return '';
 		else
 			return this.elem.innerHTML;
+	}
+
+	this.setEditField = function(str){
+		this.isBlank = false;
+		if(this.editBox.tagName == 'INPUT'){
+			this.editBox.value = str;
+		}
+		else{
+			this.editBox.childNodes[0].value = str.replace(/\<br\>/g, '\n') ;
+		}
 	}
 	
 	// removes the edit box and puts the original (possibly updated)

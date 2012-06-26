@@ -148,9 +148,10 @@ function FloatingContainer(submitCallback, cancelCallback, callbackParam){
 	this.setCancelButtonText = function(str){
 		this.cancelButtonText = str;
 	}
+
 	
 	this.show = function(event, width, height, options){
-	
+			
 		this.options = options;
 	
 		this.submitButton.value = this.submitButtonText;

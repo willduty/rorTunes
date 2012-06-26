@@ -79,7 +79,7 @@ function saveTuneChanges(){
 	
 	ei = gWidgetMgr.widgetFromElem(document.getElementById("tunecomments"), EditableItem)
 	comments = ei.getValue().length ? ei.getValue() : '';
-	
+
 	doRorLink('/tunes/' + gTune.id, 'put',
 		{name:"tune[id]", value:gTune.id},
 		{name:"tune[title]", value:$("#tunetitle").html()},
