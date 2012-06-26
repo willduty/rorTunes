@@ -1510,7 +1510,6 @@ function showSetSheetmusic(setId, event){
 		// find img
 		var res = tuneHasImg(tuneId);
 		if(res){
-			console.log('tune has img')
 			var img = new Image();
 			img.style.margin = 5;
 			$(div).append(img).append('<br>').append('<br>')
@@ -1522,7 +1521,6 @@ function showSetSheetmusic(setId, event){
 		}
 		else{
 		
-			console.log('tune no has img')
 			var placeHolder = $('<div></div>').addClass('info')
 				.html("[no sheetmusic] &nbsp;")
 				.append("<a name=newSheetmusicBtn class='normal copperdark pointer' tuneId="+tuneId+">add sheetmusic &raquo;</a>")
@@ -1580,7 +1578,6 @@ function showSetSheetmusic(setId, event){
 	function loadCount(){	
 		
 		loaded++;
-		console.log('loaded:'+loaded)
 		if(loaded >= arrImgs.length){
 			fl.show(event, 150, 100, FC_CLOSE_ON_OUTSIDE_CLICK | FC_AUTO_POSITION_CENTER | FC_CLOSE_ON_ESC);
 		}
