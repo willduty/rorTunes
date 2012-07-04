@@ -330,5 +330,7 @@ function objBrowser(){
 	
 }
 
-
+function isInt(val){
+	return !isNaN(val) && (parseInt(val) == parseFloat(val));
+}
 

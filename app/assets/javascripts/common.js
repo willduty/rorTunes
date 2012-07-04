@@ -807,7 +807,19 @@ function saveNewSet(obj){
 	
 	
 	}catch(e){alert(e.message)}
-	
+
+
+	var testArr = tuneIds.split(',')
+	if(!testArr.length){
+		alert('empty set')
+		return
+	}	
+	for(var i in testArr){
+		if(!isInt(testArr[i])){
+			alert('invalid save id')
+			return
+		}		
+	} 
 	
 	// save the set
 	if(obj.groupId){
@@ -1533,20 +1545,22 @@ function showSetSheetmusic(setId, event){
 				.html("[no sheetmusic] &nbsp;")
 				.append("<a name=newSheetmusicBtn class='normal copperdark pointer' tuneId="+tuneId+">add sheetmusic &raquo;</a>")
 				.append('<br>').append('<br>')
-			
-			placeHolder.find('[name=newSheetmusicBtn]').click(function(event){
-				
-				// get resource search tool
-				addSearchOptions($('#newSheetMusic').find('[name=resourceOptionsBox]'), 
-					'newSheetMusic', tunesArr[tuneId])
-				
-				var nsm = new FloatingContainer(null, null, $('#newSheetMusic').get(0));
-				nsm.addContentElement($('#newSheetMusic').css({'height':500}).get(0));
-				nsm.setTitle("<span style='color:lightgray'>Sheetmusic Search </span>");
-				nsm.show(event, 1000, 500, 
-					FC_CLOSE_ON_OUTSIDE_CLICK | FC_AUTO_POSITION_CENTER | FC_CLOSE_ON_ESC | FC_RESTORE_CONTENT_ELEM);
-				return false;
-			})
+			placeHolder.find('[name=newSheetmusicBtn]').click((function(_tuneId){
+				return function(event){
+					
+					// get resource search tool
+					var optionsBox = $('#newSheetMusic').find('[name=resourceOptionsBox]');
+					optionsBox.empty();
+					addSearchOptions(optionsBox.get(0), 'newSheetMusic', tunesArr[_tuneId])
+					
+					var nsm = new FloatingContainer(null, null, $('#newSheetMusic').get(0));
+					nsm.addContentElement($('#newSheetMusic').css({'height':500}).get(0));
+					nsm.setTitle("<span style='color:lightgray'>Sheetmusic Search </span>");
+					nsm.show(event, 1000, 500, 
+						FC_CLOSE_ON_OUTSIDE_CLICK | FC_AUTO_POSITION_CENTER | FC_CLOSE_ON_ESC | FC_RESTORE_CONTENT_ELEM);
+					return false;
+				}
+			})(tuneId));
 			div.appendChild(placeHolder.get(0));
 		}
 	}
