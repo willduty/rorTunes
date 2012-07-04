@@ -1434,23 +1434,31 @@ function setEditCallback(obj){
 			);
 }
 
-function setEditDlg(id, event, position){
-	try{
+
+// create the set edit tool, which is a reorder with an add item button
+function setEditTool(id){
 		var ro = new Reorder();
-		var fl = new FloatingContainer(setEditCallback, null, ro);
-		
+		try{		
 		for(var i in setsArr[id].tunesArr){
 			ro.addItem(tunesArr[setsArr[id].tunesArr[i]].title, setsArr[id].tunesArr[i]);
-		}
+		}}catch(e){}
 
-		//alert(autoSuggestCallback);
-		//alert(callback)i
-		ro.addAddItemButton(autoSuggestCallback, null);
+		ro.addAddItemButton(autoSuggestCallback, "Add Tune...");
 		ro.assemble();
 		ro.allowRemove = true;
 		Reorder.prototype.setId;
 		ro.setId = id;
-		
+		return ro;	
+	
+}
+
+
+// a set editor in a moveable dialog
+function setEditDlg(id, event, position){
+	try{	
+		var ro = setEditTool(id);
+		var fl = new FloatingContainer(setEditCallback, null, ro);
+	
 		fl.setTitle("Edit Set");
 		fl.addContentElement(ro.getBox());
 		fl.show(event, 200, 100, typeof position == 'undefined' ? FC_AUTO_POSITION_MOUSE : position);

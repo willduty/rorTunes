@@ -219,6 +219,13 @@ function Reorder(id){
 	}
 
 
+	this.clear = function(){
+		while(_this.itemsArr.length)
+			_this.itemsArr.pop();
+		_this.assemble();
+	}
+
+
 	this.getBox = function(){
 		return this.box;
 	}
@@ -268,10 +275,13 @@ function Reorder(id){
 	this.addItemAutoSuggest = null;
 	
 	// add a button for user to add new items to the reorder
-	this.addAddItemButton = function(autoSuggCallback){
+	this.addAddItemButton = function(autoSuggCallback, buttonText){
 		this.addItemButton = document.createElement("div");
 		this.addItemButton.className = "toolBtn white grayBkgd";
-		this.addItemButton.innerHTML = "&nbsp;Add Item...";
+
+		buttonText = (typeof buttonText == 'undefined') ? '&nbsp;Add Item...' : buttonText;
+		
+		this.addItemButton.innerHTML = buttonText;
 	
 		var callback = this.addItemCallback; // for scope use below
 		

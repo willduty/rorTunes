@@ -48,43 +48,6 @@ function newTuneCallback(){
 
 var gWidgetMgr = new WidgetManager();
 
-// callback from AutoSuggest when the user selects a suggestion. 
-function suggestionClicked(str, id, tuneSelectionBox){
-	tuneSelectionBox.value = "";
-	tuneSelectionBox.setAttribute("tuneId", id);
-	
-	var newsetbox = document.getElementById("manualSetResultBox");
-	
-	newSetList = gWidgetMgr.widgetFromElem(newsetbox, List);
-	
-	if(!newSetList){
-		newSetList = new List(newsetbox, LIST_VIEW_SCROLLBOX);
-		gWidgetMgr.newWidget(newsetbox, newSetList);
-		newSetList.useMinimumNeededWidth = true;
-		newSetList.width = 200;
-		
-		$('#saveSetBtn').click(function(){
-			saveNewSet({setElem:newSetList})
-		})
-	}
-	
-	
-	var item = newSetList.addItem(str, id, null);
-	item.oncontextmenu = function(e){
-		var cm = new ContextMenu();
-		cm.addItem("Remove", removeTuneFromNewSet, item);
-		cm.show(e);
-		return false;
-	}
-	newSetList.show();
-}
-
-
-function removeTuneFromNewSet(item){
-	newSetList.removeItem(item);
-}
-
-
 
 
 function randomSuggestionClicked(str, id){
@@ -422,9 +385,15 @@ window.onload = function(){
 	btnMgr.setUpButtons(arrOnBtns);
 	
 	// set up autosuggest
-	var box = document.getElementById("manualSetEntryBox");
-	gWidgetMgr.newWidget(box, new AutoSuggest(box, autoSuggestCallback, suggestionClicked));
-	
+
+	var roSet = setEditTool(0); 
+	$('#newSetTool').append(roSet.getBox())		
+
+	$('#saveSetBtn').click(function(){
+		saveNewSet({setElem:roSet.getCurrentOrder()})
+	})
+	$('#clearSetTool').click(function(){roSet.clear()})
+
 	box = document.getElementById("setSearchEntryBox");
 	gWidgetMgr.newWidget(box, new AutoSuggest(box, autoSuggestCallback, searchSuggestionClicked));
 	
@@ -499,7 +468,7 @@ window.onload = function(){
 						<table id=manualSetEntry class=toolContainer name=toolContainer style="display:none;" width=100%>
 							<tr>
 								<td height=60 class=toolheader>New Set</td>
-							</tr>
+<!--							</tr>
 							<tr>
 								<td height=40>
 									<input type=text id=manualSetEntryBox clearOnCancel></input>
@@ -509,15 +478,21 @@ window.onload = function(){
 								<td>
 									<div id=manualSetResultBox class="info white pointer"></div>	
 								</td>
+							</tr>-->
+							<tr>
+								<td id=newSetTool></td>
 							</tr>
 							<tr height=100%>
 								<td valign=top>
 									<span class="info white pointer" id=saveSetBtn>save set</span> | 
 									<span class="info white pointer" id=saveSetToGroupBtn>save set to group</span> | 
+									<span class="info cancel pointer" id=clearSetTool>clear</span> |
 									<span class="info cancel pointer" name=toolCancel>cancel</span>
 								</td>
 								<td colspan=2></td>
 							</tr>
+							
+
 						</table>
 						
 						<!-- random sets tool -->
