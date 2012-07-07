@@ -6,8 +6,6 @@
 
 <% tune_title = params[:tune_title] %>
 
-<%= tune_title %>
-
 <%
 
 base = 'http://www.thesession.org'
@@ -38,7 +36,7 @@ links.each do |link|
 		
 		if imgelem =~ /src="(.*?)"/
 		
-			concat ('image' + tag('br')).html_safe
+			concat ($1 + tag('br')).html_safe
 			concat imgelem.html_safe
 			concat tag 'br'	
 			%>
